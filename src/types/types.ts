@@ -1,0 +1,90 @@
+/** 假別 id */
+export type LeaveTypeId = "personal" | "sick" | "annual"; // 事假、病假、特休
+
+/** 假單狀態 */
+export type LeaveStatus = "pending" | "approved" | "revoked";
+
+/** 角色 */
+export type Role = "general_manager" | "manager" | "employee"; // 總經理、主管、員工
+
+/** 部門 */
+export interface Department {
+  /** 部門 id */
+  id: string;
+  /** 部門名稱 */
+  name: string;
+}
+
+/** 員工 */
+export interface Employee {
+  /** 員工 id */
+  id: string;
+  /** 姓名 */
+  name: string;
+  /** 電子郵件 */
+  email: string;
+  /** 生日 */
+  birthday: string; // 'YYYY-MM-DD'
+  /** 雇用日期 */
+  hireDate: string; // 'YYYY-MM-DD'
+  /** 部門 id */
+  departmentId: string;
+  /** 角色（manager = 自己部門的主管） */
+  role: Role;
+}
+
+/** 假別 */
+export interface LeaveType {
+  /** 假別 id */
+  id: LeaveTypeId;
+  /** 假別名稱 */
+  name: string;
+  /** 假別描述 */
+  description: string;
+}
+
+/** 假單 */
+export interface LeaveForm {
+  /** 假單 id */
+  id: string;
+  /** 員工 id */
+  employeeId: string;
+  /** 假別 id */
+  leaveTypeId: LeaveTypeId;
+  /** 假單狀態 */
+  status: LeaveStatus;
+  /** 開始時間 */
+  startTime: string; // 'YYYY-MM-DDTHH:mm'
+  /** 結束時間 */
+  endTime: string; // 'YYYY-MM-DDTHH:mm'
+  /** 職務代理人 */
+  deputyId: string;
+  /** 備註 */
+  note: string;
+  /** 送出時間 */
+  submittedAt: string; // 'YYYY-MM-DDTHH:mm:ss.SSSZ'
+}
+
+/** 新增假單-請求 */
+export interface AddLeaveFormRequest {
+  /** 員工 id */
+  employeeId: string;
+  /** 假別 id */
+  leaveTypeId: LeaveTypeId;
+  /** 開始時間 */
+  startTime: string; // 'YYYY-MM-DDTHH:mm'
+  /** 結束時間 */
+  endTime: string; // 'YYYY-MM-DDTHH:mm'
+  /** 職務代理人 */
+  deputyId: string;
+  /** 備註 */
+  note: string;
+}
+
+/** API 回傳格式 */
+export interface Response {
+  /** 成功狀態 */
+  success: boolean;
+  /** 要顯示給使用者看的訊息 */
+  message: string;
+}

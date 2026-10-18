@@ -5,7 +5,7 @@ import type {
   Response,
   Employee,
   LeaveType,
-  LeaveForm,
+  LeaveFormResponse,
   LeaveStatus,
   LeaveTypeId,
 } from "../types/types";
@@ -47,7 +47,7 @@ function MyLeavesPage({
   const [note, setNote] = useState("");
   const [toast, setToast] = useState<Response | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [formList, setFormList] = useState<LeaveForm[]>([]);
+  const [formList, setFormList] = useState<LeaveFormResponse[]>([]);
   const [statusFilter, setStatusFilter] = useState<LeaveStatus | "all">("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -60,18 +60,6 @@ function MyLeavesPage({
 
   // 正在看詳情的假單
   const selectedRequest = formList.find((req) => req.id === selectedId);
-
-  /** 取得假別名稱 */
-  function getLeaveTypeName(typeId: LeaveTypeId): string {
-    const leaveType = leaveTypeList.find((type) => type.id === typeId);
-    return leaveType ? leaveType.name : "未知";
-  }
-
-  /** 取得員工名稱 */
-  function getEmployeeName(empId: string): string {
-    const employee = employeeList.find((emp) => emp.id === empId);
-    return employee ? employee.name : "未知";
-  }
 
   /** 取得假單資料 */
   async function getData() {
@@ -189,10 +177,10 @@ function MyLeavesPage({
         <tbody>
           {filteredList.map((req) => (
             <tr key={req.id}>
-              <td>{getLeaveTypeName(req.leaveTypeId)}</td>
+              <td>{req.leaveTypeName}</td>
               <td>{formatDateTime(req.startTime)}</td>
               <td>{formatDateTime(req.endTime)}</td>
-              <td>{getEmployeeName(req.deputyId)}</td>
+              <td>{req.deputyName}</td>
               <td>{statusLabels[req.status]}</td>
               <td>{req.note}</td>
               <td>{formatDateTime(req.submittedAt)}</td>
@@ -316,8 +304,6 @@ function MyLeavesPage({
       {selectedRequest && (
         <LeaveDetail
           request={selectedRequest}
-          leaveTypeName={getLeaveTypeName(selectedRequest.leaveTypeId)}
-          deputyName={getEmployeeName(selectedRequest.deputyId)}
           onClose={() => setSelectedId(null)}
         />
       )}

@@ -42,6 +42,18 @@
   text-overflow: ellipsis;
 }
 
+/* 假單標籤是按鈕：拿掉按鈕的外框，佔滿整格寬，字靠左，看起來跟一般標籤一樣 */
+.calendar-cell button.tag {
+  width: 100%;
+  border: none;
+  text-align: left;
+}
+
+/* 蓋掉全站的「兩個按鈕並排時留空」，因為這裡是上下排 */
+.calendar-cell button.tag + button.tag {
+  margin-left: 0;
+}
+
 /* 不是這個月的日期，顏色變淡 */
 .calendar-cell.other-month {
   opacity: 0.4;

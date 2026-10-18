@@ -1,19 +1,58 @@
-import { leaveFormList } from "../data/mockData";
-import type { LeaveForm, AddLeaveFormRequest, Response } from "../types/types";
+import { employeeList, leaveFormList, leaveTypeList } from "../data/mockData";
+import type {
+  LeaveForm,
+  LeaveFormResponse,
+  LeaveTypeId,
+  AddLeaveFormRequest,
+  Response,
+} from "../types/types";
 import { TABLES, readTable, writeTable, delay } from "./db";
 
+/** 把資料庫的假單組成回傳格式：id 換成名字（就像資料庫的 JOIN） */
+function toResponseList(forms: LeaveForm[]): LeaveFormResponse[] {
+  const employees = readTable(TABLES.employeeList, employeeList);
+  const leaveTypes = readTable(TABLES.leaveTypeList, leaveTypeList);
+
+  /** 取得員工名稱 */
+  function getEmployeeName(empId: string): string {
+    const employee = employees.find((emp) => emp.id === empId);
+    return employee ? employee.name : "未知";
+  }
+
+  /** 取得假別名稱 */
+  function getLeaveTypeName(typeId: LeaveTypeId): string {
+    const leaveType = leaveTypes.find((type) => type.id === typeId);
+    return leaveType ? leaveType.name : "未知";
+  }
+
+  return forms.map((form) => ({
+    id: form.id,
+    employeeName: getEmployeeName(form.employeeId),
+    leaveTypeName: getLeaveTypeName(form.leaveTypeId),
+    status: form.status,
+    startTime: form.startTime,
+    endTime: form.endTime,
+    deputyName: getEmployeeName(form.deputyId),
+    note: form.note,
+    submittedAt: form.submittedAt,
+  }));
+}
+
 /** 取得假單 */
-export async function getLeaveFormList(empId: string): Promise<LeaveForm[]> {
+export async function getLeaveFormList(
+  empId: string,
+): Promise<LeaveFormResponse[]> {
   await delay();
-  return readTable(TABLES.leaveFormList, leaveFormList).filter(
+  const myForms = readTable(TABLES.leaveFormList, leaveFormList).filter(
     (req) => req.employeeId === empId,
   );
+  return toResponseList(myForms);
 }
 
 /** 取得所有人的假單（團隊行事曆用） */
-export async function getAllLeaveFormList(): Promise<LeaveForm[]> {
+export async function getAllLeaveFormList(): Promise<LeaveFormResponse[]> {
   await delay();
-  return readTable(TABLES.leaveFormList, leaveFormList);
+  return toResponseList(readTable(TABLES.leaveFormList, leaveFormList));
 }
 
 /** 新增假單 */

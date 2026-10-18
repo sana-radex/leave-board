@@ -1,39 +1,34 @@
-import type { LeaveForm } from "../types/types";
+import type { LeaveFormResponse } from "../types/types";
 import { statusLabels } from "../utils/label";
+import { formatDateTime } from "../utils/format";
 import Modal from "./Modal";
 
 interface LeaveDetailProps {
   /** 要顯示的假單 */
-  request: LeaveForm;
-  /** 假別名稱 */
-  leaveTypeName: string;
-  /** 職務代理人姓名 */
-  deputyName: string;
+  request: LeaveFormResponse;
   /** 按下關閉時要做的事 */
   onClose: () => void;
 }
 
 /** 假單詳情 */
-function LeaveDetail({
-  request,
-  leaveTypeName,
-  deputyName,
-  onClose,
-}: LeaveDetailProps) {
+function LeaveDetail({ request, onClose }: LeaveDetailProps) {
   return (
     <Modal title="假單詳情">
       <dl>
+        <dt>申請人</dt>
+        <dd>{request.employeeName}</dd>
+
         <dt>假別</dt>
-        <dd>{leaveTypeName}</dd>
+        <dd>{request.leaveTypeName}</dd>
 
         <dt>開始時間</dt>
-        <dd>{request.startTime}</dd>
+        <dd>{formatDateTime(request.startTime)}</dd>
 
         <dt>結束時間</dt>
-        <dd>{request.endTime}</dd>
+        <dd>{formatDateTime(request.endTime)}</dd>
 
         <dt>職務代理人</dt>
-        <dd>{deputyName}</dd>
+        <dd>{request.deputyName}</dd>
 
         <dt>狀態</dt>
         <dd>{statusLabels[request.status]}</dd>
@@ -42,7 +37,7 @@ function LeaveDetail({
         <dd>{request.note || "無備註"}</dd>
 
         <dt>送出時間</dt>
-        <dd>{request.submittedAt}</dd>
+        <dd>{formatDateTime(request.submittedAt)}</dd>
       </dl>
       <button onClick={onClose}>關閉</button>
     </Modal>

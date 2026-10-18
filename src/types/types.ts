@@ -84,6 +84,28 @@ export interface CalendarDay {
   name: string;
 }
 
+/** 假單-回傳（給畫面用：後端已經把 id 換成名字） */
+export interface LeaveFormResponse {
+  /** 假單 id */
+  id: string;
+  /** 申請人姓名 */
+  employeeName: string;
+  /** 假別名稱 */
+  leaveTypeName: string;
+  /** 假單狀態 */
+  status: LeaveStatus;
+  /** 開始時間 */
+  startTime: string; // 'YYYY-MM-DDTHH:mm'
+  /** 結束時間 */
+  endTime: string; // 'YYYY-MM-DDTHH:mm'
+  /** 職務代理人姓名 */
+  deputyName: string;
+  /** 備註 */
+  note: string;
+  /** 送出時間 */
+  submittedAt: string; // 'YYYY-MM-DDTHH:mm:ss.SSSZ'
+}
+
 /** 新增假單-請求 */
 export interface AddLeaveFormRequest {
   /** 員工 id */

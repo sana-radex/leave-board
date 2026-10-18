@@ -4,12 +4,13 @@ import type {
   CalendarDay,
   CalendarFilter,
   Employee,
-  LeaveForm,
+  LeaveFormResponse,
 } from "../types/types";
 import { getAllLeaveFormList } from "../api/leaveFormApi";
 import { getCalendarDayList } from "../api/calendarApi";
 import Calendar from "../components/Calendar";
 import CalendarFilterModal from "../components/CalendarFilterModal";
+import LeaveDetail from "../components/LeaveDetail";
 
 interface CalendarPageProps {
   /** 目前使用者 id */
@@ -22,7 +23,7 @@ interface CalendarPageProps {
 function CalendarPage({ currentUserId, employeeList }: CalendarPageProps) {
   const today = new Date();
   const [loading, setLoading] = useState(true);
-  const [leaveList, setLeaveList] = useState<LeaveForm[]>([]);
+  const [leaveList, setLeaveList] = useState<LeaveFormResponse[]>([]);
   const [calendarDayList, setCalendarDayList] = useState<CalendarDay[]>([]);
   // 正在看的月份：存那個月的 1 號
   const [viewDate, setViewDate] = useState(
@@ -37,6 +38,7 @@ function CalendarPage({ currentUserId, employeeList }: CalendarPageProps) {
     makeup_workday: true,
   });
   const [showFilter, setShowFilter] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth(); // 0 = 1 月，11 = 12 月
@@ -48,11 +50,8 @@ function CalendarPage({ currentUserId, employeeList }: CalendarPageProps) {
   const visibleLeaves = leaveList.filter((leave) => filter[leave.status]);
   const visibleCalendarDays = calendarDayList.filter((day) => filter[day.type]);
 
-  /** 取得員工名稱 */
-  function getEmployeeName(empId: string): string {
-    const employee = employeeList.find((emp) => emp.id === empId);
-    return employee ? employee.name : "未知";
-  }
+  // 正在看詳情的假單
+  const selectedLeave = leaveList.find((leave) => leave.id === selectedId);
 
   /** 換月份：-1 是上個月，+1 是下個月 */
   function changeMonth(offset: number) {
@@ -102,11 +101,18 @@ function CalendarPage({ currentUserId, employeeList }: CalendarPageProps) {
         month={month}
         leaves={visibleLeaves}
         calendarDays={visibleCalendarDays}
-        getEmployeeName={getEmployeeName}
+        onSelectLeave={setSelectedId}
       />
 
       {showFilter && (
         <CalendarFilterModal filter={filter} onDone={handleFilterDone} />
+      )}
+
+      {selectedLeave && (
+        <LeaveDetail
+          request={selectedLeave}
+          onClose={() => setSelectedId(null)}
+        />
       )}
     </>
   );

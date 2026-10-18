@@ -1,5 +1,5 @@
 import "./Calendar.css";
-import type { CalendarDay, LeaveForm } from "../types/types";
+import type { CalendarDay, LeaveFormResponse } from "../types/types";
 import { statusLabels } from "../utils/label";
 import { toDateKey } from "../utils/format";
 
@@ -15,11 +15,11 @@ interface CalendarProps {
   /** 要顯示哪個月（0 = 1 月，11 = 12 月） */
   month: number;
   /** 要顯示的假單 */
-  leaves: LeaveForm[];
+  leaves: LeaveFormResponse[];
   /** 辦公日曆（國定假日、補班日） */
   calendarDays: CalendarDay[];
-  /** 用員工 id 查姓名 */
-  getEmployeeName: (empId: string) => string;
+  /** 點了某張假單時要做的事 */
+  onSelectLeave: (leaveId: string) => void;
 }
 
 /** 月曆：把假單和國定假日畫在格子上 */
@@ -28,7 +28,7 @@ function Calendar({
   month,
   leaves,
   calendarDays,
-  getEmployeeName,
+  onSelectLeave,
 }: CalendarProps) {
   // 這個月 1 號是星期幾（0 = 星期一，6 = 星期日）
   // getDay() 是 0 = 星期日，加 6 再取 7 的餘數，就變成從星期一開始算
@@ -55,8 +55,8 @@ function Calendar({
   }
 
   /** 標籤文字：已核准只寫姓名，其他狀態在後面註明 */
-  function getLeaveLabel(leave: LeaveForm): string {
-    const name = getEmployeeName(leave.employeeId);
+  function getLeaveLabel(leave: LeaveFormResponse): string {
+    const name = leave.employeeName;
     if (leave.status === "approved") return name;
     return `${name}（${statusLabels[leave.status]}）`;
   }
@@ -91,9 +91,13 @@ function Calendar({
                 </span>
               )}
               {dayLeaves.map((leave) => (
-                <span key={leave.id} className={`tag tag-${leave.status}`}>
+                <button
+                  key={leave.id}
+                  className={`tag tag-${leave.status}`}
+                  onClick={() => onSelectLeave(leave.id)}
+                >
                   {getLeaveLabel(leave)}
-                </span>
+                </button>
               ))}
             </div>
           );

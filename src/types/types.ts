@@ -10,6 +10,12 @@ export type Role = "general_manager" | "manager" | "employee"; // 總經理、�
 /** 辦公日曆的日子類型 */
 export type CalendarDayType = "holiday" | "makeup_workday"; // 放假日、補班日
 
+/** 行事曆可以篩選的項目：假單狀態 + 辦公日曆的日子類型 */
+export type CalendarFilterKey = LeaveStatus | CalendarDayType;
+
+/** 行事曆篩選：每一項要不要顯示 */
+export type CalendarFilter = Record<CalendarFilterKey, boolean>;
+
 /** 部門 */
 export interface Department {
   /** 部門 id */

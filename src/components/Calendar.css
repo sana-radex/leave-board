@@ -1,4 +1,4 @@
-/* 行事曆區塊：標題、月份、星期置中（以前是從 #root 繼承來的） */
+/* 行事曆區塊：星期標題置中 */
 .calendar {
   text-align: center;
 }
@@ -9,12 +9,6 @@
   grid-template-columns: repeat(7, 1fr);
   border-top: 1px solid var(--color-border);
   border-left: 1px solid var(--color-border);
-}
-
-/* 月份 */
-.calendar-month {
-  margin-bottom: 8px;
-  color: var(--color-primary);
 }
 
 /* 每一格只畫右邊和下面的線，跟外框拼起來剛好一條線 */
@@ -31,11 +25,21 @@
   color: var(--color-text-muted);
 }
 
-/* 日期格子：日期放在左上角 */
+/* 日期格子：日期放在左上角；min-width: 0 讓太長的名字不會把整欄撐寬 */
 .calendar-cell {
+  min-width: 0;
   min-height: 80px;
   padding: 4px 8px;
   text-align: left;
+}
+
+/* 格子裡的標籤：一個一行，太長就顯示「…」 */
+.calendar-cell .tag {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 /* 不是這個月的日期，顏色變淡 */

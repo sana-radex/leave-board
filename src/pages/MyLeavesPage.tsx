@@ -10,9 +10,9 @@ import type {
   LeaveTypeId,
 } from "../types/types";
 import {
-  getLeaveRequestList,
-  addLeaveRequest,
-  revokeLeaveRequest,
+  getLeaveFormList,
+  addLeaveForm,
+  revokeLeaveForm,
 } from "../api/leaveFormApi";
 import Toast from "../components/Toast";
 import LeaveDetail from "../components/LeaveDetail";
@@ -75,7 +75,7 @@ function MyLeavesPage({
 
   /** 取得假單資料 */
   async function getData() {
-    const list = await getLeaveRequestList(currentUserId);
+    const list = await getLeaveFormList(currentUserId);
     setFormList(list);
     setLoading(false);
   }
@@ -83,7 +83,7 @@ function MyLeavesPage({
   // 目前使用者改變時，抓該使用者的假單
   useEffect(() => {
     async function loadMyRequests() {
-      const list = await getLeaveRequestList(currentUserId);
+      const list = await getLeaveFormList(currentUserId);
       setFormList(list);
       setLoading(false);
     }
@@ -104,7 +104,7 @@ function MyLeavesPage({
     e.preventDefault();
     setSubmitting(true);
 
-    const result = await addLeaveRequest({
+    const result = await addLeaveForm({
       employeeId: currentUserId,
       leaveTypeId: leaveTypeId,
       startTime: `${startDate}T${startTime}`,
@@ -124,7 +124,7 @@ function MyLeavesPage({
 
   /** 撤銷假單 */
   async function handleRevoke(id: string) {
-    const res = await revokeLeaveRequest(id, currentUserId);
+    const res = await revokeLeaveForm(id, currentUserId);
     setToast(res);
     if (res.success) {
       await getData();

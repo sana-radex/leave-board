@@ -3,15 +3,21 @@ import type { LeaveForm, AddLeaveFormRequest, Response } from "../types/types";
 import { TABLES, readTable, writeTable, delay } from "./db";
 
 /** 取得假單 */
-export async function getLeaveRequestList(empId: string): Promise<LeaveForm[]> {
+export async function getLeaveFormList(empId: string): Promise<LeaveForm[]> {
   await delay();
   return readTable(TABLES.leaveFormList, leaveFormList).filter(
     (req) => req.employeeId === empId,
   );
 }
 
+/** 取得所有人的假單（團隊行事曆用） */
+export async function getAllLeaveFormList(): Promise<LeaveForm[]> {
+  await delay();
+  return readTable(TABLES.leaveFormList, leaveFormList);
+}
+
 /** 新增假單 */
-export async function addLeaveRequest(
+export async function addLeaveForm(
   payload: AddLeaveFormRequest,
 ): Promise<Response> {
   await delay();
@@ -42,7 +48,7 @@ export async function addLeaveRequest(
 }
 
 /** 撤銷假單 */
-export async function revokeLeaveRequest(
+export async function revokeLeaveForm(
   formId: string,
   empId: string,
 ): Promise<Response> {

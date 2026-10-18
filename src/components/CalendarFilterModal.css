@@ -1,0 +1,22 @@
+/* 每一組勾選框由上往下排 */
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+/* 每一組的小標題 */
+.filter-title {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* 勾選框和文字排在一起，點文字也能勾 */
+.filter-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}

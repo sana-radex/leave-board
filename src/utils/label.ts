@@ -1,4 +1,4 @@
-import type { LeaveStatus, Role } from "../types/types";
+import type { CalendarDayType, LeaveStatus, Role } from "../types/types";
 
 /** 假單狀態 */
 export const statusLabels: Record<LeaveStatus, string> = {
@@ -12,4 +12,10 @@ export const roleLabels: Record<Role, string> = {
   general_manager: "總經理",
   manager: "主管",
   employee: "員工",
+};
+
+/** 辦公日曆的日子類型 */
+export const calendarDayTypeLabels: Record<CalendarDayType, string> = {
+  holiday: "國定假日",
+  makeup_workday: "補班日",
 };

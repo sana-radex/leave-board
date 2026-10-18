@@ -22,6 +22,20 @@
   --color-success: #15803d; /* 成功 */
   --color-danger: #b91c1c; /* 失敗、錯誤 */
 
+  /* 假單狀態標籤：文字顏色 + 底色 */
+  --color-pending: #92400e; /* 待審核：橘 */
+  --color-pending-bg: #fef3c7;
+  --color-approved: #115e59; /* 已核准：湖水綠 */
+  --color-approved-bg: #ccfbf1;
+  --color-revoked: #4b5563; /* 已撤銷：灰 */
+  --color-revoked-bg: #f3f4f6;
+
+  /* 辦公日曆標籤：文字顏色 + 底色 */
+  --color-holiday: #b91c1c; /* 國定假日：紅 */
+  --color-holiday-bg: #fee2e2;
+  --color-makeup-workday: #1d4ed8; /* 補班日：藍 */
+  --color-makeup-workday-bg: #dbeafe;
+
   /* 其他 */
   --radius: 6px; /* 圓角 */
   --font-sans:
@@ -29,6 +43,8 @@
 
   /* 讓瀏覽器內建的東西（日期選擇器、捲軸）用淺色 */
   color-scheme: light;
+  /* 勾選框打勾時的顏色 */
+  accent-color: var(--color-primary);
 }
 
 /* ========== 基本樣式 ========== */
@@ -99,8 +115,8 @@ button + button {
   margin-left: 8px;
 }
 
-/* 輸入框、下拉選單 */
-input,
+/* 輸入框、下拉選單（勾選框不套用） */
+input:not([type="checkbox"]),
 select,
 textarea {
   padding: 4px 8px;
@@ -133,4 +149,39 @@ td {
 th {
   color: var(--color-text-muted);
   font-weight: 500;
+}
+
+/* ========== 標籤：假單狀態、國定假日 ========== */
+.tag {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.tag-pending {
+  color: var(--color-pending);
+  background-color: var(--color-pending-bg);
+}
+
+.tag-approved {
+  color: var(--color-approved);
+  background-color: var(--color-approved-bg);
+}
+
+.tag-revoked {
+  color: var(--color-revoked);
+  background-color: var(--color-revoked-bg);
+}
+
+.tag-holiday {
+  color: var(--color-holiday);
+  background-color: var(--color-holiday-bg);
+}
+
+/* 跟 CalendarDayType 的 "makeup_workday" 一樣，用底線 */
+.tag-makeup_workday {
+  color: var(--color-makeup-workday);
+  background-color: var(--color-makeup-workday-bg);
 }

@@ -1,4 +1,4 @@
-/* 頁首：標題靠左，切換使用者靠右；黑底 */
+/* 頁首：標題靠左，使用者靠右；黑底 */
 .header {
   display: flex;
   justify-content: space-between;
@@ -11,5 +11,18 @@
 .header-title {
   font-size: 20px;
   font-weight: 600;
+  color: var(--color-header-accent);
+}
+
+/* 右邊：名字、登出，排成一排 */
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 黑底上的按鈕用亮的湖水綠，字才看得清楚 */
+.header button {
+  border-color: var(--color-header-accent);
   color: var(--color-header-accent);
 }

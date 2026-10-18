@@ -100,6 +100,22 @@ export interface AddLeaveFormRequest {
   note: string;
 }
 
+/** 登入紀錄（後端的資料表：記住發出去的 token 是誰的；登出時刪掉） */
+export interface Session {
+  /** 通行證 */
+  token: string;
+  /** 員工 id */
+  employeeId: string;
+}
+
+/** 登入資料（登入 API 回傳的，也是存在 localStorage 的） */
+export interface AuthSession {
+  /** 通行證：登入成功後，後端發給前端的一串字 */
+  token: string;
+  /** 登入的使用者 */
+  user: Employee;
+}
+
 /** API 回傳格式 */
 export interface Response {
   /** 成功狀態 */

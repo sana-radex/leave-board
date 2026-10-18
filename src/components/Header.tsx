@@ -3,36 +3,22 @@ import { roleLabels } from "../utils/label";
 import "./Header.css";
 
 interface HeaderProps {
-  /** 目前使用者 id */
-  currentUserId: string;
-  /** 所有員工 */
-  employeeList: Employee[];
-  /** 切換使用者時要做的事 */
-  onSwitchUser: (userId: string) => void;
+  /** 目前登入的使用者 */
+  currentUser: Employee;
+  /** 按下登出時要做的事 */
+  onLogout: () => void;
 }
 
 /** 頁首 */
-function Header({
-  currentUserId,
-  employeeList,
-  onSwitchUser,
-}: HeaderProps) {
-
+function Header({ currentUser, onLogout }: HeaderProps) {
   return (
     <header className="header">
       <span className="header-title">請假系統</span>
-      <label>
-        <select
-          value={currentUserId}
-          onChange={(e) => onSwitchUser(e.target.value)}
-        >
-          {employeeList.map((emp) => (
-            <option key={emp.id} value={emp.id}>
-              {`${emp.name}(${roleLabels[emp.role]})`}
-            </option>
-          ))}
-        </select>
-      </label>
+
+      <div className="header-user">
+        <span>{`${currentUser.name}(${roleLabels[currentUser.role]})`}</span>
+        <button onClick={onLogout}>登出</button>
+      </div>
     </header>
   );
 }

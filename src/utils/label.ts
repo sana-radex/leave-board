@@ -11,7 +11,6 @@ export const statusLabels: Record<LeaveStatus, string> = {
 export const roleLabels: Record<Role, string> = {
   employee: "員工",
   manager: "主管",
-  general_manager: "總經理",
 };
 
 /** 辦公日曆的日子類型 */

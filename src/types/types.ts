@@ -5,7 +5,7 @@ export type LeaveTypeId = "personal" | "sick" | "annual"; // 事假、病假、�
 export type LeaveStatus = "pending" | "approved" | "revoked";  // 待審核、已核准、已撤銷
 
 /** 角色 */
-export type Role = "general_manager" | "manager" | "employee"; // 總經理、主管、員工
+export type Role = "manager" | "employee"; // 主管、員工
 
 /** 辦公日曆的日子類型 */
 export type CalendarDayType = "holiday" | "makeup_workday"; // 放假日、補班日
@@ -108,8 +108,6 @@ export interface LeaveFormResponse {
 
 /** 新增假單-請求 */
 export interface AddLeaveFormRequest {
-  /** 員工 id */
-  employeeId: string;
   /** 假別 id */
   leaveTypeId: LeaveTypeId;
   /** 開始時間 */
@@ -120,14 +118,6 @@ export interface AddLeaveFormRequest {
   deputyId: string;
   /** 備註 */
   note: string;
-}
-
-/** 登入紀錄（後端的資料表：記住發出去的 token 是誰的；登出時刪掉） */
-export interface Session {
-  /** 通行證 */
-  token: string;
-  /** 員工 id */
-  employeeId: string;
 }
 
 /** 登入資料（登入 API 回傳的，也是存在 localStorage 的） */

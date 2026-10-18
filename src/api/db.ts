@@ -5,7 +5,6 @@ export const TABLES = {
   leaveTypeList: "leaveTypeList",
   leaveFormList: "leaveFormList",
   calendarDayList: "calendarDayList",
-  sessionList: "sessionList",
 };
 
 /** 讀出一整張資料表；第一次讀的時候，先放入初始資料 */

@@ -10,7 +10,7 @@ import type {
   LeaveTypeId,
 } from "../types/types";
 import {
-  getLeaveFormList,
+  getMyLeaveFormList,
   addLeaveForm,
   revokeLeaveForm,
 } from "../api/leaveFormApi";
@@ -63,20 +63,20 @@ function MyLeavesPage({
 
   /** 取得假單資料 */
   async function getData() {
-    const list = await getLeaveFormList(currentUserId);
+    const list = await getMyLeaveFormList();
     setFormList(list);
     setLoading(false);
   }
 
-  // 目前使用者改變時，抓該使用者的假單
+  // 首次進入，抓我的假單
   useEffect(() => {
     async function loadMyRequests() {
-      const list = await getLeaveFormList(currentUserId);
+      const list = await getMyLeaveFormList();
       setFormList(list);
       setLoading(false);
     }
     loadMyRequests();
-  }, [currentUserId]);
+  }, []);
 
   // 顯示 toast 訊息, 3 秒後自動消失
   useEffect(() => {
@@ -93,7 +93,6 @@ function MyLeavesPage({
     setSubmitting(true);
 
     const result = await addLeaveForm({
-      employeeId: currentUserId,
       leaveTypeId: leaveTypeId,
       startTime: `${startDate}T${startTime}`,
       endTime: `${endDate}T${endTime}`,
@@ -112,7 +111,7 @@ function MyLeavesPage({
 
   /** 撤銷假單 */
   async function handleRevoke(id: string) {
-    const res = await revokeLeaveForm(id, currentUserId);
+    const res = await revokeLeaveForm(id);
     setToast(res);
     if (res.success) {
       await getData();
@@ -303,7 +302,7 @@ function MyLeavesPage({
 
       {selectedRequest && (
         <LeaveDetail
-          request={selectedRequest}
+          leaveFormResponse={selectedRequest}
           onClose={() => setSelectedId(null)}
         />
       )}

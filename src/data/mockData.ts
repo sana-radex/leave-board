@@ -7,7 +7,6 @@ import type {
 } from "../types/types";
 
 export const departmentList: Department[] = [
-  { id: "1", name: "總經理室" },
   { id: "2", name: "研發部" },
 ];
 
@@ -29,15 +28,6 @@ export const employeeList: Employee[] = [
     hireDate: "2020-01-01",
     departmentId: "2",
     role: "manager",
-  },
-  {
-    id: "3",
-    name: "Charlie",
-    email: "charlie@example.com",
-    birthday: "1990-01-01",
-    hireDate: "2020-01-01",
-    departmentId: "1",
-    role: "general_manager",
   },
   {
     id: "4",
@@ -87,20 +77,9 @@ export const leaveFormList: LeaveForm[] = [
     status: "approved",
     startTime: "2023-10-02T09:00",
     endTime: "2023-10-02T17:00",
-    deputyId: "3",
+    deputyId: "1",
     note: "腸胃炎",
     submittedAt: "2023-10-02T10:00:00.000Z",
-  },
-  {
-    id: "3",
-    employeeId: "3",
-    leaveTypeId: "personal",
-    status: "approved",
-    startTime: "2026-10-14T09:00",
-    endTime: "2026-10-14T18:00",
-    deputyId: "2",
-    note: "家裡有事",
-    submittedAt: "2026-10-08T02:00:00.000Z",
   },
   {
     id: "4",

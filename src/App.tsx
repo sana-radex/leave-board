@@ -41,11 +41,11 @@ function App() {
     setAuth(session); // 存進 state：畫面才會更新
   }
 
-  /** 登出：先請後端作廢 token，再清掉前端自己存的 */
+  /** 登出 */
   async function handleLogout() {
-    if (auth) {
-      await logout(auth.token);
-    }
+    // 後端
+    await logout();
+    // 前端
     clearAuth();
     setAuth(null);
   }
@@ -75,10 +75,7 @@ function App() {
             <Route
               path="/"
               element={
-                <CalendarPage
-                  currentUserId={currentUser.id}
-                  employeeList={employeeList}
-                />
+                <CalendarPage currentUserName={currentUser.name} />
               }
             />
             <Route

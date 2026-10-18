@@ -3,24 +3,21 @@ import "./CalendarPage.css";
 import type {
   CalendarDay,
   CalendarFilter,
-  Employee,
   LeaveFormResponse,
 } from "../types/types";
-import { getAllLeaveFormList } from "../api/leaveFormApi";
+import { getTeamLeaveFormList } from "../api/leaveFormApi";
 import { getCalendarDayList } from "../api/calendarApi";
 import Calendar from "../components/Calendar";
 import CalendarFilterModal from "../components/CalendarFilterModal";
 import LeaveDetail from "../components/LeaveDetail";
 
 interface CalendarPageProps {
-  /** 目前使用者 id */
-  currentUserId: string;
-  /** 所有員工 */
-  employeeList: Employee[];
+  /** 目前登入的使用者姓名 */
+  currentUserName: string;
 }
 
 /** 團隊行事曆 */
-function CalendarPage({ currentUserId, employeeList }: CalendarPageProps) {
+function CalendarPage({ currentUserName }: CalendarPageProps) {
   const today = new Date();
   const [loading, setLoading] = useState(true);
   const [leaveList, setLeaveList] = useState<LeaveFormResponse[]>([]);
@@ -43,9 +40,6 @@ function CalendarPage({ currentUserId, employeeList }: CalendarPageProps) {
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth(); // 0 = 1 月，11 = 12 月
 
-  // 目前使用者（員工資料還沒載入時是 undefined）
-  const currentUser = employeeList.find((emp) => emp.id === currentUserId);
-
   // 有勾選的才顯示
   const visibleLeaves = leaveList.filter((leave) => filter[leave.status]);
   const visibleCalendarDays = calendarDayList.filter((day) => filter[day.type]);
@@ -65,11 +59,11 @@ function CalendarPage({ currentUserId, employeeList }: CalendarPageProps) {
     setShowFilter(false);
   }
 
-  // 首次進入，抓所有人的假單和辦公日曆
+  // 首次進入，抓我看得到的假單和辦公日曆
   useEffect(() => {
     async function loadData() {
       const [leaves, calendarDays] = await Promise.all([
-        getAllLeaveFormList(),
+        getTeamLeaveFormList(),
         getCalendarDayList(),
       ]);
       setLeaveList(leaves);
@@ -81,7 +75,7 @@ function CalendarPage({ currentUserId, employeeList }: CalendarPageProps) {
 
   return (
     <>
-      <h1>{currentUser ? `Hi, ${currentUser.name}` : "Hi"}</h1>
+      <h1>Hi, {currentUserName}</h1>
 
       <div className="calendar-toolbar">
         <button onClick={() => setShowFilter(true)}>篩選條件</button>
@@ -110,7 +104,7 @@ function CalendarPage({ currentUserId, employeeList }: CalendarPageProps) {
 
       {selectedLeave && (
         <LeaveDetail
-          request={selectedLeave}
+          leaveFormResponse={selectedLeave}
           onClose={() => setSelectedId(null)}
         />
       )}

@@ -2,10 +2,13 @@
 export type LeaveTypeId = "personal" | "sick" | "annual"; // 事假、病假、特休
 
 /** 假單狀態 */
-export type LeaveStatus = "pending" | "approved" | "revoked";
+export type LeaveStatus = "pending" | "approved" | "revoked";  // 待審核、已核准、已撤銷
 
 /** 角色 */
 export type Role = "general_manager" | "manager" | "employee"; // 總經理、主管、員工
+
+/** 辦公日曆的日子類型 */
+export type CalendarDayType = "holiday" | "makeup_workday"; // 放假日、補班日
 
 /** 部門 */
 export interface Department {
@@ -63,6 +66,16 @@ export interface LeaveForm {
   note: string;
   /** 送出時間 */
   submittedAt: string; // 'YYYY-MM-DDTHH:mm:ss.SSSZ'
+}
+
+/** 辦公日曆的特別日子 */
+export interface CalendarDay {
+  /** 日期 */
+  date: string; // 'YYYY-MM-DD'
+  /** 類型 */
+  type: CalendarDayType;
+  /** 名稱 */
+  name: string;
 }
 
 /** 新增假單-請求 */

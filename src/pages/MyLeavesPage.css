@@ -1,0 +1,5 @@
+/* 申請假單表單：每個欄位各佔一行 */
+.leave-form label {
+  display: block;
+  margin-bottom: 12px;
+}

@@ -10,15 +10,12 @@ export function formatDateTime(value: string): string {
   });
 }
 
-/** 取得時間選項 */
+/** 取得時間選項：00:00–23:30，每 30 分鐘一格 */
 export function getTimeOptions(): string[] {
   const options: string[] = [];
-  for (let hour = 9; hour <= 19; hour++) {
+  for (let hour = 0; hour < 24; hour++) {
     const hh = String(hour).padStart(2, "0");
-    options.push(`${hh}:00`);
-    if (hour < 19) {
-      options.push(`${hh}:30`);
-    }
+    options.push(`${hh}:00`, `${hh}:30`);
   }
   return options;
 }

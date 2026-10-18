@@ -10,11 +10,11 @@
 }
 
 .toast-success {
-	background-color: #4CAF50;
-	border-color: #45a049;
+	background-color: var(--color-success);
+	border-color: var(--color-success);
 }
 
 .toast-error {
-	background-color: #f44336;
-	border-color: #d32f2f;
+	background-color: var(--color-danger);
+	border-color: var(--color-danger);
 }

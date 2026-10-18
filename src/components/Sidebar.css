@@ -1,0 +1,24 @@
+/* 左側選單：選項由上往下排 */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 160px;
+  padding: 16px 0;
+  border-right: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.sidebar a {
+  padding: 8px 24px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  color: var(--color-text);
+}
+
+/* 目前所在的頁面 */
+.sidebar a.active {
+  color: var(--color-primary);
+  background-color: var(--color-primary-soft);}

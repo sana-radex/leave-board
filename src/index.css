@@ -1,111 +1,136 @@
+/* ========== 樣式變數（全站共用） ========== */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* 背景 */
+  --color-bg: #ffffff; /* 頁面底色：白 */
+  --color-surface: #f3f6f6; /* 跟底色有點區別的區塊：彈出視窗、星期標題 */
+  --color-border: #d5dfde; /* 框線 */
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* 文字 */
+  --color-text: #1a2222; /* 一般文字 */
+  --color-text-muted: #5f7270; /* 次要文字：表頭、沒選到的選單 */
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* 主色：湖水綠（白底要用深一點的，字才看得清楚） */
+  --color-primary: #0f766e; /* 按鈕、月份、選到的選單 */
+  --color-primary-soft: rgba(13, 148, 136, 0.1); /* 淡淡的湖水綠底色 */
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  /* 頁首：黑底 */
+  --color-header-bg: #0b0f0f; /* 頁首底色：黑 */
+  --color-header-text: #e2ebea; /* 頁首文字 */
+  --color-header-accent: #2dd4bf; /* 頁首標題：亮湖水綠（黑底才用亮的） */
+
+  /* 狀態 */
+  --color-success: #15803d; /* 成功 */
+  --color-danger: #b91c1c; /* 失敗、錯誤 */
+
+  /* 其他 */
+  --radius: 6px; /* 圓角 */
+  --font-sans:
+    system-ui, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+
+  /* 讓瀏覽器內建的東西（日期選擇器、捲軸）用淺色 */
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* ========== 基本樣式 ========== */
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+/* 寬、高都把 padding 和框線算進去，排版比較好算 */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* 整個 app：頁首在上、版面在下，至少跟視窗一樣高 */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 h1,
 h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+  margin: 0 0 16px;
+  font-weight: 600;
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
   font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
 }
+
+h2 {
+  font-size: 20px;
+}
+
 p {
-  margin: 0;
+  margin: 0 0 8px;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* 按鈕：湖水綠外框 */
+button {
+  padding: 4px 12px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius);
+  background-color: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  cursor: pointer;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
+button:hover:not(:disabled) {
+  background-color: var(--color-primary-soft);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 兩個按鈕並排時，中間留一點空 */
+button + button {
+  margin-left: 8px;
+}
+
+/* 輸入框、下拉選單 */
+input,
+select,
+textarea {
   padding: 4px 8px;
-  background: var(--code-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+}
+
+/* 用鍵盤移動到的元件，加上湖水綠外框 */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 表格 */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 8px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+th {
+  color: var(--color-text-muted);
+  font-weight: 500;
 }

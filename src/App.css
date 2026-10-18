@@ -1,5 +1,12 @@
-/* 申請假單表單：每個欄位各佔一行 */
-.leave-form label {
-  display: block;
-  margin-bottom: 12px;
+/* 頁首下面：左邊選單，右邊內容 */
+.layout {
+  display: flex;
+  flex: 1;
+}
+
+/* 內容區：佔滿剩下的寬度；min-width: 0 讓太寬的表格不會把版面撐開 */
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: 24px;
 }

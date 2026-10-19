@@ -7,6 +7,7 @@ import type {
 } from "../types/types";
 import { getTeamLeaveFormList } from "../api/leaveFormApi";
 import { getCalendarDayList } from "../api/calendarApi";
+import { today } from "../utils/today";
 import Calendar from "../components/Calendar";
 import CalendarFilterModal from "../components/CalendarFilterModal";
 import LeaveDetail from "../components/LeaveDetail";
@@ -18,13 +19,13 @@ interface CalendarPageProps {
 
 /** 團隊行事曆 */
 function CalendarPage({ currentUserName }: CalendarPageProps) {
-  const today = new Date();
+  const [todayYear, todayMonth] = today().split("-").map(Number);
   const [loading, setLoading] = useState(true);
   const [leaveList, setLeaveList] = useState<LeaveFormResponse[]>([]);
   const [calendarDayList, setCalendarDayList] = useState<CalendarDay[]>([]);
   // 正在看的月份：存那個月的 1 號
   const [viewDate, setViewDate] = useState(
-    new Date(today.getFullYear(), today.getMonth(), 1),
+    new Date(todayYear, todayMonth - 1, 1),
   );
   // 篩選條件；預設照規格，待審核不顯示
   const [filter, setFilter] = useState<CalendarFilter>({

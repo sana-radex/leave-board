@@ -16,7 +16,7 @@ interface InboxPageProps {
   onLeaveChanged: () => void;
 }
 
-/** 待我處理（F-05）：審核人是我的待審假單、撤銷申請 */
+/** 待我處理（F-05）：審核人是我的待審申請、撤銷申請 */
 function InboxPage({ onLeaveChanged }: InboxPageProps) {
   const [loading, setLoading] = useState(true);
   const [inbox, setInbox] = useState<InboxResponse>({
@@ -99,9 +99,9 @@ function InboxPage({ onLeaveChanged }: InboxPageProps) {
       {loading && <p>載入中...</p>}
 
       <section className="inbox-section">
-        <h2>待審假單（{inbox.pendingList.length}）</h2>
+        <h2>待審申請（{inbox.pendingList.length}）</h2>
         {inbox.pendingList.length === 0 ? (
-          <p className="inbox-empty">目前沒有待審假單</p>
+          <p className="inbox-empty">目前沒有待審申請</p>
         ) : (
           <table>
             <thead>

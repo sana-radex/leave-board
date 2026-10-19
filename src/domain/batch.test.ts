@@ -5,13 +5,22 @@ import type { Batch, Employee } from "../types/types";
 
 const TODAY = "2026-10-19";
 
-/** 某位人員、某個假別的批次 */
-function batchesOf(employeeId: string, leaveTypeId: Batch["leaveTypeId"]) {
-  const employee = employeeList.find((emp) => emp.id === employeeId)!;
+/** 某位人員（預設資料的 id，或自己組的人員）、某個假別的批次 */
+function batchesOf(
+  employeeOrId: string | Employee,
+  leaveTypeId: Batch["leaveTypeId"],
+) {
+  const employee =
+    typeof employeeOrId === "string"
+      ? employeeList.find((emp) => emp.id === employeeOrId)!
+      : employeeOrId;
   return generateBatches(employee, flexLeaveDateList, TODAY).filter(
     (batch) => batch.leaveTypeId === leaveTypeId,
   );
 }
+
+/** 7/1 到職的新人：借陳志豪的資料改到職日 */
+const newcomer: Employee = { ...employeeList[2], hireDate: "2026-07-01" };
 
 /** 今天有效的批次 */
 function activeOn(batches: Batch[], date: string) {
@@ -67,18 +76,12 @@ describe("特休（6.1 有效特休批次，基準日 2026/10/19）", () => {
     ]);
   });
 
-  it("林怡君：2026/4/1–2027/3/31，7 日", () => {
-    expect(activeOn(batchesOf("E04", "annual"), TODAY).map(brief)).toEqual([
-      "2026-04-01～2027-03-31 56h",
-    ]);
+  it("7/1 到職未滿 6 個月，沒有任何特休批次（2027/1/1 那筆不產生）", () => {
+    expect(batchesOf(newcomer, "annual")).toEqual([]);
   });
 
-  it("張家豪：未滿 6 個月，沒有任何特休批次（2027/1/1 那筆不產生）", () => {
-    expect(batchesOf("E05", "annual")).toEqual([]);
-  });
-
-  it("黃雅婷：2025/11/5 那筆有效，下一筆 2026/11/5 起 15 日", () => {
-    const batches = batchesOf("E06", "annual");
+  it("林怡君：2025/11/5 那筆有效，下一筆 2026/11/5 起 15 日", () => {
+    const batches = batchesOf("E04", "annual");
     expect(activeOn(batches, TODAY).map(brief)).toEqual([
       "2025-11-05～2026-11-04 120h",
     ]);
@@ -100,8 +103,6 @@ describe("生日假（6.1 的 2026 生日假有效期間）", () => {
     ["E02", "2026-02-28～2026-04-30"], // 李美玲 3/31，月底規則（LEAVE-11）
     ["E03", "2025-12-10～2026-02-10"], // 陳志豪 1/10，跨年（LEAVE-10）
     ["E04", "2026-01-28～2026-03-28"], // 林怡君 2/29，非閏年視為 2/28（LEAVE-12）
-    ["E05", "2026-10-25～2026-12-25"], // 張家豪 11/25
-    ["E06", "2026-10-20～2026-12-20"], // 黃雅婷 11/20
   ])("%s：%s", (employeeId, period) => {
     const batch = batchesOf(employeeId, "birthday").find(
       (item) => item.name === "生日假（2026）",
@@ -144,8 +145,8 @@ describe("彈性假（6.3）", () => {
     ]);
   });
 
-  it("張家豪 7/1 到職，只有 9/28、10/31、11/12（待確認 Q2）", () => {
-    expect(batchesOf("E05", "flex").map((batch) => batch.name)).toEqual([
+  it("7/1 到職，只有 9/28、10/31、11/12（待確認 Q2）", () => {
+    expect(batchesOf(newcomer, "flex").map((batch) => batch.name)).toEqual([
       "彈性假（2026/9/28）",
       "彈性假（2026/10/31）",
       "彈性假（2026/11/12）",

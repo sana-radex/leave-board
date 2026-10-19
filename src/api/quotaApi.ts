@@ -43,18 +43,18 @@ export async function getMyQuota(): Promise<LeaveQuotaResponse[]> {
 
     // ---------- 批次型：特休、彈性假、生日假 ----------
     if (leaveType.quotaType === "batch") {
+      // 已過期批次不計算也不顯示：只留有效中＋尚未生效（到期日不早於今天）
       const summaries = summarizeBatches(
-        batches.filter((batch) => batch.leaveTypeId === leaveType.id),
+        batches.filter(
+          (batch) =>
+            batch.leaveTypeId === leaveType.id && batch.expiryDate >= todayDate,
+        ),
         myForms,
       );
       const batchResponses: BatchQuotaResponse[] = summaries.map(
         ({ batch, used, reserved, available }) => {
-          let status: BatchStatus = "active";
-          if (batch.expiryDate < todayDate) {
-            status = "expired";
-          } else if (batch.effectiveDate > todayDate) {
-            status = "upcoming";
-          }
+          const status: BatchStatus =
+            batch.effectiveDate > todayDate ? "upcoming" : "active";
           return {
             id: batch.id,
             name: batch.name,
@@ -74,10 +74,8 @@ export async function getMyQuota(): Promise<LeaveQuotaResponse[]> {
         },
       );
 
-      // 總額等只算有效中＋尚未生效，不含已過期
-      const counted = batchResponses.filter((item) => item.status !== "expired");
       const sum = (key: "total" | "used" | "reserved" | "available") =>
-        counted.reduce((total, item) => total + item[key], 0);
+        batchResponses.reduce((total, item) => total + item[key], 0);
       return {
         ...base,
         total: sum("total"),

@@ -1,0 +1,42 @@
+/* 行事曆右邊的我的額度：固定寬度的小卡片 */
+.quota-panel {
+  flex-shrink: 0;
+  width: 200px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+.quota-panel h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+/* 一個假別一行：左邊名稱與可用，右邊詳情按鈕 */
+.quota-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.quota-item + .quota-item {
+  border-top: 1px solid var(--color-border);
+}
+
+.quota-name .tag {
+  margin-left: 6px;
+}
+
+.quota-available {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.quota-item button {
+  flex-shrink: 0;
+  padding: 2px 10px;
+  font-size: 13px;
+}

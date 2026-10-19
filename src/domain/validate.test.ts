@@ -11,26 +11,32 @@ import {
 } from "../data/mockData";
 import { calendarDayList } from "../data/calendarDays";
 import { generateBatches } from "./batch";
-import type { AddLeaveFormRequest } from "../types/types";
+import type { AddLeaveFormRequest, Employee } from "../types/types";
 
-/** 用某位人員當申請人建立驗證資料；今天預設 2026/10/19（基準日） */
-function contextOf(employeeId: string, today = "2026-10-19"): ValidateContext {
-  const applicant = employeeList.find((emp) => emp.id === employeeId)!;
+/** 今天：2026/10/19（基準日） */
+const TODAY = "2026-10-19";
+
+/** 用某位人員當申請人建立驗證資料 */
+function contextOf(applicant: Employee): ValidateContext {
   const shift = shiftList.find((item) => item.id === applicant.shiftId)!;
   return {
-    today,
     applicant,
     shift,
     leaveTypes: leaveTypeList,
     relations: bereavementRelationList,
     employees: employeeList,
     calendarDays: calendarDayList,
-    batches: generateBatches(applicant, flexLeaveDateList, today),
+    batches: generateBatches(applicant, flexLeaveDateList, TODAY),
     forms: leaveFormList,
   };
 }
 
-/** 陳志豪（標準班）一張正確的特休：10/27 9:00–12:00，代理人張家豪、審核人王小明 */
+/** 用預設資料的人員 id 建立驗證資料 */
+function contextOfId(employeeId: string): ValidateContext {
+  return contextOf(employeeList.find((emp) => emp.id === employeeId)!);
+}
+
+/** 陳志豪（早班）一張正確的特休：10/27 9:00–12:00，代理人林怡君、審核人王小明 */
 const validInput: AddLeaveFormRequest = {
   leaveTypeId: "annual",
   relationId: "",
@@ -38,14 +44,14 @@ const validInput: AddLeaveFormRequest = {
   startTime: "09:00",
   endDate: "2026-10-27",
   endTime: "12:00",
-  deputyId: "E05",
+  deputyId: "E04",
   reviewerId: "E01",
   note: "",
 };
 
-const chen = contextOf("E03"); // 陳志豪，標準班
-const lin = contextOf("E04"); // 林怡君，午班
-const wang = contextOf("E01"); // 王小明，審核人
+const chen = contextOfId("E03"); // 陳志豪，早班
+const lin = contextOfId("E04"); // 林怡君，中班
+const wang = contextOfId("E01"); // 王小明，審核人
 
 describe("正確的假單", () => {
   it("沒有錯誤，算出時數", () => {
@@ -142,7 +148,8 @@ describe("VAL-01 必填", () => {
   });
 
   it("審核人要具審核人角色（REV-01）", () => {
-    const result = validateLeaveForm({ ...validInput, reviewerId: "E06" }, chen);
+    // 林怡君是提交人
+    const result = validateLeaveForm({ ...validInput, reviewerId: "E04" }, chen);
     expect(result.errors.reviewerId).toBe("請從審核人名單中選擇");
   });
 });
@@ -178,18 +185,23 @@ describe("VAL-02 結束要晚於開始", () => {
 });
 
 describe("VAL-03 時間要在班別範圍內、在 30 分鐘格上", () => {
-  it("午班選 9:00", () => {
+  it("中班選 9:00", () => {
     const result = validateLeaveForm(
-      { ...validInput, startTime: "09:00", endTime: "14:00", deputyId: "E06" },
+      { ...validInput, startTime: "09:00", endTime: "14:00", deputyId: "E03" },
       lin,
     );
     expect(result.errors.start).toBe("請選擇 13:00–22:00 之間的半點時間");
     expect(result.errors.end).toBeUndefined();
   });
 
-  it("標準班選 9:15", () => {
+  it("早班選 9:15", () => {
     const result = validateLeaveForm({ ...validInput, startTime: "09:15" }, chen);
-    expect(result.errors.start).toBe("請選擇 9:00–19:00 之間的半點時間");
+    expect(result.errors.start).toBe("請選擇 9:00–18:00 之間的半點時間");
+  });
+
+  it("早班選 18:30：超過可選範圍", () => {
+    const result = validateLeaveForm({ ...validInput, endTime: "18:30" }, chen);
+    expect(result.errors.end).toBe("請選擇 9:00–18:00 之間的半點時間");
   });
 });
 
@@ -221,11 +233,9 @@ describe("VAL-05 時數不能是 0", () => {
 });
 
 describe("VAL-06 可用額度不足", () => {
-  it("批次型：張家豪沒有特休批次", () => {
-    const result = validateLeaveForm(
-      { ...validInput, deputyId: "E03", reviewerId: "E02" },
-      contextOf("E05"),
-    );
+  it("批次型：7/1 到職未滿 6 個月，沒有特休批次", () => {
+    const newcomer: Employee = { ...employeeList[2], hireDate: "2026-07-01" };
+    const result = validateLeaveForm(validInput, contextOf(newcomer));
     expect(result.errors.quota).toBe("10/27 沒有可用的特休");
   });
 
@@ -238,7 +248,7 @@ describe("VAL-06 可用額度不足", () => {
         startTime: "13:00",
         endDate: "2026-11-20",
         endTime: "22:00",
-        deputyId: "E06",
+        deputyId: "E03",
       },
       lin,
     );
@@ -246,10 +256,10 @@ describe("VAL-06 可用額度不足", () => {
     expect(result.errors.quota).toBe("可用額度不足：可用 112 小時，本次 120 小時");
   });
 
-  it("曆年制：已使用、審核中要扣掉（張家豪病假 L07 審核中 8 小時）", () => {
+  it("曆年制：已使用、審核中要扣掉（陳志豪病假 L07 審核中 8 小時）", () => {
     const result = validateLeaveForm(
-      { ...validInput, leaveTypeId: "sick", deputyId: "E03" },
-      contextOf("E05"),
+      { ...validInput, leaveTypeId: "sick" },
+      chen,
     );
     expect(result.quotaLines).toEqual([
       { label: "", available: 232, remaining: 229 },
@@ -271,7 +281,7 @@ describe("VAL-07 婚假、喪假單張超過該次額度", () => {
         deputyId: "E01",
         reviewerId: "E01",
       },
-      contextOf("E02"),
+      contextOfId("E02"),
     );
     expect(result.errors.hours).toBe("喪假（祖父母）每次最多 6 日");
   });
@@ -295,96 +305,26 @@ describe("VAL-07 婚假、喪假單張超過該次額度", () => {
   });
 });
 
-describe("VAL-08 和自己其他假單時段重疊", () => {
-  it("陳志豪再請 10/20 10:00–11:00 特休（L01 是 9:00–12:00）", () => {
-    const result = validateLeaveForm(
-      {
-        ...validInput,
-        startDate: "2026-10-20",
-        startTime: "10:00",
-        endDate: "2026-10-20",
-        endTime: "11:00",
-      },
-      chen,
-    );
-    expect(result.errors.start).toBe("與 10/20 特休假單時段重疊");
-  });
-
-  it("同一天但時段沒有交集不算重疊（10/20 13:00–15:00）", () => {
-    const result = validateLeaveForm(
-      {
-        ...validInput,
-        startDate: "2026-10-20",
-        startTime: "13:00",
-        endDate: "2026-10-20",
-        endTime: "15:00",
-      },
-      chen,
-    );
-    expect(result.errors.start).toBeUndefined();
-  });
-
-  it("已撤銷的假單不算（李美玲 L05 10/16 已撤銷）", () => {
-    const result = validateLeaveForm(
-      {
-        ...validInput,
-        startDate: "2026-10-16",
-        endDate: "2026-10-16",
-        deputyId: "E01",
-        reviewerId: "E01",
-      },
-      contextOf("E02"),
-    );
-    expect(result.errors.start).toBeUndefined();
-  });
-});
-
-describe("VAL-09 補請期限（RETRO-01）", () => {
-  it("今天 10/19 補請 10/12：期限 10/19，可以送出", () => {
-    const result = validateLeaveForm(
-      { ...validInput, startDate: "2026-10-12", endDate: "2026-10-12" },
-      chen,
-    );
-    expect(result.retroDeadline).toBe("2026-10-19");
-    expect(result.errors).toEqual({});
-  });
-
-  it("今天 10/19 補請 10/8：期限 10/16，已超過", () => {
+describe("沒有補請期限、時段重疊檢查：照常可以送出", () => {
+  it("請假日早於今天（10/8）", () => {
     const result = validateLeaveForm(
       { ...validInput, startDate: "2026-10-08", endDate: "2026-10-08" },
       chen,
     );
-    expect(result.errors.start).toBe("已超過補請期限 10/16");
+    expect(result.errors).toEqual({});
   });
 
-  it("規格範例：假期 10/16 結束，今天 10/23 可補請、10/26 被擋", () => {
-    const input = { ...validInput, startDate: "2026-10-16", endDate: "2026-10-16" };
-    expect(validateLeaveForm(input, contextOf("E03", "2026-10-23")).errors).toEqual({});
-    expect(validateLeaveForm(input, contextOf("E03", "2026-10-26")).errors.start).toBe(
-      "已超過補請期限 10/23",
-    );
-  });
-
-  it("不是補請就沒有期限", () => {
-    expect(validateLeaveForm(validInput, chen).retroDeadline).toBeNull();
-  });
-});
-
-describe("VAL-10 職務代理人同時段請假中：只提醒，不擋", () => {
-  it("黃雅婷 10/20 10:00–11:00 事假，代理人陳志豪（L01 同時段）", () => {
+  it("和自己的 L01（10/20 9:00–12:00）時段重疊", () => {
     const result = validateLeaveForm(
       {
         ...validInput,
-        leaveTypeId: "personal",
         startDate: "2026-10-20",
         startTime: "10:00",
         endDate: "2026-10-20",
         endTime: "11:00",
-        deputyId: "E03",
       },
-      contextOf("E06"),
+      chen,
     );
-    expect(result.warnings.deputyId).toBe("陳志豪 10/20 同時段請假中");
     expect(result.errors).toEqual({});
   });
 });

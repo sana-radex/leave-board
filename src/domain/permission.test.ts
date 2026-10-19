@@ -29,8 +29,8 @@ describe("getViewerRelation", () => {
   });
 
   it("職務代理人不算本人或審核人", () => {
-    // L01 的職務代理人是張家豪
-    expect(getViewerRelation("E05", getForm("L01"))).toBe("other");
+    // L01 的職務代理人是林怡君
+    expect(getViewerRelation("E04", getForm("L01"))).toBe("other");
   });
 });
 
@@ -100,7 +100,7 @@ describe("getAvailableActions（規格 2.3 權限總表）", () => {
   });
 
   it("職務代理人不能做任何動作", () => {
-    // L01 的職務代理人是張家豪
-    expect(getAvailableActions("E05", getForm("L01"))).toEqual([]);
+    // L01 的職務代理人是林怡君
+    expect(getAvailableActions("E04", getForm("L01"))).toEqual([]);
   });
 });

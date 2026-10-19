@@ -303,7 +303,7 @@ export interface RevokeRequestResponse extends LeaveFormResponse {
 
 /** 待我處理-回傳 */
 export interface InboxResponse {
-  /** 待審假單：依送出時間由舊到新 */
+  /** 待審申請：依送出時間由舊到新 */
   pendingList: LeaveFormResponse[];
   /** 撤銷申請：依申請撤銷時間由舊到新 */
   revokeRequestList: RevokeRequestResponse[];
@@ -395,14 +395,10 @@ export interface LeaveFormPreviewResponse {
   hours: number;
   /** 各欄位的錯誤訊息（會擋送出） */
   errors: LeaveFormErrors;
-  /** 各欄位的提醒（不擋送出），例如職務代理人同時段請假中 */
-  warnings: LeaveFormErrors;
   /** 可用額度 */
   quotaLines: QuotaLine[];
   /** 將扣的批次 */
   deductions: DeductionResponse[];
-  /** 補請期限；不是補請時為 null */
-  retroDeadline: string | null; // 'YYYY-MM-DD'
 }
 
 /** 送出假單-回傳 */
@@ -411,8 +407,8 @@ export interface AddLeaveFormResponse extends Response {
   errors: LeaveFormErrors;
 }
 
-/** 批次的狀態：有效中、尚未生效、已過期 */
-export type BatchStatus = "active" | "upcoming" | "expired";
+/** 批次的狀態：有效中、尚未生效（已過期的不回傳） */
+export type BatchStatus = "active" | "upcoming";
 
 /** 我的額度：一筆批次-回傳 */
 export interface BatchQuotaResponse {
@@ -432,7 +428,7 @@ export interface BatchQuotaResponse {
   reserved: number;
   /** 可用 */
   available: number;
-  /** 有效中、尚未生效、已過期 */
+  /** 有效中、尚未生效 */
   status: BatchStatus;
   /** 30 天內到期且還有可用時數 */
   expiringSoon: boolean;
@@ -464,7 +460,7 @@ export interface LeaveQuotaResponse {
   reserved: number;
   /** 可用 */
   available: number;
-  /** 批次型的每一筆批次（含已過期）；其他假別是空陣列 */
+  /** 批次型的有效中、尚未生效批次（不含已過期）；其他假別是空陣列 */
   batches: BatchQuotaResponse[];
   /** 單次事件的每次額度；其他假別是空陣列 */
   perEvent: PerEventQuotaResponse[];

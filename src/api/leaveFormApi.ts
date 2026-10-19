@@ -158,7 +158,6 @@ function getValidateContext(): ValidateContext {
   const todayDate = today();
   const flexDates = readTable(TABLES.flexLeaveDateList, flexLeaveDateList);
   return {
-    today: todayDate,
     applicant,
     shift,
     leaveTypes: readTable(TABLES.leaveTypeList, leaveTypeList),
@@ -196,7 +195,7 @@ export async function getLeaveFormOptions(): Promise<LeaveFormOptionsResponse> {
   };
 }
 
-/** 試算：填表時即時算時數、可用額度、補請期限、檢查錯誤，不會存檔（F-02） */
+/** 試算：填表時即時算時數、可用額度、檢查錯誤，不會存檔（F-02） */
 export async function previewLeaveForm(
   input: AddLeaveFormRequest,
 ): Promise<LeaveFormPreviewResponse> {
@@ -206,14 +205,12 @@ export async function previewLeaveForm(
     days: result.days,
     hours: result.hours,
     errors: result.errors,
-    warnings: result.warnings,
     quotaLines: result.quotaLines,
     deductions: result.deductions.map((item) => ({
       batchName: getBatchName(item.batchId),
       date: item.date,
       hours: item.hours,
     })),
-    retroDeadline: result.retroDeadline,
   };
 }
 
@@ -314,13 +311,13 @@ function getMyInboxForms(): LeaveForm[] {
   );
 }
 
-/** 取得待我處理：待審假單、撤銷申請（F-05） */
+/** 取得待我處理：待審申請、撤銷申請（F-05） */
 export async function getInboxList(): Promise<InboxResponse> {
   await delay();
   const currentUser = getCurrentUser();
   const forms = getMyInboxForms();
 
-  // 待審假單：依送出時間由舊到新
+  // 待審申請：依送出時間由舊到新
   const pendingForms = forms
     .filter((form) => form.status === "pending")
     .sort((a, b) => a.submittedAt.localeCompare(b.submittedAt));
@@ -352,7 +349,7 @@ export async function getInboxList(): Promise<InboxResponse> {
   };
 }
 
-/** 取得待我處理的數量（導覽列用）：待審假單 + 撤銷申請 */
+/** 取得待我處理的數量（導覽列用）：待審申請 + 撤銷申請 */
 export async function getInboxCount(): Promise<number> {
   await delay();
   return getMyInboxForms().length;

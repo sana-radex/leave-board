@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import "./CalendarPage.css";
-import type { CalendarDay, LeaveFormResponse, Response } from "../types/types";
+import type {
+  CalendarDay,
+  LeaveFormResponse,
+  LeaveQuotaResponse,
+  Response,
+} from "../types/types";
 import { getCalendarLeaveList } from "../api/leaveFormApi";
 import { getCalendarDayList } from "../api/calendarApi";
+import { getMyQuota } from "../api/quotaApi";
 import { today } from "../utils/today";
 import Calendar from "../components/Calendar";
 import LeaveDetail from "../components/LeaveDetail";
+import QuotaPanel from "../components/QuotaPanel";
 import Toast from "../components/Toast";
 
 interface CalendarPageProps {
@@ -20,6 +27,8 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
   const [toast, setToast] = useState<Response | null>(null);
   const [leaveList, setLeaveList] = useState<LeaveFormResponse[]>([]);
   const [calendarDayList, setCalendarDayList] = useState<CalendarDay[]>([]);
+  // 右邊的我的額度：只放批次型（特休、彈性假、生日假）
+  const [quotaList, setQuotaList] = useState<LeaveQuotaResponse[]>([]);
   // 正在看的月份：存那個月的 1 號
   const [viewDate, setViewDate] = useState(
     new Date(todayYear, todayMonth - 1, 1),
@@ -43,15 +52,23 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
     setViewDate(new Date(todayYear, todayMonth - 1, 1));
   }
 
-  // 首次進入，抓行事曆上的假單和辦公日曆
+  /** 取得我的額度，只留批次型 */
+  async function getBatchQuotaList() {
+    const list = await getMyQuota();
+    return list.filter((quota) => quota.quotaType === "batch");
+  }
+
+  // 首次進入，抓行事曆上的假單、辦公日曆、我的額度
   useEffect(() => {
     async function loadData() {
-      const [leaves, calendarDays] = await Promise.all([
+      const [leaves, calendarDays, quota] = await Promise.all([
         getCalendarLeaveList(),
         getCalendarDayList(),
+        getBatchQuotaList(),
       ]);
       setLeaveList(leaves);
       setCalendarDayList(calendarDays);
+      setQuotaList(quota);
       setLoading(false);
     }
     loadData();
@@ -66,11 +83,16 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  /** 在詳情裡做完動作：顯示訊息、重新載入假單、通知上層 */
+  /** 在詳情裡做完動作：顯示訊息、重新載入假單與額度、通知上層 */
   async function handleActionDone(result: Response) {
     setToast(result);
     if (result.success) {
-      setLeaveList(await getCalendarLeaveList());
+      const [leaves, quota] = await Promise.all([
+        getCalendarLeaveList(),
+        getBatchQuotaList(),
+      ]);
+      setLeaveList(leaves);
+      setQuotaList(quota);
       onLeaveChanged();
     }
   }
@@ -81,33 +103,40 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
 
       <h1>請假行事曆</h1>
 
-      <div className="calendar-toolbar">
-        <div className="month-switcher">
-          <button onClick={() => changeMonth(-1)}>⬅</button>
-          <span className="calendar-month">
-            {year} / {month + 1}
-          </span>
-          <button onClick={() => changeMonth(1)}>⮕</button>
+      {/* 左邊行事曆，右邊我的額度 */}
+      <div className="calendar-layout">
+        <div className="calendar-main">
+          <div className="calendar-toolbar">
+            <div className="month-switcher">
+              <button onClick={() => changeMonth(-1)}>⬅</button>
+              <span className="calendar-month">
+                {year} / {month + 1}
+              </span>
+              <button onClick={() => changeMonth(1)}>⮕</button>
+            </div>
+            <button onClick={goToToday}>今天</button>
+          </div>
+
+          <div className="calendar-legend">
+            <span className="tag tag-mine">我的假單</span>
+            <span className="tag tag-approved">其他人的假單</span>
+            <span className="tag tag-revoked">已撤銷</span>
+            <span className="tag tag-holiday">國定假日</span>
+          </div>
+
+          {loading && <p>載入中...</p>}
+
+          <Calendar
+            year={year}
+            month={month}
+            leaves={leaveList}
+            calendarDays={calendarDayList}
+            onSelectLeave={setSelectedId}
+          />
         </div>
-        <button onClick={goToToday}>今天</button>
+
+        <QuotaPanel quotaList={quotaList} />
       </div>
-
-      <div className="calendar-legend">
-        <span className="tag tag-mine">我的假單</span>
-        <span className="tag tag-approved">其他人的假單</span>
-        <span className="tag tag-revoked">已撤銷</span>
-        <span className="tag tag-holiday">國定假日</span>
-      </div>
-
-      {loading && <p>載入中...</p>}
-
-      <Calendar
-        year={year}
-        month={month}
-        leaves={leaveList}
-        calendarDays={calendarDayList}
-        onSelectLeave={setSelectedId}
-      />
 
       {selectedLeave && (
         <LeaveDetail

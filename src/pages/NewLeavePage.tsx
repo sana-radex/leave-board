@@ -17,25 +17,17 @@ import {
   previewLeaveForm,
 } from "../api/leaveFormApi";
 import Toast from "../components/Toast";
-import {
-  formatDate,
-  formatHours,
-  formatMonthDay,
-  formatTime,
-} from "../utils/format";
+import { formatDate, formatHours, formatTime } from "../utils/format";
 
 /** 還沒有試算結果時用的空白結果 */
 const EMPTY_PREVIEW: LeaveFormPreviewResponse = {
   days: [],
   hours: 0,
   errors: {},
-  warnings: {},
   quotaLines: [],
   deductions: [],
-  retroDeadline: null,
 };
 
-/** 班別文字，例如「標準班 9:00–18:00（可選 9:00–19:00）」「午班 13:00–22:00」 */
 function getShiftText(shift: Shift): string {
   const fullDay = `${formatTime(shift.fullDayStart)}–${formatTime(shift.fullDayEnd)}`;
   const selectable = `${formatTime(shift.selectableStart)}–${formatTime(shift.selectableEnd)}`;
@@ -63,8 +55,7 @@ function NewLeavePage() {
 
   // 試算結果：時數、每日明細、各欄位錯誤
   const [preview, setPreview] = useState<LeaveFormPreviewResponse | null>(null);
-  // 改過的欄位才顯示錯誤；按過送出後全部顯示
-  const [touched, setTouched] = useState<LeaveFormField[]>([]);
+  // 按過送出才顯示錯誤；之後改欄位，錯誤跟著試算即時更新
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<Response | null>(null);
@@ -127,22 +118,10 @@ function NewLeavePage() {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  /** 記下這個欄位改過了 */
-  function touch(field: LeaveFormField) {
-    if (!touched.includes(field)) {
-      setTouched([...touched, field]);
-    }
-  }
-
-  /** 顯示某個欄位的錯誤訊息（改過或按過送出才顯示） */
+  /** 顯示某個欄位的錯誤訊息（按過送出才顯示） */
   function renderError(field: LeaveFormField) {
     const message = preview?.errors[field];
-    // 時數、可用額度是從起訖算出來的：起訖都改過才算改過
-    const isTouched =
-      field === "hours" || field === "quota"
-        ? touched.includes("start") && touched.includes("end")
-        : touched.includes(field);
-    if (!message || (!submitted && !isTouched)) {
+    if (!message || !submitted) {
       return null;
     }
     return <p className="field-error">{message}</p>;
@@ -156,7 +135,6 @@ function NewLeavePage() {
     setStartTime("");
     setEndDate("");
     setEndTime("");
-    touch("leaveTypeId");
   }
 
   /** 送出 */
@@ -225,10 +203,7 @@ function NewLeavePage() {
               親屬關係
               <select
                 value={relationId}
-                onChange={(e) => {
-                  setRelationId(e.target.value);
-                  touch("relationId");
-                }}
+                onChange={(e) => setRelationId(e.target.value)}
               >
                 <option value="">請選擇親屬關係</option>
                 {options.relations.map((item) => (
@@ -251,10 +226,7 @@ function NewLeavePage() {
             <input
               type="date"
               value={startDate}
-              onChange={(e) => {
-                setStartDate(e.target.value);
-                touch("start");
-              }}
+              onChange={(e) => setStartDate(e.target.value)}
             />
           </label>
           {!isDayUnit && (
@@ -262,10 +234,7 @@ function NewLeavePage() {
               起始時間
               <select
                 value={startTime}
-                onChange={(e) => {
-                  setStartTime(e.target.value);
-                  touch("start");
-                }}
+                onChange={(e) => setStartTime(e.target.value)}
               >
                 <option value="">請選擇</option>
                 {options.timeOptions.map((time) => (
@@ -277,12 +246,6 @@ function NewLeavePage() {
             </label>
           )}
         </div>
-        {/* 起始日期早於今天就是補請，顯示補請期限（RETRO-01） */}
-        {preview?.retroDeadline && (
-          <p className="field-hint">
-            補請期限：{formatMonthDay(preview.retroDeadline)}
-          </p>
-        )}
         {renderError("start")}
 
         <div className="date-time-row">
@@ -291,10 +254,7 @@ function NewLeavePage() {
             <input
               type="date"
               value={endDate}
-              onChange={(e) => {
-                setEndDate(e.target.value);
-                touch("end");
-              }}
+              onChange={(e) => setEndDate(e.target.value)}
             />
           </label>
           {!isDayUnit && (
@@ -302,10 +262,7 @@ function NewLeavePage() {
               結束時間
               <select
                 value={endTime}
-                onChange={(e) => {
-                  setEndTime(e.target.value);
-                  touch("end");
-                }}
+                onChange={(e) => setEndTime(e.target.value)}
               >
                 <option value="">請選擇</option>
                 {options.timeOptions.map((time) => (
@@ -374,10 +331,7 @@ function NewLeavePage() {
           職務代理人
           <select
             value={deputyId}
-            onChange={(e) => {
-              setDeputyId(e.target.value);
-              touch("deputyId");
-            }}
+            onChange={(e) => setDeputyId(e.target.value)}
           >
             <option value="">請選擇職務代理人</option>
             {options.deputies.map((emp) => (
@@ -388,19 +342,12 @@ function NewLeavePage() {
           </select>
         </label>
         {renderError("deputyId")}
-        {/* 職務代理人同時段也請假：只提醒，不擋送出（VAL-10） */}
-        {preview?.warnings.deputyId && (
-          <p className="field-warning">{preview.warnings.deputyId}</p>
-        )}
 
         <label>
           審核人
           <select
             value={reviewerId}
-            onChange={(e) => {
-              setReviewerId(e.target.value);
-              touch("reviewerId");
-            }}
+            onChange={(e) => setReviewerId(e.target.value)}
           >
             <option value="">請選擇審核人</option>
             {options.reviewers.map((emp) => (

@@ -1,0 +1,19 @@
+/* 批次表格字小一點 */
+.batch-table {
+  font-size: 14px;
+}
+
+/* 批次的標示可以有好幾個，排在一起 */
+.batch-tags .tag + .tag {
+  margin-left: 6px;
+}
+
+/* 合計列 */
+.batch-table tfoot td {
+  font-weight: 500;
+}
+
+.quota-empty {
+  margin: 0;
+  color: var(--color-text-muted);
+}

@@ -1,12 +1,9 @@
 import { Fragment, useEffect, useState } from "react";
 import "./MyQuotaPage.css";
-import type {
-  BatchQuotaResponse,
-  LeaveQuotaResponse,
-  LeaveTypeId,
-} from "../types/types";
+import type { LeaveQuotaResponse, LeaveTypeId } from "../types/types";
 import { getMyQuota } from "../api/quotaApi";
-import { formatDate, formatHours, formatMonthDay } from "../utils/format";
+import BatchTable from "../components/BatchTable";
+import { formatHours } from "../utils/format";
 
 /** 我的額度（F-04）：只看自己的 */
 function MyQuotaPage() {
@@ -30,83 +27,6 @@ function MyQuotaPage() {
       current.includes(leaveTypeId)
         ? current.filter((id) => id !== leaveTypeId)
         : [...current, leaveTypeId],
-    );
-  }
-
-  /** 批次的標示：30 天內到期、尚未生效、彈性假已請／未請 */
-  function renderBatchTags(batch: BatchQuotaResponse, isFlex: boolean) {
-    return (
-      <>
-        {batch.expiringSoon && (
-          <span className="tag tag-pending">30 天內到期</span>
-        )}
-        {batch.status === "upcoming" && (
-          <span className="tag tag-makeup_workday">
-            尚未生效（{formatMonthDay(batch.effectiveDate)} 起可請）
-          </span>
-        )}
-        {isFlex && (
-          <span className={batch.isTaken ? "tag tag-revoked" : "tag tag-approved"}>
-            {batch.isTaken ? "已請" : "未請"}
-          </span>
-        )}
-      </>
-    );
-  }
-
-  /** 批次表格 */
-  function renderBatchTable(batches: BatchQuotaResponse[], isFlex: boolean) {
-    return (
-      <table className="batch-table">
-        <thead>
-          <tr>
-            <th>批次</th>
-            <th>有效期間</th>
-            <th>總額</th>
-            <th>已使用</th>
-            <th>審核中</th>
-            <th>可用</th>
-            <th>標示</th>
-          </tr>
-        </thead>
-        <tbody>
-          {batches.map((batch) => (
-            <tr key={batch.id}>
-              <td>{batch.name}</td>
-              <td>
-                {formatDate(batch.effectiveDate)}–{formatDate(batch.expiryDate)}
-              </td>
-              <td>{formatHours(batch.total)}</td>
-              <td>{formatHours(batch.used)}</td>
-              <td>{formatHours(batch.reserved)}</td>
-              <td>{formatHours(batch.available)}</td>
-              <td className="batch-tags">{renderBatchTags(batch, isFlex)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  }
-
-  /** 展開後的內容：有效中＋尚未生效的批次，已過期的收合在最後 */
-  function renderBatches(quota: LeaveQuotaResponse) {
-    const isFlex = quota.leaveTypeId === "flex";
-    const current = quota.batches.filter((batch) => batch.status !== "expired");
-    const expired = quota.batches.filter((batch) => batch.status === "expired");
-    return (
-      <>
-        {current.length > 0 ? (
-          renderBatchTable(current, isFlex)
-        ) : (
-          <p className="quota-empty">目前沒有任何批次</p>
-        )}
-        {expired.length > 0 && (
-          <details className="expired-batches">
-            <summary>已過期批次（{expired.length}）</summary>
-            {renderBatchTable(expired, isFlex)}
-          </details>
-        )}
-      </>
     );
   }
 
@@ -174,7 +94,9 @@ function MyQuotaPage() {
                 </tr>
                 {isOpen && (
                   <tr className="batch-row">
-                    <td colSpan={6}>{renderBatches(quota)}</td>
+                    <td colSpan={6}>
+                      <BatchTable quota={quota} />
+                    </td>
                   </tr>
                 )}
               </Fragment>

@@ -8,17 +8,17 @@ import type {
 } from "../types/types";
 
 /**
- * 預設資料：照《功能規格書 v3》第 6 章，以 2026/10/19（一）為基準日。
+ * 預設資料：照《功能規格書》第 6 章，以 2026/10/19（一）為基準日。
  * 時間戳記用 UTC 寫，台灣時間 = UTC + 8，例如 01:00Z 是台灣 9:00。
  */
 
 /** 班別（6.2） */
 export const shiftList: Shift[] = [
   {
-    id: "standard",
-    name: "標準班",
+    id: "morning",
+    name: "早班",
     selectableStart: "09:00",
-    selectableEnd: "19:00",
+    selectableEnd: "18:00",
     fullDayStart: "09:00",
     fullDayEnd: "18:00",
     breakStart: "12:00",
@@ -26,8 +26,8 @@ export const shiftList: Shift[] = [
     dailyHours: 8,
   },
   {
-    id: "afternoon",
-    name: "午班",
+    id: "middle",
+    name: "中班",
     selectableStart: "13:00",
     selectableEnd: "22:00",
     fullDayStart: "13:00",
@@ -44,7 +44,7 @@ export const employeeList: Employee[] = [
     id: "E01",
     name: "王小明",
     role: "reviewer",
-    shiftId: "standard",
+    shiftId: "morning",
     hireDate: "2015-04-01",
     birthday: "1985-10-17",
   },
@@ -52,7 +52,7 @@ export const employeeList: Employee[] = [
     id: "E02",
     name: "李美玲",
     role: "reviewer",
-    shiftId: "standard",
+    shiftId: "morning",
     hireDate: "2020-08-31",
     birthday: "1990-03-31",
   },
@@ -60,7 +60,7 @@ export const employeeList: Employee[] = [
     id: "E03",
     name: "陳志豪",
     role: "submitter",
-    shiftId: "standard",
+    shiftId: "morning",
     hireDate: "2024-03-01",
     birthday: "1995-01-10",
   },
@@ -68,25 +68,9 @@ export const employeeList: Employee[] = [
     id: "E04",
     name: "林怡君",
     role: "submitter",
-    shiftId: "afternoon",
-    hireDate: "2025-04-01",
-    birthday: "1996-02-29",
-  },
-  {
-    id: "E05",
-    name: "張家豪",
-    role: "submitter",
-    shiftId: "standard",
-    hireDate: "2026-07-01",
-    birthday: "1998-11-25",
-  },
-  {
-    id: "E06",
-    name: "黃雅婷",
-    role: "submitter",
-    shiftId: "standard",
+    shiftId: "middle",
     hireDate: "2018-11-05",
-    birthday: "1992-11-20",
+    birthday: "1996-02-29",
   },
 ];
 
@@ -187,7 +171,7 @@ export const leaveFormList: LeaveForm[] = [
     endTime: "2026-10-20T12:00",
     days: [{ date: "2026-10-20", startTime: "09:00", endTime: "12:00", hours: 3 }],
     hours: 3,
-    deputyId: "E05",
+    deputyId: "E04",
     reviewerId: "E01",
     note: "看牙醫",
     submittedAt: "2026-10-12T01:00:00.000Z",
@@ -207,7 +191,7 @@ export const leaveFormList: LeaveForm[] = [
     endTime: "2026-10-21T17:00",
     days: [{ date: "2026-10-21", startTime: "13:00", endTime: "17:00", hours: 4 }],
     hours: 4,
-    deputyId: "E06",
+    deputyId: "E03",
     reviewerId: "E02",
     note: "",
     submittedAt: "2026-10-14T01:00:00.000Z",
@@ -219,7 +203,7 @@ export const leaveFormList: LeaveForm[] = [
   },
   {
     id: "L03",
-    employeeId: "E06",
+    employeeId: "E03",
     leaveTypeId: "personal",
     relationId: null,
     status: "rejected",
@@ -227,12 +211,12 @@ export const leaveFormList: LeaveForm[] = [
     endTime: "2026-10-23T18:00",
     days: [{ date: "2026-10-23", startTime: "09:00", endTime: "18:00", hours: 8 }],
     hours: 8,
-    deputyId: "E03",
+    deputyId: "E04",
     reviewerId: "E01",
     note: "處理家務",
     submittedAt: "2026-10-15T01:30:00.000Z",
     history: [
-      { actorId: "E06", at: "2026-10-15T01:30:00.000Z", action: "submit", note: "" },
+      { actorId: "E03", at: "2026-10-15T01:30:00.000Z", action: "submit", note: "" },
       {
         actorId: "E01",
         at: "2026-10-16T01:00:00.000Z",
@@ -306,7 +290,7 @@ export const leaveFormList: LeaveForm[] = [
     endTime: "2026-10-30T22:00",
     days: [{ date: "2026-10-30", startTime: "13:00", endTime: "22:00", hours: 8 }],
     hours: 8,
-    deputyId: "E06",
+    deputyId: "E03",
     reviewerId: "E02",
     note: "",
     submittedAt: "2026-10-14T02:00:00.000Z",
@@ -318,7 +302,7 @@ export const leaveFormList: LeaveForm[] = [
   },
   {
     id: "L07",
-    employeeId: "E05",
+    employeeId: "E03",
     leaveTypeId: "sick",
     relationId: null,
     status: "pending",
@@ -326,12 +310,12 @@ export const leaveFormList: LeaveForm[] = [
     endTime: "2026-10-15T18:00",
     days: [{ date: "2026-10-15", startTime: "09:00", endTime: "18:00", hours: 8 }],
     hours: 8,
-    deputyId: "E03",
+    deputyId: "E04",
     reviewerId: "E02",
     note: "感冒就醫",
     submittedAt: "2026-10-19T01:00:00.000Z",
     history: [
-      { actorId: "E05", at: "2026-10-19T01:00:00.000Z", action: "submit", note: "" },
+      { actorId: "E03", at: "2026-10-19T01:00:00.000Z", action: "submit", note: "" },
     ],
     deductions: [],
   },
@@ -348,7 +332,7 @@ export const leaveFormList: LeaveForm[] = [
       { date: "2026-11-03", startTime: "09:00", endTime: "18:00", hours: 8 },
     ],
     hours: 16,
-    deputyId: "E05",
+    deputyId: "E04",
     reviewerId: "E01",
     note: "",
     submittedAt: "2026-10-16T01:30:00.000Z",
@@ -362,15 +346,15 @@ export const leaveFormList: LeaveForm[] = [
   },
   {
     id: "L09",
-    employeeId: "E06",
+    employeeId: "E04",
     leaveTypeId: "annual",
     relationId: null,
     status: "pending",
-    startTime: "2026-11-04T09:00",
-    endTime: "2026-11-05T18:00",
+    startTime: "2026-11-04T13:00",
+    endTime: "2026-11-05T22:00",
     days: [
-      { date: "2026-11-04", startTime: "09:00", endTime: "18:00", hours: 8 },
-      { date: "2026-11-05", startTime: "09:00", endTime: "18:00", hours: 8 },
+      { date: "2026-11-04", startTime: "13:00", endTime: "22:00", hours: 8 },
+      { date: "2026-11-05", startTime: "13:00", endTime: "22:00", hours: 8 },
     ],
     hours: 16,
     deputyId: "E03",
@@ -378,11 +362,11 @@ export const leaveFormList: LeaveForm[] = [
     note: "",
     submittedAt: "2026-10-19T01:30:00.000Z",
     history: [
-      { actorId: "E06", at: "2026-10-19T01:30:00.000Z", action: "submit", note: "" },
+      { actorId: "E04", at: "2026-10-19T01:30:00.000Z", action: "submit", note: "" },
     ],
     deductions: [
-      { batchId: "annual:E06:2025-11-05", date: "2026-11-04", hours: 8 },
-      { batchId: "annual:E06:2026-11-05", date: "2026-11-05", hours: 8 },
+      { batchId: "annual:E04:2025-11-05", date: "2026-11-04", hours: 8 },
+      { batchId: "annual:E04:2026-11-05", date: "2026-11-05", hours: 8 },
     ],
   },
   {

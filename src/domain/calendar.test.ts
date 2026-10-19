@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isWorkday, getWorkdays, addWorkdays } from "./calendar";
+import { isWorkday, getWorkdays } from "./calendar";
 import { calendarDayList } from "../data/calendarDays";
 import type { CalendarDay } from "../types/types";
 
@@ -55,23 +55,5 @@ describe("getWorkdays", () => {
       "2026-12-31",
       "2027-01-04",
     ]);
-  });
-});
-
-describe("addWorkdays", () => {
-  it("規格範例：10/16 往後 5 個工作天是 10/23", () => {
-    expect(addWorkdays("2026-10-16", 5, calendarDayList)).toBe("2026-10-23");
-  });
-
-  it("L07：10/15 往後 5 個工作天是 10/22", () => {
-    expect(addWorkdays("2026-10-15", 5, calendarDayList)).toBe("2026-10-22");
-  });
-
-  it("跳過國慶連假：10/8 往後 5 個工作天是 10/16", () => {
-    expect(addWorkdays("2026-10-08", 5, calendarDayList)).toBe("2026-10-16");
-  });
-
-  it("10/12 往後 5 個工作天是 10/19", () => {
-    expect(addWorkdays("2026-10-12", 5, calendarDayList)).toBe("2026-10-19");
   });
 });

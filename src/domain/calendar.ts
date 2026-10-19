@@ -31,23 +31,3 @@ export function getWorkdays(
   }
   return workdays;
 }
-
-/**
- * 從隔天起算的第 n 個工作天（RETRO-01 補請期限）
- * 例如 10/16（五）往後 5 個工作天：10/19、20、21、22、23 → 10/23
- */
-export function addWorkdays(
-  date: string,
-  n: number,
-  calendarDays: CalendarDay[],
-): string {
-  let current = date;
-  let count = 0;
-  while (count < n) {
-    current = addDays(current, 1);
-    if (isWorkday(current, calendarDays)) {
-      count++;
-    }
-  }
-  return current;
-}

@@ -44,13 +44,6 @@
   font-size: 14px;
 }
 
-/* 欄位下方的提醒（不擋送出） */
-.field-warning {
-  margin: 4px 0 0;
-  color: var(--color-pending);
-  font-size: 14px;
-}
-
 /* 可用額度：一行一行 */
 .quota-line {
   margin: 0;

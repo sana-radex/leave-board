@@ -1,3 +1,16 @@
+/* 左邊行事曆佔滿剩下的寬度，右邊放我的額度 */
+.calendar-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+/* min-width: 0 讓行事曆可以縮，不會把我的額度擠出去 */
+.calendar-main {
+  flex: 1;
+  min-width: 0;
+}
+
 /* 工具列：切換月份靠左，今天靠右 */
 .calendar-toolbar {
   display: flex;

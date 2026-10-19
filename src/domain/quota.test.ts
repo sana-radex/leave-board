@@ -37,7 +37,7 @@ function formsOf(employeeId: string, excludeId?: string) {
 
 const chen = employeeList[2]; // 陳志豪
 const wang = employeeList[0]; // 王小明
-const huang = employeeList[5]; // 黃雅婷
+const lin = employeeList[3]; // 林怡君
 
 describe("allocateDeductions（QUOTA-01～03）", () => {
   it("規格範例（彈性假）：11/2 扣 1/2、11/3 扣 3/29 = L08 的扣除明細", () => {
@@ -52,8 +52,8 @@ describe("allocateDeductions（QUOTA-01～03）", () => {
 
   it("L09：11/4 扣快到期的 2025/11/5、11/5 扣尚未生效的 2026/11/5（QUOTA-03）", () => {
     const summaries = summarizeBatches(
-      batchesOf(huang, "annual"),
-      formsOf("E06", "L09"),
+      batchesOf(lin, "annual"),
+      formsOf("E04", "L09"),
     );
     const result = allocateDeductions(getForm("L09").days, summaries);
     expect(result.deductions).toEqual(getForm("L09").deductions);
@@ -108,10 +108,11 @@ describe("allocateDeductions（QUOTA-01～03）", () => {
   });
 
   it("沒有可扣的批次：回傳扣不到的那天（QUOTA-02）", () => {
-    const zhang = employeeList[4]; // 張家豪，沒有特休批次
+    // 7/1 到職未滿 6 個月，沒有特休批次
+    const newcomer: Employee = { ...chen, hireDate: "2026-07-01" };
     const result = allocateDeductions(
       [{ date: "2026-10-27", startTime: "09:00", endTime: "18:00", hours: 8 }],
-      summarizeBatches(batchesOf(zhang, "annual"), []),
+      summarizeBatches(batchesOf(newcomer, "annual"), []),
     );
     expect(result).toEqual({ deductions: [], failedDate: "2026-10-27" });
   });
@@ -152,8 +153,8 @@ describe("summarizeBatches（F-04 額度狀態）", () => {
 });
 
 describe("summarizeYear（QUOTA-05）", () => {
-  it("張家豪病假：L07 待審核 8 小時", () => {
-    const forms = formsOf("E05").filter((form) => form.leaveTypeId === "sick");
+  it("陳志豪病假：L07 待審核 8 小時", () => {
+    const forms = formsOf("E03").filter((form) => form.leaveTypeId === "sick");
     expect(summarizeYear(2026, forms)).toEqual({ used: 0, reserved: 8 });
   });
 

@@ -8,27 +8,7 @@ td .tag {
   background-color: var(--color-surface);
 }
 
-/* 批次表格字小一點 */
-.batch-table {
-  font-size: 14px;
-}
-
-/* 批次的標示可以有好幾個，排在一起 */
+/* 批次的第一個標示不用往右推 */
 .batch-tags .tag:first-child {
   margin-left: 0;
-}
-
-/* 已過期批次：收合在最後 */
-.expired-batches {
-  margin-top: 8px;
-  color: var(--color-text-muted);
-}
-
-.expired-batches summary {
-  cursor: pointer;
-}
-
-.quota-empty {
-  margin: 0;
-  color: var(--color-text-muted);
 }

@@ -14,6 +14,7 @@ import CalendarPage from "./pages/CalendarPage";
 import MyLeavesPage from "./pages/MyLeavesPage";
 import NewLeavePage from "./pages/NewLeavePage";
 import InboxPage from "./pages/InboxPage";
+import MyQuotaPage from "./pages/MyQuotaPage";
 
 function App() {
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
@@ -74,6 +75,7 @@ function App() {
             />
             <Route path="/leave/new" element={<NewLeavePage />} />
             <Route path="/my-leaves" element={<MyLeavesPage />} />
+            <Route path="/my-quota" element={<MyQuotaPage />} />
             {/* 待我處理只有審核人能進；切換成提交人時會導回行事曆 */}
             <Route
               path="/inbox"

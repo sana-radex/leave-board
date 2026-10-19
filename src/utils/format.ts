@@ -29,6 +29,12 @@ export function formatDate(date: string): string {
   return `${year}/${month}/${day}`;
 }
 
+/** 'YYYY-MM-DD' → '10/23'（訊息裡用） */
+export function formatMonthDay(date: string): string {
+  const [, month, day] = date.split("-").map(Number);
+  return `${month}/${day}`;
+}
+
 /** 'HH:mm' → '9:00'（小時前面不補 0） */
 export function formatTime(time: string): string {
   const [hour, minute] = time.split(":");

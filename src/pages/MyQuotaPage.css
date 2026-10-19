@@ -1,0 +1,34 @@
+/* 假別名稱後面的標籤，和文字之間留空 */
+td .tag {
+  margin-left: 6px;
+}
+
+/* 展開的批次：淡淡的底色，和上面的假別區分 */
+.batch-row > td {
+  background-color: var(--color-surface);
+}
+
+/* 批次表格字小一點 */
+.batch-table {
+  font-size: 14px;
+}
+
+/* 批次的標示可以有好幾個，排在一起 */
+.batch-tags .tag:first-child {
+  margin-left: 0;
+}
+
+/* 已過期批次：收合在最後 */
+.expired-batches {
+  margin-top: 8px;
+  color: var(--color-text-muted);
+}
+
+.expired-batches summary {
+  cursor: pointer;
+}
+
+.quota-empty {
+  margin: 0;
+  color: var(--color-text-muted);
+}

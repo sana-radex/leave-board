@@ -182,6 +182,22 @@ export interface LeaveForm {
   deductions: Deduction[];
 }
 
+/** 批次（不儲存：依人員資料和規則即時產生） */
+export interface Batch {
+  /** 批次 id，重算也會一樣，例如 'annual:E03:2026-03-01' */
+  id: string;
+  /** 假別：只有批次型假別 */
+  leaveTypeId: "annual" | "flex" | "birthday";
+  /** 名稱，例如「特休（2026/3/1）」 */
+  name: string;
+  /** 生效日 */
+  effectiveDate: string; // 'YYYY-MM-DD'
+  /** 到期日（含） */
+  expiryDate: string; // 'YYYY-MM-DD'
+  /** 總時數 */
+  hours: number;
+}
+
 /** 辦公日曆的特別日子 */
 export interface CalendarDay {
   /** 日期 */
@@ -309,10 +325,21 @@ export type LeaveFormField =
   | "end" // 結束
   | "hours" // 時數
   | "deputyId" // 職務代理人
-  | "reviewerId"; // 審核人
+  | "reviewerId" // 審核人
+  | "quota"; // 可用額度
 
-/** 新增請假表單的錯誤訊息：哪個欄位、什麼訊息 */
+/** 新增請假表單的錯誤訊息（或提醒）：哪個欄位、什麼訊息 */
 export type LeaveFormErrors = Partial<Record<LeaveFormField, string>>;
+
+/** 新增請假時顯示的可用額度（一行） */
+export interface QuotaLine {
+  /** 前面的說明，例如跨年時的「2026 年」；不需要時是空字串 */
+  label: string;
+  /** 可用時數；婚喪假是該次額度 */
+  available: number;
+  /** 送出後剩餘；婚喪假不累計，是 null */
+  remaining: number | null;
+}
 
 /** 新增假單-請求 */
 export interface AddLeaveFormRequest {
@@ -366,12 +393,79 @@ export interface LeaveFormPreviewResponse {
   days: LeaveDay[];
   /** 時數 */
   hours: number;
-  /** 各欄位的錯誤訊息 */
+  /** 各欄位的錯誤訊息（會擋送出） */
   errors: LeaveFormErrors;
+  /** 各欄位的提醒（不擋送出），例如職務代理人同時段請假中 */
+  warnings: LeaveFormErrors;
+  /** 可用額度 */
+  quotaLines: QuotaLine[];
+  /** 將扣的批次 */
+  deductions: DeductionResponse[];
+  /** 補請期限；不是補請時為 null */
+  retroDeadline: string | null; // 'YYYY-MM-DD'
 }
 
 /** 送出假單-回傳 */
 export interface AddLeaveFormResponse extends Response {
   /** 各欄位的錯誤訊息 */
   errors: LeaveFormErrors;
+}
+
+/** 批次的狀態：有效中、尚未生效、已過期 */
+export type BatchStatus = "active" | "upcoming" | "expired";
+
+/** 我的額度：一筆批次-回傳 */
+export interface BatchQuotaResponse {
+  /** 批次 id */
+  id: string;
+  /** 名稱，例如「特休（2026/3/1）」 */
+  name: string;
+  /** 生效日 */
+  effectiveDate: string; // 'YYYY-MM-DD'
+  /** 到期日 */
+  expiryDate: string; // 'YYYY-MM-DD'
+  /** 總額 */
+  total: number;
+  /** 已使用 */
+  used: number;
+  /** 審核中 */
+  reserved: number;
+  /** 可用 */
+  available: number;
+  /** 有效中、尚未生效、已過期 */
+  status: BatchStatus;
+  /** 30 天內到期且還有可用時數 */
+  expiringSoon: boolean;
+  /** 已請（審核中或已使用）；彈性假標示用 */
+  isTaken: boolean;
+}
+
+/** 我的額度：單次事件的每次額度-回傳 */
+export interface PerEventQuotaResponse {
+  /** 說明：喪假是親屬，例如「父母、養父母、繼父母、配偶」；婚假是空字串 */
+  label: string;
+  /** 每次可請時數 */
+  hours: number;
+}
+
+/** 我的額度：一個假別-回傳（F-04） */
+export interface LeaveQuotaResponse {
+  /** 假別 id */
+  leaveTypeId: LeaveTypeId;
+  /** 假別名稱 */
+  leaveTypeName: string;
+  /** 額度類型 */
+  quotaType: QuotaType;
+  /** 總額：批次型是有效中＋尚未生效批次的加總；曆年制是今年度 */
+  total: number;
+  /** 已使用 */
+  used: number;
+  /** 審核中 */
+  reserved: number;
+  /** 可用 */
+  available: number;
+  /** 批次型的每一筆批次（含已過期）；其他假別是空陣列 */
+  batches: BatchQuotaResponse[];
+  /** 單次事件的每次額度；其他假別是空陣列 */
+  perEvent: PerEventQuotaResponse[];
 }

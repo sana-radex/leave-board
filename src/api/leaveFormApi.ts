@@ -3,6 +3,7 @@ import {
   shiftList,
   leaveTypeList,
   bereavementRelationList,
+  flexLeaveDateList,
   leaveFormList,
 } from "../data/mockData";
 import { calendarDayList } from "../data/calendarDays";
@@ -28,11 +29,12 @@ import {
 } from "../domain/permission";
 import { applyAction, canDoAction } from "../domain/lifecycle";
 import { getTimeOptions } from "../domain/time";
+import { generateBatches } from "../domain/batch";
 import { validateLeaveForm } from "../domain/validate";
 import type { ValidateContext } from "../domain/validate";
 import { formatDate } from "../utils/format";
 import { actionDoneMessages, actionLabels } from "../utils/label";
-import { now } from "../utils/today";
+import { now, today } from "../utils/today";
 
 /** 批次名稱：從批次 id 組出來，例如 'annual:E03:2026-03-01' → '特休（2026/3/1）' */
 function getBatchName(batchId: string): string {
@@ -153,12 +155,21 @@ function getValidateContext(): ValidateContext {
   const shifts = readTable(TABLES.shiftList, shiftList);
   const shift =
     shifts.find((item) => item.id === applicant.shiftId) ?? shifts[0];
+  const todayDate = today();
+  const flexDates = readTable(TABLES.flexLeaveDateList, flexLeaveDateList);
   return {
+    today: todayDate,
     applicant,
     shift,
     leaveTypes: readTable(TABLES.leaveTypeList, leaveTypeList),
+    relations: readTable(
+      TABLES.bereavementRelationList,
+      bereavementRelationList,
+    ),
     employees,
     calendarDays: readTable(TABLES.calendarDayList, calendarDayList),
+    batches: generateBatches(applicant, flexDates, todayDate),
+    forms: readTable(TABLES.leaveFormList, leaveFormList),
   };
 }
 
@@ -185,12 +196,25 @@ export async function getLeaveFormOptions(): Promise<LeaveFormOptionsResponse> {
   };
 }
 
-/** 試算：填表時即時算時數、檢查錯誤，不會存檔（F-02） */
+/** 試算：填表時即時算時數、可用額度、補請期限、檢查錯誤，不會存檔（F-02） */
 export async function previewLeaveForm(
   input: AddLeaveFormRequest,
 ): Promise<LeaveFormPreviewResponse> {
   await delay(200);
-  return validateLeaveForm(input, getValidateContext());
+  const result = validateLeaveForm(input, getValidateContext());
+  return {
+    days: result.days,
+    hours: result.hours,
+    errors: result.errors,
+    warnings: result.warnings,
+    quotaLines: result.quotaLines,
+    deductions: result.deductions.map((item) => ({
+      batchName: getBatchName(item.batchId),
+      date: item.date,
+      hours: item.hours,
+    })),
+    retroDeadline: result.retroDeadline,
+  };
 }
 
 /** 送出假單：重新驗證一次，通過才存成待審核（LIFE-01） */
@@ -199,7 +223,10 @@ export async function addLeaveForm(
 ): Promise<AddLeaveFormResponse> {
   await delay();
   const context = getValidateContext();
-  const { errors, days, hours } = validateLeaveForm(input, context);
+  const { errors, days, hours, deductions } = validateLeaveForm(
+    input,
+    context,
+  );
   if (Object.keys(errors).length > 0) {
     return { success: false, message: "請修正表單上的錯誤", errors };
   }
@@ -224,7 +251,8 @@ export async function addLeaveForm(
     history: [
       { actorId: applicant.id, at: submittedAt, action: "submit", note: "" },
     ],
-    deductions: [],
+    // 依扣除明細預留額度（LIFE-01）；之後退回、撤銷時依明細退回原批次
+    deductions,
   };
 
   const formList = readTable(TABLES.leaveFormList, leaveFormList);

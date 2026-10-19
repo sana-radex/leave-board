@@ -17,7 +17,23 @@ import {
   previewLeaveForm,
 } from "../api/leaveFormApi";
 import Toast from "../components/Toast";
-import { formatDate, formatHours, formatTime } from "../utils/format";
+import {
+  formatDate,
+  formatHours,
+  formatMonthDay,
+  formatTime,
+} from "../utils/format";
+
+/** 還沒有試算結果時用的空白結果 */
+const EMPTY_PREVIEW: LeaveFormPreviewResponse = {
+  days: [],
+  hours: 0,
+  errors: {},
+  warnings: {},
+  quotaLines: [],
+  deductions: [],
+  retroDeadline: null,
+};
 
 /** 班別文字，例如「標準班 9:00–18:00（可選 9:00–19:00）」「午班 13:00–22:00」 */
 function getShiftText(shift: Shift): string {
@@ -121,7 +137,12 @@ function NewLeavePage() {
   /** 顯示某個欄位的錯誤訊息（改過或按過送出才顯示） */
   function renderError(field: LeaveFormField) {
     const message = preview?.errors[field];
-    if (!message || (!submitted && !touched.includes(field))) {
+    // 時數、可用額度是從起訖算出來的：起訖都改過才算改過
+    const isTouched =
+      field === "hours" || field === "quota"
+        ? touched.includes("start") && touched.includes("end")
+        : touched.includes(field);
+    if (!message || (!submitted && !isTouched)) {
       return null;
     }
     return <p className="field-error">{message}</p>;
@@ -165,7 +186,7 @@ function NewLeavePage() {
     }
     setToast(result);
     // 用送出時的檢查結果更新錯誤訊息
-    setPreview({ days: [], hours: 0, ...preview, errors: result.errors });
+    setPreview({ ...(preview ?? EMPTY_PREVIEW), errors: result.errors });
   }
 
   if (!options) {
@@ -256,6 +277,12 @@ function NewLeavePage() {
             </label>
           )}
         </div>
+        {/* 起始日期早於今天就是補請，顯示補請期限（RETRO-01） */}
+        {preview?.retroDeadline && (
+          <p className="field-hint">
+            補請期限：{formatMonthDay(preview.retroDeadline)}
+          </p>
+        )}
         {renderError("start")}
 
         <div className="date-time-row">
@@ -311,11 +338,37 @@ function NewLeavePage() {
             </details>
           )}
         </div>
-        {/* 時數錯誤：起訖都改過或按過送出才顯示 */}
-        {preview?.errors.hours &&
-          (submitted || (touched.includes("start") && touched.includes("end"))) && (
-            <p className="field-error">{preview.errors.hours}</p>
+        {renderError("hours")}
+
+        <div className="hours-field">
+          可用額度
+          {preview && preview.quotaLines.length > 0 ? (
+            preview.quotaLines.map((line) => (
+              <p key={line.label} className="quota-line">
+                {line.remaining === null
+                  ? `該次可請 ${formatHours(line.available)}`
+                  : `${line.label}可用 ${formatHours(line.available)}，${
+                      line.remaining < 0
+                        ? `不足 ${formatHours(-line.remaining)}`
+                        : `送出後剩 ${formatHours(line.remaining)}`
+                    }`}
+              </p>
+            ))
+          ) : (
+            <p className="quota-line">選好假別與起訖後顯示</p>
           )}
+          {preview && preview.deductions.length > 0 && (
+            <ul>
+              {preview.deductions.map((item) => (
+                <li key={`${item.batchName}-${item.date}`}>
+                  {formatDate(item.date)} 扣 {item.batchName}{" "}
+                  {formatHours(item.hours)}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        {renderError("quota")}
 
         <label>
           職務代理人
@@ -335,6 +388,10 @@ function NewLeavePage() {
           </select>
         </label>
         {renderError("deputyId")}
+        {/* 職務代理人同時段也請假：只提醒，不擋送出（VAL-10） */}
+        {preview?.warnings.deputyId && (
+          <p className="field-warning">{preview.warnings.deputyId}</p>
+        )}
 
         <label>
           審核人

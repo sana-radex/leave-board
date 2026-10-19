@@ -1,0 +1,76 @@
+import { describe, it, expect } from "vitest";
+import {
+  employeeList,
+  shiftList,
+  leaveTypeList,
+  bereavementRelationList,
+  leaveFormList,
+} from "./mockData";
+
+/** 檢查手寫的預設假單有沒有前後不一致 */
+describe("預設假單", () => {
+  it("有 L01～L11 共 11 張", () => {
+    expect(leaveFormList.map((form) => form.id)).toEqual([
+      "L01", "L02", "L03", "L04", "L05", "L06",
+      "L07", "L08", "L09", "L10", "L11",
+    ]);
+  });
+
+  it.each(leaveFormList)("$id 的人員、班別、假別、親屬關係都找得到", (form) => {
+    const ids = employeeList.map((emp) => emp.id);
+    expect(ids).toContain(form.employeeId);
+    expect(ids).toContain(form.deputyId);
+    expect(ids).toContain(form.reviewerId);
+    expect(leaveTypeList.map((type) => type.id)).toContain(form.leaveTypeId);
+    if (form.relationId !== null) {
+      expect(bereavementRelationList.map((r) => r.id)).toContain(form.relationId);
+    }
+  });
+
+  it.each(leaveFormList)("$id 的審核人具審核人角色，且不是申請人", (form) => {
+    const reviewer = employeeList.find((emp) => emp.id === form.reviewerId);
+    expect(reviewer?.role).toBe("reviewer");
+    expect(form.reviewerId).not.toBe(form.employeeId);
+  });
+
+  it.each(leaveFormList)("$id 的時數等於每日明細加總", (form) => {
+    const sum = form.days.reduce((total, day) => total + day.hours, 0);
+    expect(form.hours).toBe(sum);
+  });
+
+  it.each(leaveFormList)("$id 的起訖等於第一天開始、最後一天結束", (form) => {
+    const first = form.days[0];
+    const last = form.days[form.days.length - 1];
+    expect(form.startTime).toBe(`${first.date}T${first.startTime}`);
+    expect(form.endTime).toBe(`${last.date}T${last.endTime}`);
+  });
+
+  it.each(leaveFormList)("$id 的每日時數不超過申請人班別的每日工時", (form) => {
+    const employee = employeeList.find((emp) => emp.id === form.employeeId);
+    const shift = shiftList.find((item) => item.id === employee?.shiftId);
+    for (const day of form.days) {
+      expect(day.hours).toBeLessThanOrEqual(shift!.dailyHours);
+    }
+  });
+
+  it.each(leaveFormList)("$id 的第一筆歷程是送出，時間等於送出時間", (form) => {
+    expect(form.history[0].action).toBe("submit");
+    expect(form.history[0].actorId).toBe(form.employeeId);
+    expect(form.history[0].at).toBe(form.submittedAt);
+  });
+
+  it.each(leaveFormList)("$id 的歷程時間由舊到新", (form) => {
+    const times = form.history.map((record) => record.at);
+    expect([...times].sort()).toEqual(times);
+  });
+
+  it.each(leaveFormList)("$id 批次型假別的扣除明細加總等於時數", (form) => {
+    const leaveType = leaveTypeList.find((type) => type.id === form.leaveTypeId);
+    const sum = form.deductions.reduce((total, item) => total + item.hours, 0);
+    if (leaveType?.quotaType === "batch") {
+      expect(sum).toBe(form.hours);
+    } else {
+      expect(form.deductions).toEqual([]);
+    }
+  });
+});

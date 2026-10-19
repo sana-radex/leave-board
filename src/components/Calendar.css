@@ -54,6 +54,11 @@
   margin-left: 0;
 }
 
+/* 週六、週日：加底色（補班日不加） */
+.calendar-cell.weekend {
+  background-color: var(--color-surface);
+}
+
 /* 不是這個月的日期，顏色變淡 */
 .calendar-cell.other-month {
   opacity: 0.4;

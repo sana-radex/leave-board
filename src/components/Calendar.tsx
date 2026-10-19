@@ -1,7 +1,10 @@
 import "./Calendar.css";
-import type { CalendarDay, LeaveFormResponse } from "../types/types";
-import { statusLabels } from "../utils/label";
-import { toDateKey } from "../utils/format";
+import type {
+  CalendarDay,
+  LeaveDayResponse,
+  LeaveFormResponse,
+} from "../types/types";
+import { formatTime, toDateKey } from "../utils/format";
 
 /** 格子數：一個月最多跨 6 週，每週 7 天 */
 const CELL_COUNT = 6 * 7;
@@ -45,20 +48,39 @@ function Calendar({
     return calendarDays.find((day) => day.date === dateKey);
   }
 
-  /** 找出這天有請假的假單：開始日期 <= 這天 <= 結束日期 */
+  /** 找出這天有請假的假單：每日明細裡有這一天的（非工作天不會有） */
   function getLeavesOfDay(dateKey: string) {
-    return leaves.filter(
-      (leave) =>
-        leave.startTime.slice(0, 10) <= dateKey &&
-        dateKey <= leave.endTime.slice(0, 10),
-    );
+    const result: { leave: LeaveFormResponse; day: LeaveDayResponse }[] = [];
+    for (const leave of leaves) {
+      const day = leave.days.find((item) => item.date === dateKey);
+      if (day) {
+        result.push({ leave, day });
+      }
+    }
+    return result;
   }
 
-  /** 標籤文字：已核准只寫姓名，其他狀態在後面註明 */
-  function getLeaveLabel(leave: LeaveFormResponse): string {
-    const name = leave.employeeName;
-    if (leave.status === "approved") return name;
-    return `${name}（${statusLabels[leave.status]}）`;
+  /** 標籤文字：姓名 假別，非整天加時段，已撤銷加註 */
+  function getLeaveLabel(leave: LeaveFormResponse, day: LeaveDayResponse) {
+    let label = `${leave.employeeName} ${leave.leaveTypeName}`;
+    if (!day.isFullDay) {
+      label += ` ${formatTime(day.startTime)}–${formatTime(day.endTime)}`;
+    }
+    if (leave.status === "revoked") {
+      label += "（已撤銷）";
+    }
+    return label;
+  }
+
+  /** 標籤顏色：已撤銷用灰色；其餘自己的假單用紫色、其他人的用湖水綠（撤銷審核中照一般呈現） */
+  function getLeaveClassName(leave: LeaveFormResponse) {
+    if (leave.status === "revoked") {
+      return "tag tag-revoked";
+    }
+    if (leave.isMine) {
+      return "tag tag-mine";
+    }
+    return "tag tag-approved";
   }
 
   return (
@@ -75,28 +97,33 @@ function Calendar({
           const specialDay = getSpecialDay(dateKey);
           const dayLeaves = getLeavesOfDay(dateKey);
 
+          // 週六、週日加底色；補班日要上班，不加
+          const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+          const isMakeupWorkday = specialDay?.type === "makeup_workday";
+
+          let className = "calendar-cell";
+          if (date.getMonth() !== month) {
+            className += " other-month";
+          }
+          if (isWeekend && !isMakeupWorkday) {
+            className += " weekend";
+          }
+
           return (
-            <div
-              key={index}
-              className={
-                date.getMonth() === month
-                  ? "calendar-cell"
-                  : "calendar-cell other-month"
-              }
-            >
+            <div key={index} className={className}>
               <div>{date.getDate()}</div>
               {specialDay && (
                 <span className={`tag tag-${specialDay.type}`}>
                   {specialDay.name}
                 </span>
               )}
-              {dayLeaves.map((leave) => (
+              {dayLeaves.map(({ leave, day }) => (
                 <button
                   key={leave.id}
-                  className={`tag tag-${leave.status}`}
+                  className={getLeaveClassName(leave)}
                   onClick={() => onSelectLeave(leave.id)}
                 >
-                  {getLeaveLabel(leave)}
+                  {getLeaveLabel(leave, day)}
                 </button>
               ))}
             </div>

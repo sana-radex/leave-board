@@ -1,5 +1,12 @@
-/* 申請假單表單：每個欄位各佔一行 */
-.leave-form label {
-  display: block;
+/* 工具列：篩選狀態、筆數排成一行 */
+.my-leaves-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 12px;
+}
+
+/* 工具列裡的筆數不用下方留白 */
+.my-leaves-toolbar p {
+  margin: 0;
 }

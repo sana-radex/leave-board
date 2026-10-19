@@ -1,0 +1,11 @@
+/* 扣除明細：一筆一行，不要項目符號 */
+.leave-detail-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 簽核歷程表格和關閉按鈕之間留空 */
+.modal-box table {
+  margin-bottom: 16px;
+}

@@ -1,24 +1,14 @@
 import { useEffect, useState } from "react";
 import "./CalendarPage.css";
-import type {
-  CalendarDay,
-  CalendarFilter,
-  LeaveFormResponse,
-} from "../types/types";
-import { getTeamLeaveFormList } from "../api/leaveFormApi";
+import type { CalendarDay, LeaveFormResponse } from "../types/types";
+import { getCalendarLeaveList } from "../api/leaveFormApi";
 import { getCalendarDayList } from "../api/calendarApi";
 import { today } from "../utils/today";
 import Calendar from "../components/Calendar";
-import CalendarFilterModal from "../components/CalendarFilterModal";
 import LeaveDetail from "../components/LeaveDetail";
 
-interface CalendarPageProps {
-  /** 目前登入的使用者姓名 */
-  currentUserName: string;
-}
-
-/** 團隊行事曆 */
-function CalendarPage({ currentUserName }: CalendarPageProps) {
+/** 請假行事曆（F-06） */
+function CalendarPage() {
   const [todayYear, todayMonth] = today().split("-").map(Number);
   const [loading, setLoading] = useState(true);
   const [leaveList, setLeaveList] = useState<LeaveFormResponse[]>([]);
@@ -27,23 +17,10 @@ function CalendarPage({ currentUserName }: CalendarPageProps) {
   const [viewDate, setViewDate] = useState(
     new Date(todayYear, todayMonth - 1, 1),
   );
-  // 篩選條件；預設照規格，待審核不顯示
-  const [filter, setFilter] = useState<CalendarFilter>({
-    pending: false,
-    approved: true,
-    revoked: true,
-    holiday: true,
-    makeup_workday: true,
-  });
-  const [showFilter, setShowFilter] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth(); // 0 = 1 月，11 = 12 月
-
-  // 有勾選的才顯示
-  const visibleLeaves = leaveList.filter((leave) => filter[leave.status]);
-  const visibleCalendarDays = calendarDayList.filter((day) => filter[day.type]);
 
   // 正在看詳情的假單
   const selectedLeave = leaveList.find((leave) => leave.id === selectedId);
@@ -54,17 +31,16 @@ function CalendarPage({ currentUserName }: CalendarPageProps) {
     setViewDate(new Date(year, month + offset, 1));
   }
 
-  /** 篩選視窗按下完成：套用新的篩選條件，關閉視窗 */
-  function handleFilterDone(newFilter: CalendarFilter) {
-    setFilter(newFilter);
-    setShowFilter(false);
+  /** 回到今天所在的月份 */
+  function goToToday() {
+    setViewDate(new Date(todayYear, todayMonth - 1, 1));
   }
 
-  // 首次進入，抓我看得到的假單和辦公日曆
+  // 首次進入，抓行事曆上的假單和辦公日曆
   useEffect(() => {
     async function loadData() {
       const [leaves, calendarDays] = await Promise.all([
-        getTeamLeaveFormList(),
+        getCalendarLeaveList(),
         getCalendarDayList(),
       ]);
       setLeaveList(leaves);
@@ -76,17 +52,24 @@ function CalendarPage({ currentUserName }: CalendarPageProps) {
 
   return (
     <>
-      <h1>Hi, {currentUserName}</h1>
+      <h1>請假行事曆</h1>
 
       <div className="calendar-toolbar">
-        <button onClick={() => setShowFilter(true)}>篩選條件</button>
         <div className="month-switcher">
           <button onClick={() => changeMonth(-1)}>⬅</button>
           <span className="calendar-month">
-            {year} / {month + 1} 
+            {year} / {month + 1}
           </span>
           <button onClick={() => changeMonth(1)}>⮕</button>
         </div>
+        <button onClick={goToToday}>今天</button>
+      </div>
+
+      <div className="calendar-legend">
+        <span className="tag tag-mine">我的假單</span>
+        <span className="tag tag-approved">其他人的假單</span>
+        <span className="tag tag-revoked">已撤銷</span>
+        <span className="tag tag-holiday">國定假日</span>
       </div>
 
       {loading && <p>載入中...</p>}
@@ -94,14 +77,10 @@ function CalendarPage({ currentUserName }: CalendarPageProps) {
       <Calendar
         year={year}
         month={month}
-        leaves={visibleLeaves}
-        calendarDays={visibleCalendarDays}
+        leaves={leaveList}
+        calendarDays={calendarDayList}
         onSelectLeave={setSelectedId}
       />
-
-      {showFilter && (
-        <CalendarFilterModal filter={filter} onDone={handleFilterDone} />
-      )}
 
       {selectedLeave && (
         <LeaveDetail

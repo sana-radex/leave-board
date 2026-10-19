@@ -1,8 +1,15 @@
-/* 工具列：切換月份靠左，篩選條件靠右 */
+/* 工具列：切換月份靠左，今天靠右 */
 .calendar-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 12px;
+}
+
+/* 圖例：標籤排成一行 */
+.calendar-legend {
+  display: flex;
+  gap: 8px;
   margin-bottom: 12px;
 }
 

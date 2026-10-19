@@ -29,6 +29,8 @@
   --color-approved-bg: #ccfbf1;
   --color-revoked: #4b5563; /* 已撤銷：灰 */
   --color-revoked-bg: #f3f4f6;
+  --color-mine: #5b21b6; /* 自己的假單：紫 */
+  --color-mine-bg: #ede9fe;
 
   /* 辦公日曆標籤：文字顏色 + 底色 */
   --color-holiday: #b91c1c; /* 國定假日：紅 */
@@ -173,6 +175,11 @@ th {
 .tag-revoked {
   color: var(--color-revoked);
   background-color: var(--color-revoked-bg);
+}
+
+.tag-mine {
+  color: var(--color-mine);
+  background-color: var(--color-mine-bg);
 }
 
 .tag-holiday {

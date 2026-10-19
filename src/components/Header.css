@@ -21,6 +21,13 @@
   gap: 12px;
 }
 
+/* 「目前使用者」文字和下拉選單排在一起 */
+.header-user label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* 黑底上的按鈕用亮的湖水綠，字才看得清楚 */
 .header button {
   border-color: var(--color-header-accent);

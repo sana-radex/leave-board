@@ -1,94 +1,62 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router";
 import "./App.css";
-import type { Employee, LeaveType, Role } from "./types/types";
-import { getEmployeeList } from "./api/employeeApi";
-import { getLeaveTypeList } from "./api/leaveTypeApi";
-import { login, logout } from "./api/authApi";
-import { loadAuth, saveAuth, clearAuth } from "./storage/authStorage";
+import type { Employee, UserOptionResponse } from "./types/types";
+import {
+  getCurrentUserInfo,
+  getUserOptionList,
+  switchUser,
+} from "./api/currentUserApi";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import CalendarPage from "./pages/CalendarPage";
 import MyLeavesPage from "./pages/MyLeavesPage";
-import LoginPage from "./pages/LoginPage";
 
 function App() {
-  const [auth, setAuth] = useState(() => loadAuth());
-  const [employeeList, setEmployeeList] = useState<Employee[]>([]);
-  const [leaveTypeList, setLeaveTypeList] = useState<LeaveType[]>([]);
+  const [currentUser, setCurrentUser] = useState<Employee | null>(null);
+  const [userOptions, setUserOptions] = useState<UserOptionResponse[]>([]);
 
-
+  // 首次進入，抓目前使用者和可以切換的使用者
   useEffect(() => {
     async function firstLoad() {
-      const [employees, leaveTypes] = await Promise.all([
-        getEmployeeList(),
-        getLeaveTypeList(),
+      const [user, options] = await Promise.all([
+        getCurrentUserInfo(),
+        getUserOptionList(),
       ]);
-      setEmployeeList(employees);
-      setLeaveTypeList(leaveTypes);
+      setCurrentUser(user);
+      setUserOptions(options);
     }
     firstLoad();
   }, []);
 
-  /** 登入 */
-  async function handleLogin(role: Role) {
-    const session = await login(role);
-    if (!session) {
-      alert("找不到這個角色的帳號");
-      return;
-    }
-    saveAuth(session); // 存進 localStorage：重新整理還在
-    setAuth(session); // 存進 state：畫面才會更新
+  /** 切換目前使用者 */
+  async function handleSwitchUser(employeeId: string) {
+    const user = await switchUser(employeeId);
+    setCurrentUser(user);
   }
 
-  /** 登出 */
-  async function handleLogout() {
-    // 後端
-    await logout();
-    // 前端
-    clearAuth();
-    setAuth(null);
+  if (!currentUser) {
+    return <p>載入中...</p>;
   }
-
-  // 還沒登入：只有 /login 這一頁，其他網址都導去 /login
-  // 所以按下登出、auth 變成 null 之後，會從這裡被導回登入頁
-  if (!auth) {
-    return (
-      <Routes>
-        <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    );
-  }
-
-  const currentUser = auth.user;
 
   return (
     <>
-      <Header currentUser={currentUser} onLogout={handleLogout} />
+      <Header
+        currentUser={currentUser}
+        userOptions={userOptions}
+        onSwitchUser={handleSwitchUser}
+      />
 
       <div className="layout">
         <Sidebar />
 
-        <main className="content">
+        {/* key 用目前使用者 id：切換使用者時，頁面整個重新載入，資料改成新使用者的 */}
+        <main className="content" key={currentUser.id}>
           <Routes>
-            <Route
-              path="/"
-              element={
-                <CalendarPage currentUserName={currentUser.name} />
-              }
-            />
-            <Route
-              path="/my-leaves"
-              element={
-                <MyLeavesPage
-                  currentUserId={currentUser.id}
-                  employeeList={employeeList}
-                  leaveTypeList={leaveTypeList}
-                />
-              }
-            />
-            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route path="/" element={<CalendarPage />} />
+            <Route path="/my-leaves" element={<MyLeavesPage />} />
+            {/* 其他網址（例如以前的 /login）都導回行事曆 */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
       </div>

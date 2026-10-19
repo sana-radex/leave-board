@@ -1,3 +1,5 @@
+import type { LeaveUnit } from "../types/types";
+
 /** 轉換時間格式，台灣當地顯示方式 */
 export function formatDateTime(value: string): string {
   return new Date(value).toLocaleString("zh-TW", {
@@ -21,12 +23,54 @@ export function toDateKey(date: Date): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-/** 取得時間選項：00:00–23:30，每 30 分鐘一格 */
-export function getTimeOptions(): string[] {
-  const options: string[] = [];
-  for (let hour = 0; hour < 24; hour++) {
-    const hh = String(hour).padStart(2, "0");
-    options.push(`${hh}:00`, `${hh}:30`);
+/** 'YYYY-MM-DD' → '2026/3/1' */
+export function formatDate(date: string): string {
+  const [year, month, day] = date.split("-").map(Number);
+  return `${year}/${month}/${day}`;
+}
+
+/** 'HH:mm' → '9:00'（小時前面不補 0） */
+export function formatTime(time: string): string {
+  const [hour, minute] = time.split(":");
+  return `${Number(hour)}:${minute}`;
+}
+
+/**
+ * 假單起訖，例如：
+ * - 同一天：2026/10/20 9:00–12:00
+ * - 跨日：2026/10/28 14:00 – 2026/10/29 12:00
+ * - 天制：2026/11/2 – 2026/11/3（只顯示日期）
+ */
+export function formatLeaveRange(
+  startTime: string,
+  endTime: string,
+  unit: LeaveUnit | null,
+): string {
+  const [startDate, startClock] = startTime.split("T");
+  const [endDate, endClock] = endTime.split("T");
+
+  if (unit === "day") {
+    if (startDate === endDate) {
+      return formatDate(startDate);
+    }
+    return `${formatDate(startDate)} – ${formatDate(endDate)}`;
   }
-  return options;
+
+  if (startDate === endDate) {
+    return `${formatDate(startDate)} ${formatTime(startClock)}–${formatTime(endClock)}`;
+  }
+  return `${formatDate(startDate)} ${formatTime(startClock)} – ${formatDate(endDate)} ${formatTime(endClock)}`;
+}
+
+/** 時數顯示成「天＋小時」，1 天 = 8 小時，例如 20 → '2 天 4 小時' */
+export function formatHours(hours: number): string {
+  const days = Math.floor(hours / 8);
+  const restHours = hours - days * 8;
+  if (days === 0) {
+    return `${restHours} 小時`;
+  }
+  if (restHours === 0) {
+    return `${days} 天`;
+  }
+  return `${days} 天 ${restHours} 小時`;
 }

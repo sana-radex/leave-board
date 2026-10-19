@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import "./MyLeavesPage.css";
 import type { Response, LeaveFormResponse, LeaveStatus } from "../types/types";
-import { getMyLeaveFormList, revokeLeaveForm } from "../api/leaveFormApi";
+import { getMyLeaveFormList } from "../api/leaveFormApi";
 import Toast from "../components/Toast";
 import LeaveDetail from "../components/LeaveDetail";
+import LeaveActionButtons from "../components/LeaveActionButtons";
 import { statusLabels } from "../utils/label";
 import { formatDateTime, formatHours, formatLeaveRange } from "../utils/format";
 
@@ -63,11 +64,10 @@ function MyLeavesPage() {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  /** 撤銷假單 */
-  async function handleRevoke(id: string) {
-    const res = await revokeLeaveForm(id);
-    setToast(res);
-    if (res.success) {
+  /** 撤銷、申請撤銷做完：顯示訊息、重新載入 */
+  async function handleActionDone(result: Response) {
+    setToast(result);
+    if (result.success) {
       await getData();
     }
   }
@@ -131,10 +131,8 @@ function MyLeavesPage() {
               <td>{form.reviewerName}</td>
               <td>{formatDateTime(form.submittedAt)}</td>
               <td>
-                {form.status === "pending" && (
-                  <button onClick={() => handleRevoke(form.id)}>撤銷</button>
-                )}
                 <button onClick={() => setSelectedId(form.id)}>詳情</button>
+                <LeaveActionButtons form={form} onDone={handleActionDone} />
               </td>
             </tr>
           ))}
@@ -145,6 +143,7 @@ function MyLeavesPage() {
         <LeaveDetail
           leaveFormResponse={selectedForm}
           onClose={() => setSelectedId(null)}
+          onActionDone={handleActionDone}
         />
       )}
     </>

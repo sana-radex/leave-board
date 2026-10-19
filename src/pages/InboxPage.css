@@ -1,0 +1,14 @@
+/* 待審假單、撤銷申請兩個區塊之間留空 */
+.inbox-section {
+  margin-bottom: 32px;
+}
+
+/* 沒有資料時的說明 */
+.inbox-empty {
+  color: var(--color-text-muted);
+}
+
+/* 操作欄的按鈕不要換行 */
+.inbox-actions {
+  white-space: nowrap;
+}

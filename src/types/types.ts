@@ -35,6 +35,9 @@ export type LeaveAction =
   | "approve_revoke" // 同意撤銷
   | "reject_revoke"; // 不同意撤銷
 
+/** 假單送出後可以做的動作（送出不算） */
+export type FormAction = Exclude<LeaveAction, "submit">;
+
 /** 目前使用者和某張假單的關係 */
 export type ViewerRelation = "self" | "reviewer" | "other"; // 本人、該單審核人、其他人
 
@@ -270,6 +273,24 @@ export interface LeaveFormResponse {
   history: ApprovalRecordResponse[];
   /** 扣除明細；其他人為空陣列 */
   deductions: DeductionResponse[];
+  /** 目前使用者現在可以做的動作（畫面依這個顯示按鈕） */
+  actions: FormAction[];
+}
+
+/** 待我處理的撤銷申請-回傳 */
+export interface RevokeRequestResponse extends LeaveFormResponse {
+  /** 申請撤銷時間 */
+  requestedAt: string; // ISO
+  /** 撤銷理由 */
+  reason: string;
+}
+
+/** 待我處理-回傳 */
+export interface InboxResponse {
+  /** 待審假單：依送出時間由舊到新 */
+  pendingList: LeaveFormResponse[];
+  /** 撤銷申請：依申請撤銷時間由舊到新 */
+  revokeRequestList: RevokeRequestResponse[];
 }
 
 /** API 回傳格式 */

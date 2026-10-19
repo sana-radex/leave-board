@@ -1,4 +1,4 @@
-import type { LeaveFormResponse } from "../types/types";
+import type { LeaveFormResponse, Response } from "../types/types";
 import { actionLabels, statusLabels } from "../utils/label";
 import {
   formatDate,
@@ -7,6 +7,7 @@ import {
   formatLeaveRange,
 } from "../utils/format";
 import Modal from "./Modal";
+import LeaveActionButtons from "./LeaveActionButtons";
 import "./LeaveDetail.css";
 
 interface LeaveDetailProps {
@@ -14,10 +15,16 @@ interface LeaveDetailProps {
   leaveFormResponse: LeaveFormResponse;
   /** 按下關閉時要做的事 */
   onClose: () => void;
+  /** 在詳情裡做完動作（核准、撤銷…）時要做的事 */
+  onActionDone: (result: Response) => void;
 }
 
 /** 假單詳情：本人、該單審核人看完整內容；其他人只看行事曆上看得到的欄位 */
-function LeaveDetail({ leaveFormResponse: form, onClose }: LeaveDetailProps) {
+function LeaveDetail({
+  leaveFormResponse: form,
+  onClose,
+  onActionDone,
+}: LeaveDetailProps) {
   const range = formatLeaveRange(form.startTime, form.endTime, form.leaveTypeUnit);
 
   // 其他人：姓名、起訖、職務代理人、假別「請假」，已撤銷加註
@@ -125,7 +132,10 @@ function LeaveDetail({ leaveFormResponse: form, onClose }: LeaveDetailProps) {
         </tbody>
       </table>
 
-      <button onClick={onClose}>關閉</button>
+      <div className="leave-detail-actions">
+        <button onClick={onClose}>關閉</button>
+        <LeaveActionButtons form={form} onDone={onActionDone} />
+      </div>
     </Modal>
   );
 }

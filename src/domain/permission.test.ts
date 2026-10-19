@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { getViewerRelation, canSeeDetail, isOnCalendar } from "./permission";
+import {
+  getViewerRelation,
+  canSeeDetail,
+  isOnCalendar,
+  getAvailableActions,
+} from "./permission";
 import { leaveFormList } from "../data/mockData";
 
 /** 從預設資料拿出某張假單 */
@@ -59,5 +64,43 @@ describe("isOnCalendar", () => {
   it("10 月行事曆是 L01、L02、L04、L05，11 月是 L10（6.5）", () => {
     const ids = leaveFormList.filter(isOnCalendar).map((form) => form.id);
     expect(ids).toEqual(["L01", "L02", "L04", "L05", "L10"]);
+  });
+});
+
+describe("getAvailableActions（規格 2.3 權限總表）", () => {
+  it("待審核 L08：本人可撤銷、該單審核人可核准／退回、其他審核人什麼都不能做", () => {
+    const form = getForm("L08");
+    expect(getAvailableActions("E03", form)).toEqual(["revoke"]);
+    expect(getAvailableActions("E01", form)).toEqual(["approve", "reject"]);
+    expect(getAvailableActions("E02", form)).toEqual([]);
+  });
+
+  it("已核准 L01：本人可申請撤銷、審核人什麼都不能做", () => {
+    const form = getForm("L01");
+    expect(getAvailableActions("E03", form)).toEqual(["request_revoke"]);
+    expect(getAvailableActions("E01", form)).toEqual([]);
+  });
+
+  it("撤銷審核中 L04：原審核人可同意／不同意撤銷，本人等待（REVOKE-04）", () => {
+    const form = getForm("L04");
+    expect(getAvailableActions("E02", form)).toEqual([
+      "approve_revoke",
+      "reject_revoke",
+    ]);
+    expect(getAvailableActions("E01", form)).toEqual([]);
+  });
+
+  it("假期已過仍可申請撤銷（REVOKE-02）", () => {
+    const past = {
+      ...getForm("L02"),
+      startTime: "2026-10-01T13:00",
+      endTime: "2026-10-01T17:00",
+    };
+    expect(getAvailableActions("E04", past)).toEqual(["request_revoke"]);
+  });
+
+  it("職務代理人不能做任何動作", () => {
+    // L01 的職務代理人是張家豪
+    expect(getAvailableActions("E05", getForm("L01"))).toEqual([]);
   });
 });

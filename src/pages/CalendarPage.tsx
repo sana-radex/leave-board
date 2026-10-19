@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
 import "./CalendarPage.css";
-import type { CalendarDay, LeaveFormResponse } from "../types/types";
+import type { CalendarDay, LeaveFormResponse, Response } from "../types/types";
 import { getCalendarLeaveList } from "../api/leaveFormApi";
 import { getCalendarDayList } from "../api/calendarApi";
 import { today } from "../utils/today";
 import Calendar from "../components/Calendar";
 import LeaveDetail from "../components/LeaveDetail";
+import Toast from "../components/Toast";
+
+interface CalendarPageProps {
+  /** 假單狀態變了（例如在詳情裡同意撤銷），讓上層更新待我處理的數量 */
+  onLeaveChanged: () => void;
+}
 
 /** 請假行事曆（F-06） */
-function CalendarPage() {
+function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
   const [todayYear, todayMonth] = today().split("-").map(Number);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<Response | null>(null);
   const [leaveList, setLeaveList] = useState<LeaveFormResponse[]>([]);
   const [calendarDayList, setCalendarDayList] = useState<CalendarDay[]>([]);
   // 正在看的月份：存那個月的 1 號
@@ -50,8 +57,28 @@ function CalendarPage() {
     loadData();
   }, []);
 
+  // 顯示 toast 訊息, 3 秒後自動消失
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => {
+      setToast(null);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  /** 在詳情裡做完動作：顯示訊息、重新載入假單、通知上層 */
+  async function handleActionDone(result: Response) {
+    setToast(result);
+    if (result.success) {
+      setLeaveList(await getCalendarLeaveList());
+      onLeaveChanged();
+    }
+  }
+
   return (
     <>
+      {toast && <Toast success={toast.success} message={toast.message} />}
+
       <h1>請假行事曆</h1>
 
       <div className="calendar-toolbar">
@@ -86,6 +113,7 @@ function CalendarPage() {
         <LeaveDetail
           leaveFormResponse={selectedLeave}
           onClose={() => setSelectedId(null)}
+          onActionDone={handleActionDone}
         />
       )}
     </>

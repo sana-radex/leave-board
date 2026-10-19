@@ -1,0 +1,7 @@
+/* 備註欄位：佔滿寬度，和按鈕之間留空 */
+.confirm-note {
+  display: block;
+  width: 100%;
+  min-height: 72px;
+  margin-bottom: 16px;
+}

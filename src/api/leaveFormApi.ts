@@ -9,6 +9,8 @@ import { calendarDayList } from "../data/calendarDays";
 import type {
   AddLeaveFormRequest,
   AddLeaveFormResponse,
+  FormAction,
+  InboxResponse,
   LeaveForm,
   LeaveFormOptionsResponse,
   LeaveFormPreviewResponse,
@@ -22,11 +24,14 @@ import {
   getViewerRelation,
   canSeeDetail,
   isOnCalendar,
+  getAvailableActions,
 } from "../domain/permission";
+import { applyAction, canDoAction } from "../domain/lifecycle";
 import { getTimeOptions } from "../domain/time";
 import { validateLeaveForm } from "../domain/validate";
 import type { ValidateContext } from "../domain/validate";
 import { formatDate } from "../utils/format";
+import { actionDoneMessages, actionLabels } from "../utils/label";
 import { now } from "../utils/today";
 
 /** 批次名稱：從批次 id 組出來，例如 'annual:E03:2026-03-01' → '特休（2026/3/1）' */
@@ -116,6 +121,7 @@ function toResponseList(
             hours: item.hours,
           }))
         : [],
+      actions: getAvailableActions(viewerId, form),
     };
   });
 }
@@ -232,8 +238,15 @@ export async function addLeaveForm(
   };
 }
 
-/** 撤銷假單（階段 3 改成統一的假單動作） */
-export async function revokeLeaveForm(formId: string): Promise<Response> {
+/**
+ * 執行假單動作：核准、退回、撤銷、申請撤銷、同意撤銷、不同意撤銷（規格 3.3）
+ * 後端一律重新檢查：目前使用者是不是能做這個動作、假單狀態對不對
+ */
+export async function performLeaveAction(
+  formId: string,
+  action: FormAction,
+  note: string,
+): Promise<Response> {
   await delay();
   const currentUser = getCurrentUser();
 
@@ -242,24 +255,77 @@ export async function revokeLeaveForm(formId: string): Promise<Response> {
   if (!targetForm) {
     return { success: false, message: "找不到這張假單" };
   }
-  if (targetForm.employeeId !== currentUser.id) {
-    return { success: false, message: "這張假單不屬於您" };
-  }
-  if (targetForm.status !== "pending") {
-    return { success: false, message: "只有待審核的假單可以撤銷" };
+  if (!canDoAction(currentUser.id, action, targetForm)) {
+    return {
+      success: false,
+      message: `這張假單目前不能「${actionLabels[action]}」，請重新整理後再試`,
+    };
   }
 
-  const revokedForm: LeaveForm = {
-    ...targetForm,
-    status: "revoked",
-    history: [
-      ...targetForm.history,
-      { actorId: currentUser.id, at: now(), action: "revoke", note: "" },
-    ],
-  };
+  const updatedForm = applyAction(
+    targetForm,
+    action,
+    currentUser.id,
+    note.trim(),
+    now(),
+  );
   writeTable(
     TABLES.leaveFormList,
-    formList.map((form) => (form.id === formId ? revokedForm : form)),
+    formList.map((form) => (form.id === formId ? updatedForm : form)),
   );
-  return { success: true, message: "假單已撤銷！" };
+  return { success: true, message: actionDoneMessages[action] };
+}
+
+/** （後端用）審核人是我、還在等我處理的假單 */
+function getMyInboxForms(): LeaveForm[] {
+  const currentUser = getCurrentUser();
+  return readTable(TABLES.leaveFormList, leaveFormList).filter(
+    (form) =>
+      form.reviewerId === currentUser.id &&
+      (form.status === "pending" || form.status === "revoke_pending"),
+  );
+}
+
+/** 取得待我處理：待審假單、撤銷申請（F-05） */
+export async function getInboxList(): Promise<InboxResponse> {
+  await delay();
+  const currentUser = getCurrentUser();
+  const forms = getMyInboxForms();
+
+  // 待審假單：依送出時間由舊到新
+  const pendingForms = forms
+    .filter((form) => form.status === "pending")
+    .sort((a, b) => a.submittedAt.localeCompare(b.submittedAt));
+
+  // 撤銷申請：申請撤銷的時間、理由在簽核歷程最後一筆「申請撤銷」
+  const revokeRequests = forms
+    .filter((form) => form.status === "revoke_pending")
+    .map((form) => {
+      const records = form.history.filter(
+        (record) => record.action === "request_revoke",
+      );
+      const lastRequest = records[records.length - 1];
+      return { form, requestedAt: lastRequest.at, reason: lastRequest.note };
+    })
+    .sort((a, b) => a.requestedAt.localeCompare(b.requestedAt));
+
+  const revokeResponses = toResponseList(
+    revokeRequests.map((item) => item.form),
+    currentUser.id,
+  );
+
+  return {
+    pendingList: toResponseList(pendingForms, currentUser.id),
+    revokeRequestList: revokeResponses.map((response, index) => ({
+      ...response,
+      requestedAt: revokeRequests[index].requestedAt,
+      reason: revokeRequests[index].reason,
+    })),
+  };
+}
+
+/** 取得待我處理的數量（導覽列用）：待審假單 + 撤銷申請 */
+export async function getInboxCount(): Promise<number> {
+  await delay();
+  return getMyInboxForms().length;
 }

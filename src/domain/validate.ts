@@ -51,8 +51,8 @@ export interface ValidateResult {
 }
 
 /**
- * 送出驗證（F-02 VAL-01～07）
- * 也檢查職務代理人不是自己、審核人具審核人角色且不是自己（REV-01）
+ * 送出驗證
+ * 也檢查職務代理人不是自己、審核人具審核人角色且不是自己
  */
 export function validateLeaveForm(
   input: AddLeaveFormRequest,
@@ -77,7 +77,7 @@ export function validateLeaveForm(
     quotaLines: [],
   };
 
-  // ---------- VAL-01 必填：職務代理人、審核人 ----------
+  // ---------- 必填：職務代理人、審核人 ----------
   const deputy = employees.find((emp) => emp.id === input.deputyId);
   if (!input.deputyId) {
     errors.deputyId = "請選擇職務代理人";
@@ -96,7 +96,7 @@ export function validateLeaveForm(
     errors.reviewerId = "請從審核人名單中選擇";
   }
 
-  // ---------- VAL-01 必填：假別、喪假親屬關係 ----------
+  // ---------- 必填：假別、喪假親屬關係 ----------
   const leaveType = leaveTypes.find((type) => type.id === input.leaveTypeId);
   if (!leaveType) {
     errors.leaveTypeId = "請選擇假別";
@@ -110,7 +110,7 @@ export function validateLeaveForm(
 
   const isDayUnit = leaveType.unit === "day";
 
-  // ---------- VAL-01 必填：起始、結束 ----------
+  // ---------- 必填：起始、結束 ----------
   if (!input.startDate) {
     errors.start = "請選擇起始日期";
   } else if (!isDayUnit && !input.startTime) {
@@ -122,12 +122,12 @@ export function validateLeaveForm(
     errors.end = "請選擇結束時間";
   }
 
-  // ---------- VAL-04 天制假別不能帶時間 ----------
+  // ---------- 天制假別不能帶時間 ----------
   if (isDayUnit && (input.startTime !== null || input.endTime !== null)) {
     errors.start = `${leaveType.name}只能以整天請假`;
   }
 
-  // ---------- VAL-03 時間要在班別可選範圍內、在 30 分鐘格上 ----------
+  // ---------- 時間要在班別可選範圍內、在 30 分鐘格上 ----------
   if (!isDayUnit) {
     const timeOptions = getTimeOptions(shift);
     const message = `請選擇 ${formatTime(shift.selectableStart)}–${formatTime(shift.selectableEnd)} 之間的半點時間`;
@@ -144,7 +144,7 @@ export function validateLeaveForm(
     return result;
   }
 
-  // ---------- VAL-02 結束要晚於開始 ----------
+  // ---------- 結束要晚於開始 ----------
   // 天制用整天區間比，等於「結束日不能早於開始日」
   const start = `${input.startDate}T${isDayUnit ? shift.fullDayStart : input.startTime}`;
   const end = `${input.endDate}T${isDayUnit ? shift.fullDayEnd : input.endTime}`;
@@ -153,7 +153,7 @@ export function validateLeaveForm(
     return result;
   }
 
-  // ---------- VAL-05 算出來的時數不能是 0 ----------
+  // ---------- 算出來的時數不能是 0 ----------
   const days = splitLeaveDays({
     unit: leaveType.unit,
     startDate: input.startDate,
@@ -173,9 +173,9 @@ export function validateLeaveForm(
 
   const myForms = forms.filter((form) => form.employeeId === applicant.id);
 
-  // ---------- VAL-06、VAL-07 額度 ----------
+  // ---------- 額度 ----------
   if (leaveType.quotaType === "batch") {
-    // 批次型：逐日從有效批次扣，批次是否有效看請假日（QUOTA-01～03）
+    // 批次型：逐日從有效批次扣，批次是否有效看請假日
     const summaries = summarizeBatches(
       batches.filter((batch) => batch.leaveTypeId === leaveType.id),
       myForms,
@@ -201,7 +201,7 @@ export function validateLeaveForm(
       { label: "", available, remaining: available - hours },
     ];
   } else if (leaveType.quotaType === "yearly") {
-    // 曆年制：依請假日所屬年度，跨年分別檢查（QUOTA-05、06）
+    // 曆年制：依請假日所屬年度，跨年分別檢查
     const sameTypeForms = myForms.filter(
       (form) => form.leaveTypeId === leaveType.id,
     );
@@ -223,7 +223,7 @@ export function validateLeaveForm(
       }
     }
   } else {
-    // 單次事件：只檢查這張不超過該次額度，不跨假單累計（QUOTA-07）
+    // 單次事件：只檢查這張不超過該次額度，不跨假單累計
     const perEventHours = getPerEventHours(leaveType, relation);
     if (perEventHours !== null) {
       result.quotaLines = [

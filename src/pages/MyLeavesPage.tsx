@@ -14,7 +14,7 @@ import {
   keepDateTimeTogether,
 } from "../utils/format";
 
-/** 我的假單（F-03） */
+/** 我的假單 */
 function MyLeavesPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,13 +27,11 @@ function MyLeavesPage() {
   const [statusFilter, setStatusFilter] = useState<LeaveStatus | "all">("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // 篩選後的假單
   const filteredList =
     statusFilter === "all"
       ? formList
       : formList.filter((form) => form.status === statusFilter);
 
-  // 正在看詳情的假單
   const selectedForm = formList.find((form) => form.id === selectedId);
 
   /** 取得假單資料 */
@@ -43,7 +41,6 @@ function MyLeavesPage() {
     setLoading(false);
   }
 
-  // 首次進入，抓我的假單
   useEffect(() => {
     async function loadMyForms() {
       const list = await getMyLeaveFormList();
@@ -60,7 +57,6 @@ function MyLeavesPage() {
     }
   }, [location, navigate]);
 
-  // 顯示 toast 訊息, 3 秒後自動消失
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => {

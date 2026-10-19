@@ -11,16 +11,16 @@ interface Transition {
 }
 
 /**
- * 假單送出後的動作（規格 3.3 LIFE-02～07）
+ * 假單送出後的動作
  * 已退回、已撤銷不在任何一條的 from 裡，所以是終止狀態，不能再有動作
  */
 export const TRANSITIONS: Record<FormAction, Transition> = {
-  approve: { actor: "reviewer", from: "pending", to: "approved" }, // LIFE-02 核准
-  reject: { actor: "reviewer", from: "pending", to: "rejected" }, // LIFE-03 退回
-  revoke: { actor: "self", from: "pending", to: "revoked" }, // LIFE-04 撤銷
-  request_revoke: { actor: "self", from: "approved", to: "revoke_pending" }, // LIFE-05 申請撤銷
-  approve_revoke: { actor: "reviewer", from: "revoke_pending", to: "revoked" }, // LIFE-06 同意撤銷
-  reject_revoke: { actor: "reviewer", from: "revoke_pending", to: "approved" }, // LIFE-07 不同意撤銷
+  approve: { actor: "reviewer", from: "pending", to: "approved" }, // 核准
+  reject: { actor: "reviewer", from: "pending", to: "rejected" }, // 退回
+  revoke: { actor: "self", from: "pending", to: "revoked" }, // 撤銷
+  request_revoke: { actor: "self", from: "approved", to: "revoke_pending" }, // 申請撤銷
+  approve_revoke: { actor: "reviewer", from: "revoke_pending", to: "revoked" }, // 同意撤銷
+  reject_revoke: { actor: "reviewer", from: "revoke_pending", to: "approved" }, // 不同意撤銷
 };
 
 /** 這個人現在能不能對這張假單做這個動作：狀態對、而且是對的人 */

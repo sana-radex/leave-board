@@ -50,8 +50,8 @@ function getBatchName(batchId: string): string {
 }
 
 /**
- * 把資料庫的假單組成回傳格式：id 換成名字（就像資料庫的 JOIN），
- * 再依目前使用者和假單的關係遮蔽：其他人看不到假別、備註、簽核歷程（規格 2.3）
+ * 把資料庫的假單組成回傳格式：id 換成名字，
+ * 再依目前使用者和假單的關係遮蔽：其他人看不到假別、備註、簽核歷程
  */
 function toResponseList(
   forms: LeaveForm[],
@@ -128,7 +128,7 @@ function toResponseList(
   });
 }
 
-/** 取得我的假單：依送出時間由新到舊（F-03） */
+/** 取得我的假單：依送出時間由新到舊 */
 export async function getMyLeaveFormList(): Promise<LeaveFormResponse[]> {
   await delay();
   const currentUser = getCurrentUser();
@@ -138,7 +138,7 @@ export async function getMyLeaveFormList(): Promise<LeaveFormResponse[]> {
   return toResponseList(myForms, currentUser.id);
 }
 
-/** 取得行事曆上的假單：全公司，只回傳會出現在行事曆上的（F-06） */
+/** 取得行事曆上的假單：全公司，只回傳會出現在行事曆上的 */
 export async function getCalendarLeaveList(): Promise<LeaveFormResponse[]> {
   await delay();
   const currentUser = getCurrentUser();
@@ -148,7 +148,7 @@ export async function getCalendarLeaveList(): Promise<LeaveFormResponse[]> {
   return toResponseList(forms, currentUser.id);
 }
 
-/** （後端用）讀出驗證新假單需要的資料：申請人就是目前使用者 */
+/** 讀出驗證新假單需要的資料：申請人就是目前使用者 */
 function getValidateContext(): ValidateContext {
   const applicant = getCurrentUser();
   const employees = readTable(TABLES.employeeList, employeeList);
@@ -172,7 +172,7 @@ function getValidateContext(): ValidateContext {
   };
 }
 
-/** 取得新增請假表單的選項：班別、時間、假別、喪假親屬、職務代理人、審核人（F-02） */
+/** 取得新增請假表單的選項：班別、時間、假別、喪假親屬、職務代理人、審核人 */
 export async function getLeaveFormOptions(): Promise<LeaveFormOptionsResponse> {
   await delay();
   const { applicant, shift, leaveTypes, employees } = getValidateContext();
@@ -188,14 +188,14 @@ export async function getLeaveFormOptions(): Promise<LeaveFormOptionsResponse> {
     ),
     // 職務代理人：同事名單，排除自己
     deputies: others.map((emp) => ({ id: emp.id, name: emp.name })),
-    // 審核人：所有審核人，排除自己（REV-01）
+    // 審核人：所有審核人，排除自己
     reviewers: others
       .filter((emp) => emp.role === "reviewer")
       .map((emp) => ({ id: emp.id, name: emp.name })),
   };
 }
 
-/** 試算：填表時即時算時數、可用額度、檢查錯誤，不會存檔（F-02） */
+/** 試算：填表時即時算時數、可用額度、檢查錯誤，不會存檔 */
 export async function previewLeaveForm(
   input: AddLeaveFormRequest,
 ): Promise<LeaveFormPreviewResponse> {
@@ -214,7 +214,7 @@ export async function previewLeaveForm(
   };
 }
 
-/** 送出假單：重新驗證一次，通過才存成待審核（LIFE-01） */
+/** 送出假單：重新驗證一次，通過才存成待審核 */
 export async function addLeaveForm(
   input: AddLeaveFormRequest,
 ): Promise<AddLeaveFormResponse> {
@@ -233,7 +233,7 @@ export async function addLeaveForm(
   const newForm: LeaveForm = {
     id: crypto.randomUUID(),
     employeeId: applicant.id,
-    leaveTypeId: input.leaveTypeId as LeaveTypeId, // 驗證過，一定有選
+    leaveTypeId: input.leaveTypeId as LeaveTypeId,
     relationId: input.leaveTypeId === "bereavement" ? input.relationId : null,
     status: "pending",
     // 天制沒有時間，存班別的整天區間
@@ -248,7 +248,7 @@ export async function addLeaveForm(
     history: [
       { actorId: applicant.id, at: submittedAt, action: "submit", note: "" },
     ],
-    // 依扣除明細預留額度（LIFE-01）；之後退回、撤銷時依明細退回原批次
+    // 依扣除明細預留額度；之後退回、撤銷時依明細退回原批次
     deductions,
   };
 
@@ -264,7 +264,7 @@ export async function addLeaveForm(
 }
 
 /**
- * 執行假單動作：核准、退回、撤銷、申請撤銷、同意撤銷、不同意撤銷（規格 3.3）
+ * 執行假單動作：核准、退回、撤銷、申請撤銷、同意撤銷、不同意撤銷
  * 後端一律重新檢查：目前使用者是不是能做這個動作、假單狀態對不對
  */
 export async function performLeaveAction(
@@ -301,7 +301,7 @@ export async function performLeaveAction(
   return { success: true, message: actionDoneMessages[action] };
 }
 
-/** （後端用）審核人是我、還在等我處理的假單 */
+/** 審核人是我、還在等我處理的假單 */
 function getMyInboxForms(): LeaveForm[] {
   const currentUser = getCurrentUser();
   return readTable(TABLES.leaveFormList, leaveFormList).filter(
@@ -311,7 +311,7 @@ function getMyInboxForms(): LeaveForm[] {
   );
 }
 
-/** 取得待我處理：待審申請、撤銷申請（F-05） */
+/** 取得待我處理：待審申請、撤銷申請 */
 export async function getInboxList(): Promise<InboxResponse> {
   await delay();
   const currentUser = getCurrentUser();

@@ -19,7 +19,6 @@ function formatDate(year: number, month: number, day: number): string {
 
 /** 某年某月（1–12）有幾天 */
 export function getDaysInMonth(year: number, month: number): number {
-  // 下個月的第 0 天 = 這個月的最後一天
   return new Date(Date.UTC(year, month, 0)).getUTCDate();
 }
 
@@ -31,7 +30,6 @@ export function isLeapYear(year: number): boolean {
 /** 加減天數，例如 addDays('2026-12-31', 1) → '2027-01-01' */
 export function addDays(date: string, days: number): string {
   const { year, month, day } = parseDate(date);
-  // 日超過或小於當月範圍時，Date 會自動換月、換年
   const result = new Date(Date.UTC(year, month - 1, day + days));
   return formatDate(
     result.getUTCFullYear(),
@@ -46,7 +44,6 @@ export function addDays(date: string, days: number): string {
  */
 export function addMonths(date: string, months: number): string {
   const { year, month, day } = parseDate(date);
-  // 先換算成「從西元 0 年 1 月起第幾個月」，加完再換回年、月
   const totalMonths = year * 12 + (month - 1) + months;
   const newYear = Math.floor(totalMonths / 12);
   const newMonth = totalMonths - newYear * 12 + 1;

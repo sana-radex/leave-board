@@ -28,7 +28,7 @@ function renderBatchTags(batch: BatchQuotaResponse, isFlex: boolean) {
   );
 }
 
-/** 批次表格（F-04）：有效中＋尚未生效的每一筆批次，用在我的額度頁與行事曆旁的詳情 */
+/** 批次表格：有效中＋尚未生效的每一筆批次，用在我的額度頁與行事曆旁的詳情 */
 function BatchTable({ quota, showTotal = false }: BatchTableProps) {
   if (quota.batches.length === 0) {
     return <p className="quota-empty">目前沒有任何批次</p>;

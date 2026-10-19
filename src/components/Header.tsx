@@ -11,7 +11,7 @@ interface HeaderProps {
   onSwitchUser: (employeeId: string) => void;
 }
 
-/** 頁首：切換目前使用者，模擬不同角色（F-01） */
+/** 頁首：切換目前使用者，模擬不同角色 */
 function Header({ currentUser, userOptions, onSwitchUser }: HeaderProps) {
   return (
     <header className="header">

@@ -458,7 +458,7 @@ export interface PerEventQuotaResponse {
   hours: number;
 }
 
-/** 我的額度：一個假別-回傳（F-04） */
+/** 我的額度：一個假別-回傳 */
 export interface LeaveQuotaResponse {
   /** 假別 id */
   leaveTypeId: LeaveTypeId;

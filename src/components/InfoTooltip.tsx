@@ -2,7 +2,7 @@ import { useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import "./InfoTooltip.css";
 
-/** 說明框最寬多少，要跟 CSS 的 max-width 一樣；靠近畫面右邊時用來往左移 */
+/** 說明框最寬多少，要跟 CSS 的 max-width 一樣 */
 const TOOLTIP_MAX_WIDTH = 320;
 
 /** 說明框和圖示之間、和畫面邊緣之間留的空 */
@@ -22,14 +22,10 @@ interface TooltipPosition {
   bottom?: number;
 }
 
-/**
- * i 圖示：滑鼠移上去（或用鍵盤移到）時顯示說明。
- * 說明框畫在 body 底下、用 fixed 定位，放在表格裡才不會被表格的捲動區切掉
- */
+/** i 圖示：滑鼠移上去（或用鍵盤移到）時顯示說明 */
 function InfoTooltip({ children, label }: InfoTooltipProps) {
   const tooltipId = useId();
   const buttonRef = useRef<HTMLButtonElement>(null);
-  // 說明框的位置；null 表示沒有顯示
   const [position, setPosition] = useState<TooltipPosition | null>(null);
 
   /** 顯示說明框：圖示在畫面下半部就往上開，不然往下開 */
@@ -37,7 +33,6 @@ function InfoTooltip({ children, label }: InfoTooltipProps) {
     const button = buttonRef.current;
     if (!button) return;
     const rect = button.getBoundingClientRect();
-    // 太靠右時往左移，不要超出畫面
     const left = Math.max(
       GAP,
       Math.min(rect.left, window.innerWidth - TOOLTIP_MAX_WIDTH - GAP),

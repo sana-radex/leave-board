@@ -39,11 +39,9 @@ function Calendar({
   onSelectLeave,
 }: CalendarProps) {
   // 這個月 1 號是星期幾（0 = 星期一，6 = 星期日）
-  // getDay() 是 0 = 星期日，加 6 再取 7 的餘數，就變成從星期一開始算
   const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
   const todayKey = today();
 
-  // 第 1 格 = 1 號往前推 firstWeekday 天，之後每格加 1 天
   const cells = Array.from(
     { length: CELL_COUNT },
     (_, index) => new Date(year, month, 1 - firstWeekday + index),
@@ -112,7 +110,6 @@ function Calendar({
           </div>
         ))}
         {cells.map((date, index) => {
-          // 每一格要先算出：日期字串、國定假日、當天的假單
           const dateKey = toDateKey(date);
           const specialDay = getSpecialDay(dateKey);
           const dayLeaves = getLeavesOfDay(dateKey);

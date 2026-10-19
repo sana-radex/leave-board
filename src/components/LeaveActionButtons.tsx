@@ -15,7 +15,7 @@ const notePlaceholders: Record<FormAction, string> = {
   reject_revoke: "備註（選填）",
 };
 
-/** 按鈕顏色：同意是松綠、拒絕是紅、撤回自己的假單是琥珀（樣式在 index.css） */
+/** 按鈕顏色：同意是松綠、拒絕是紅、撤回自己的假單是琥珀 */
 const actionClassNames: Record<FormAction, string> = {
   approve: "button-approve",
   approve_revoke: "button-approve",

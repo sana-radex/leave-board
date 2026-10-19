@@ -3,7 +3,7 @@ import { addDays, addMonths, isLeapYear } from "./date";
 import { formatDate } from "../utils/format";
 
 /**
- * 特休天數：到職滿幾年（LEAVE 年資表，依勞基法第 38 條）
+ * 特休天數：到職滿幾年（依勞基法第 38 條）
  * 滿 6 個月另外算（3 天），這裡只處理滿 1 年以上
  */
 export function getAnnualDays(years: number): number {
@@ -16,14 +16,13 @@ export function getAnnualDays(years: number): number {
 }
 
 /**
- * 特休批次（LEAVE-01～03）
+ * 特休批次
  * 到職滿 6 個月第一筆（3 天），之後每滿 1 年一筆；有效到下一筆生效日的前一天
  */
 function generateAnnualBatches(
   employee: Employee,
   lastEffectiveDate: string,
 ): Batch[] {
-  // 先列出每一筆的生效日和天數，多列一筆，用來算最後一筆的到期日
   const starts = [{ date: addMonths(employee.hireDate, 6), days: 3 }];
   for (let years = 1; ; years++) {
     const date = addMonths(employee.hireDate, 12 * years);
@@ -52,7 +51,7 @@ function generateAnnualBatches(
 }
 
 /**
- * 彈性假批次（LEAVE-04、06）
+ * 彈性假批次
  * 每個公布日一筆 1 天，公布日起可請、隔年 2/28 到期；只給到職日當天及之後公布的
  */
 function generateFlexBatches(
@@ -79,7 +78,7 @@ function generateFlexBatches(
 }
 
 /**
- * 生日假批次（LEAVE-09～12）
+ * 生日假批次
  * 每年 1 天，生日往前 1 個月～往後 1 個月；對應日期不存在取月底；
  * 2/29 生日在非閏年視為 2/28；跨年時歸屬生日所在年度
  */
@@ -118,7 +117,7 @@ function generateBirthdayBatches(
 
 /**
  * 產生某位人員的所有批次（特休、彈性假、生日假）
- * 從到職起，產生到「生效日在今年 12/31 以前」的批次為止（待確認 Q1）
+ * 從到職起，產生到「生效日在今年 12/31 以前」的批次為止
  */
 export function generateBatches(
   employee: Employee,

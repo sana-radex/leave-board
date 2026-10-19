@@ -19,10 +19,8 @@ import MyQuotaPage from "./pages/MyQuotaPage";
 function App() {
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
   const [userOptions, setUserOptions] = useState<UserOptionResponse[]>([]);
-  // 導覽列「待我處理（N）」的數量
   const [inboxCount, setInboxCount] = useState(0);
 
-  // 首次進入，抓目前使用者、可以切換的使用者、待我處理數量
   useEffect(() => {
     async function firstLoad() {
       const [user, options, count] = await Promise.all([

@@ -6,14 +6,12 @@ import BatchTable from "../components/BatchTable";
 import InfoTooltip from "../components/InfoTooltip";
 import { formatHours } from "../utils/format";
 
-/** 我的額度（F-04）：只看自己的 */
+/** 我的額度：只看自己的 */
 function MyQuotaPage() {
   const [loading, setLoading] = useState(true);
   const [quotaList, setQuotaList] = useState<LeaveQuotaResponse[]>([]);
-  // 展開了哪些假別的批次
   const [expanded, setExpanded] = useState<LeaveTypeId[]>([]);
 
-  // 首次進入，抓我的額度
   useEffect(() => {
     async function loadQuota() {
       setQuotaList(await getMyQuota());
@@ -69,7 +67,7 @@ function MyQuotaPage() {
                   <tr>
                     <td>
                       <div className="quota-type-name">
-                        {/* 批次型才有展開按鈕；其他假別留一樣寬的空，名稱才對得齊 */}
+                        {/* 批次型才有展開按鈕 */}
                         {quota.quotaType === "batch" ? (
                           <button
                             className="expand-button"

@@ -2,7 +2,7 @@ import type { CalendarDay } from "../types/types";
 import { addDays, getWeekday } from "./date";
 
 /**
- * 是不是工作天（CAL-03、TIME-05）
+ * 是不是工作天
  * - 補班日：上班
  * - 國定假日、補假：放假
  * - 週六、週日：放假

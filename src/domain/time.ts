@@ -2,7 +2,7 @@ import type { CalendarDay, LeaveDay, LeaveUnit, Shift } from "../types/types";
 import { toMinutes, fromMinutes } from "./date";
 import { getWorkdays } from "./calendar";
 
-/** 時間選項：班別可選時間範圍內，每 30 分鐘一格（TIME-01） */
+/** 時間選項：班別可選時間範圍內，每 30 分鐘一格 */
 export function getTimeOptions(shift: Shift): string[] {
   const options: string[] = [];
   const start = toMinutes(shift.selectableStart);
@@ -14,7 +14,7 @@ export function getTimeOptions(shift: Shift): string[] {
 }
 
 /**
- * 單日時數（TIME-03）
+ * 單日時數
  * 結束 − 開始 − 與休息時間重疊的部分，上限為每日工時，不足 0 以 0 計
  */
 export function calcDayHours(
@@ -27,7 +27,6 @@ export function calcDayHours(
   const breakStart = toMinutes(shift.breakStart);
   const breakEnd = toMinutes(shift.breakEnd);
 
-  // 跟休息時間重疊多久：兩段時間「較晚的開始」到「較早的結束」
   const overlap = Math.max(
     0,
     Math.min(end, breakEnd) - Math.max(start, breakStart),
@@ -59,7 +58,7 @@ interface SplitLeaveDaysInput {
 }
 
 /**
- * 把請假起訖切成每日明細，只留工作天（TIME-04～06）
+ * 把請假起訖切成每日明細，只留工作天
  * - 天制：每個工作天都是整天區間
  * - 0.5 小時制：第一天「起始時間～整天區間結束」，最後一天「整天區間開始～結束時間」，中間整天
  * - 算出來 0 小時的天不記

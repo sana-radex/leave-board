@@ -1,7 +1,7 @@
 import type { CalendarDay } from "../types/types";
 
 /**
- * 辦公日曆：國定假日、補假、補班日（CAL-01）
+ * 辦公日曆：國定假日、補假、補班日
  * 由 scripts/convert-calendar.mjs 從政府資料開放平台「中華民國政府行政機關辦公日曆表」轉檔，請勿手動修改。
  * 資料年度：2026、2027
  */

@@ -16,7 +16,7 @@ import { summarizeBatches, summarizeYear } from "../domain/quota";
 import { addDays } from "../domain/date";
 import { today } from "../utils/today";
 
-/** 取得我的額度：每個假別一列，批次型附每一筆批次（F-04，只能看自己的） */
+/** 取得我的額度：每個假別一列，批次型附每一筆批次（只能看自己的） */
 export async function getMyQuota(): Promise<LeaveQuotaResponse[]> {
   await delay();
   const currentUser = getCurrentUser();

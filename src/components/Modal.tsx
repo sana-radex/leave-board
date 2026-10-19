@@ -15,10 +15,7 @@ interface ModalProps {
   actions?: ReactNode;
 }
 
-/**
- * 彈出視窗的外框：標題和底部按鈕固定，中間內容太長時自己捲動。
- * 畫在 body 底下，從表格裡打開時才不會吃到表格的樣式（例如表格內按鈕縮小、不換行）
- */
+/** 彈出視窗的外框：標題和底部按鈕固定，中間內容太長時自己捲動 */
 function Modal({ title, children, onClose, closeDisabled, actions }: ModalProps) {
   const titleId = useId();
 

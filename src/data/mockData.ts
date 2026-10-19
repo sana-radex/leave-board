@@ -8,11 +8,11 @@ import type {
 } from "../types/types";
 
 /**
- * 預設資料：照《功能規格書》第 6 章，以 2026/10/19（一）為基準日。
+ * 預設資料：以 2026/10/19（一）為基準日。
  * 時間戳記用 UTC 寫，台灣時間 = UTC + 8，例如 01:00Z 是台灣 9:00。
  */
 
-/** 班別（6.2） */
+/** 班別 */
 export const shiftList: Shift[] = [
   {
     id: "morning",
@@ -38,7 +38,7 @@ export const shiftList: Shift[] = [
   },
 ];
 
-/** 人員（6.1）；生日只用月、日，2/29 生日的年份用閏年 */
+/** 人員：生日只用月、日，2/29 生日的年份用閏年 */
 export const employeeList: Employee[] = [
   {
     id: "E01",
@@ -74,7 +74,7 @@ export const employeeList: Employee[] = [
   },
 ];
 
-/** 假別（1.3、F-02），順序就是下拉選單的順序 */
+/** 假別：順序就是下拉選單的順序 */
 export const leaveTypeList: LeaveType[] = [
   {
     id: "annual",
@@ -134,7 +134,7 @@ export const leaveTypeList: LeaveType[] = [
   },
 ];
 
-/** 喪假親屬關係（F-02），依勞工請假規則 */
+/** 喪假親屬關係：依勞工請假規則 */
 export const bereavementRelationList: BereavementRelation[] = [
   { id: "parent", name: "父母", days: 8 },
   { id: "adoptive_parent", name: "養父母", days: 8 },
@@ -150,7 +150,7 @@ export const bereavementRelationList: BereavementRelation[] = [
   { id: "spouse_grandparent", name: "配偶之祖父母", days: 3 },
 ];
 
-/** 彈性假公布日（6.3） */
+/** 彈性假公布日 */
 export const flexLeaveDateList: FlexLeaveDate[] = [
   { date: "2026-01-02" },
   { date: "2026-03-29" },
@@ -159,7 +159,7 @@ export const flexLeaveDateList: FlexLeaveDate[] = [
   { date: "2026-11-12" },
 ];
 
-/** 假單（6.5） */
+/** 假單 */
 export const leaveFormList: LeaveForm[] = [
   {
     id: "L01",

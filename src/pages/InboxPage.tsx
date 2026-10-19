@@ -21,7 +21,7 @@ interface InboxPageProps {
   onLeaveChanged: () => void;
 }
 
-/** 待我處理（F-05）：審核人是我的待審申請、撤銷申請 */
+/** 待我處理：審核人是我的待審申請、撤銷申請 */
 function InboxPage({ onLeaveChanged }: InboxPageProps) {
   const [loading, setLoading] = useState(true);
   const [inbox, setInbox] = useState<InboxResponse>({
@@ -38,7 +38,6 @@ function InboxPage({ onLeaveChanged }: InboxPageProps) {
   ];
   const selectedForm = allForms.find((form) => form.id === selectedId);
 
-  // 首次進入，抓待我處理
   useEffect(() => {
     async function loadInbox() {
       setInbox(await getInboxList());
@@ -47,7 +46,6 @@ function InboxPage({ onLeaveChanged }: InboxPageProps) {
     loadInbox();
   }, []);
 
-  // 顯示 toast 訊息, 3 秒後自動消失
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => {

@@ -8,7 +8,7 @@ import type {
   LeaveType,
 } from "../types/types";
 
-/** 算「已使用」的狀態：已核准、撤銷審核中（F-04 額度狀態） */
+/** 算「已使用」的狀態：已核准、撤銷審核中 */
 const USED_STATUSES: LeaveStatus[] = ["approved", "revoke_pending"];
 
 /** 一筆批次的使用情形 */
@@ -24,7 +24,7 @@ export interface BatchSummary {
 
 /**
  * 每筆批次的已使用、審核中、可用
- * 依假單的扣除明細和狀態即時加總；退回、撤銷的假單不算，等於退回原批次（QUOTA-04）
+ * 依假單的扣除明細和狀態即時加總；退回、撤銷的假單不算，等於退回原批次
  */
 export function summarizeBatches(
   batches: Batch[],
@@ -54,7 +54,7 @@ export interface AllocateResult {
 }
 
 /**
- * 逐日扣除（QUOTA-01～03）
+ * 逐日扣除
  * 每個請假日，從「當天有效」且還有可用時數的批次中，到期日早的先扣，
  * 到期日相同時生效日早的先扣，一筆不夠再扣下一筆。
  * 任何一天扣不到，整張假單不能送出（不自動拆單）
@@ -63,7 +63,6 @@ export function allocateDeductions(
   days: LeaveDay[],
   summaries: BatchSummary[],
 ): AllocateResult {
-  // 每筆批次還剩多少，扣的時候一邊減
   const available = new Map<string, number>();
   for (const summary of summaries) {
     available.set(summary.batch.id, summary.available);
@@ -103,7 +102,7 @@ export function allocateDeductions(
 }
 
 /**
- * 曆年制：某年度的已使用、審核中（QUOTA-05）
+ * 曆年制：某年度的已使用、審核中
  * 依每日明細的日期算年度，跨年假單會分別算進各年度。
  * forms 要先篩成同一個人、同一個假別
  */
@@ -127,7 +126,7 @@ export function summarizeYear(
 }
 
 /**
- * 單次事件每次可請的時數（QUOTA-07）
+ * 單次事件每次可請的時數
  * 婚假 64 小時；喪假依親屬關係（還沒選親屬時是 null）
  */
 export function getPerEventHours(

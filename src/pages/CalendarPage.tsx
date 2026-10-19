@@ -22,16 +22,15 @@ interface CalendarPageProps {
   onLeaveChanged: () => void;
 }
 
-/** 請假行事曆（F-06） */
+/** 請假行事曆 */
 function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
   const [todayYear, todayMonth] = today().split("-").map(Number);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Response | null>(null);
   const [leaveList, setLeaveList] = useState<LeaveFormResponse[]>([]);
   const [calendarDayList, setCalendarDayList] = useState<CalendarDay[]>([]);
-  // 右邊的我的額度：只放批次型（特休、彈性假、生日假）
+  // 我的額度：只放批次型（特休、彈性假、生日假）
   const [quotaList, setQuotaList] = useState<LeaveQuotaResponse[]>([]);
-  // 正在看的月份：存那個月的 1 號
   const [viewDate, setViewDate] = useState(
     new Date(todayYear, todayMonth - 1, 1),
   );
@@ -47,14 +46,12 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
   const [filterOpen, setFilterOpen] = useState(false);
 
   const year = viewDate.getFullYear();
-  const month = viewDate.getMonth(); // 0 = 1 月，11 = 12 月
+  const month = viewDate.getMonth();
 
-  // 正在看詳情的假單
   const selectedLeave = leaveList.find((leave) => leave.id === selectedId);
 
   /** 換月份：-1 是上個月，+1 是下個月 */
   function changeMonth(offset: number) {
-    // 月份超過 12 月或小於 1 月，Date 會自動換年
     setViewDate(new Date(year, month + offset, 1));
   }
 
@@ -75,7 +72,6 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
     return list.filter((quota) => quota.quotaType === "batch");
   }
 
-  // 首次進入，抓行事曆上的假單、辦公日曆、我的額度
   useEffect(() => {
     async function loadData() {
       const [leaves, calendarDays, quota] = await Promise.all([
@@ -91,7 +87,6 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
     loadData();
   }, []);
 
-  // 顯示 toast 訊息, 3 秒後自動消失
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => {
@@ -120,7 +115,6 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
 
       <h1>請假行事曆</h1>
 
-      {/* 左邊行事曆，右邊我的額度 */}
       <div className="calendar-layout">
         <div className="calendar-main">
           <div className="calendar-toolbar">

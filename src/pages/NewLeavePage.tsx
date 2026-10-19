@@ -32,7 +32,6 @@ function NewLeavePage() {
   const navigate = useNavigate();
   const [options, setOptions] = useState<LeaveFormOptionsResponse | null>(null);
 
-  // 表單欄位
   const [leaveTypeId, setLeaveTypeId] = useState<LeaveTypeId | "">("");
   const [relationId, setRelationId] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -43,7 +42,6 @@ function NewLeavePage() {
   const [reviewerId, setReviewerId] = useState("");
   const [note, setNote] = useState("");
 
-  // 試算結果：時數、每日明細、各欄位錯誤
   const [preview, setPreview] = useState<LeaveFormPreviewResponse | null>(null);
   // 按過送出才顯示錯誤；之後改欄位，錯誤跟著試算即時更新
   const [submitted, setSubmitted] = useState(false);
@@ -54,7 +52,6 @@ function NewLeavePage() {
   const isDayUnit = leaveType?.unit === "day";
   const relation = options?.relations.find((item) => item.id === relationId);
 
-  // 首次進入，抓表單選項
   useEffect(() => {
     async function loadOptions() {
       setOptions(await getLeaveFormOptions());
@@ -62,10 +59,9 @@ function NewLeavePage() {
     loadOptions();
   }, []);
 
-  // 欄位改變後 300ms 試算一次（打字中不會一直呼叫）
   useEffect(() => {
     if (!options) return;
-    let ignore = false; // 欄位又變了，舊的試算結果就不要用
+    let ignore = false;
     const timer = setTimeout(async () => {
       const result = await previewLeaveForm({
         leaveTypeId,
@@ -99,7 +95,6 @@ function NewLeavePage() {
     isDayUnit,
   ]);
 
-  // 顯示 toast 訊息, 3 秒後自動消失
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => {
@@ -148,12 +143,10 @@ function NewLeavePage() {
     setSubmitting(false);
 
     if (result.success) {
-      // 導向我的假單，並把成功訊息帶過去
       navigate("/my-leaves", { state: { toast: result } });
       return;
     }
     setToast(result);
-    // 用送出時的檢查結果更新錯誤訊息
     setPreview({ ...(preview ?? EMPTY_PREVIEW), errors: result.errors });
   }
 
@@ -268,7 +261,6 @@ function NewLeavePage() {
             </div>
             {renderError("end")}
 
-            {/* 系統試算的時數，跟要填的欄位分開 */}
             <section className="leave-preview" aria-live="polite">
               <div className="hours-field">
                 時數（系統計算）

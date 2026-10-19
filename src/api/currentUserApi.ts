@@ -7,7 +7,7 @@ import {
 import { TABLES, readTable, delay } from "./db";
 
 /**
- * （後端用）查出目前使用者。
+ * 查出目前使用者。
  * 每次都用存著的 id 重新讀人員表；沒選過或找不到這個人，就用第一位。
  */
 export function getCurrentUser(): Employee {

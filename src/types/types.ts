@@ -464,6 +464,8 @@ export interface LeaveQuotaResponse {
   leaveTypeId: LeaveTypeId;
   /** 假別名稱 */
   leaveTypeName: string;
+  /** 假別說明，例如「每年 14 日」 */
+  leaveTypeDescription: string;
   /** 額度類型 */
   quotaType: QuotaType;
   /** 總額：批次型是有效中＋尚未生效批次的加總；曆年制是今年度 */

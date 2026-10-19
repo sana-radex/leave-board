@@ -38,6 +38,7 @@ export async function getMyQuota(): Promise<LeaveQuotaResponse[]> {
     const base = {
       leaveTypeId: leaveType.id,
       leaveTypeName: leaveType.name,
+      leaveTypeDescription: leaveType.description,
       quotaType: leaveType.quotaType,
     };
 

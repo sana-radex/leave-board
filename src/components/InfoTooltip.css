@@ -1,0 +1,46 @@
+/* i 圖示：只有圖示，平常是次要文字色，滑過或移到時變主色 */
+.info-tooltip-button {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  cursor: help;
+}
+
+/* 蓋掉全站按鈕滑過時的淡綠底 */
+.info-tooltip-button:hover:not(:disabled) {
+  background-color: transparent;
+  color: var(--color-primary);
+}
+
+.info-tooltip-button:focus-visible {
+  color: var(--color-primary);
+}
+
+/* 說明框：深底白字，浮在所有東西上面；max-width 要跟程式裡的 TOOLTIP_MAX_WIDTH 一樣 */
+.info-tooltip {
+  position: fixed;
+  z-index: 1000;
+  max-width: 320px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background-color: var(--color-text);
+  box-shadow: 0 8px 24px rgba(27, 36, 32, 0.18);
+  color: var(--color-bg);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: left;
+  white-space: normal;
+  word-break: normal;
+  pointer-events: none;
+}
+
+.info-tooltip p {
+  margin: 0;
+}

@@ -9,7 +9,6 @@ import type {
   LeaveFormPreviewResponse,
   LeaveTypeId,
   Response,
-  Shift,
 } from "../types/types";
 import {
   addLeaveForm,
@@ -187,192 +186,171 @@ function NewLeavePage() {
         </label>
         {renderError("leaveTypeId")}
 
-        {leaveTypeId === "bereavement" && (
+        {/* 選好假別才顯示下面的欄位和取消、送出 */}
+        {leaveTypeId && (
           <>
+            {leaveTypeId === "bereavement" && (
+              <>
+                <label>
+                  親屬關係
+                  <select
+                    value={relationId}
+                    onChange={(e) => setRelationId(e.target.value)}
+                  >
+                    <option value="">請選擇親屬關係</option>
+                    {options.relations.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {relation && (
+                  <p className="field-hint">該次可請 {relation.days} 日</p>
+                )}
+                {renderError("relationId")}
+              </>
+            )}
+
+            <div className="date-time-row">
+              <label>
+                起始日期
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </label>
+              {!isDayUnit && (
+                <label>
+                  起始時間
+                  <select
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                  >
+                    <option value="">請選擇</option>
+                    {options.timeOptions.map((time) => (
+                      <option key={time} value={time}>
+                        {formatTime(time)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+            </div>
+            {renderError("start")}
+
+            <div className="date-time-row">
+              <label>
+                結束日期
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </label>
+              {!isDayUnit && (
+                <label>
+                  結束時間
+                  <select
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                  >
+                    <option value="">請選擇</option>
+                    {options.timeOptions.map((time) => (
+                      <option key={time} value={time}>
+                        {formatTime(time)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+            </div>
+            {renderError("end")}
+
+            {/* 系統試算的時數，跟要填的欄位分開 */}
+            <section className="leave-preview" aria-live="polite">
+              <div className="hours-field">
+                時數（系統計算）
+                <p className="hours-value">
+                  {preview && preview.hours > 0
+                    ? formatHours(preview.hours)
+                    : "—"}
+                </p>
+                {preview && preview.days.length > 1 && (
+                  <details>
+                    <summary>每日明細</summary>
+                    <ul>
+                      {preview.days.map((day) => (
+                        <li key={day.date}>
+                          {formatDate(day.date)} {formatTime(day.startTime)}–
+                          {formatTime(day.endTime)}：{formatHours(day.hours)}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+              </div>
+              {renderError("hours")}
+              {/* 額度不足：按過送出才顯示，不另外列出可用額度 */}
+              {renderError("quota")}
+            </section>
+
             <label>
-              親屬關係
+              職務代理人
               <select
-                value={relationId}
-                onChange={(e) => setRelationId(e.target.value)}
+                value={deputyId}
+                onChange={(e) => setDeputyId(e.target.value)}
               >
-                <option value="">請選擇親屬關係</option>
-                {options.relations.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
+                <option value="">請選擇職務代理人</option>
+                {options.deputies.map((emp) => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.name}
                   </option>
                 ))}
               </select>
             </label>
-            {relation && (
-              <p className="field-hint">該次可請 {relation.days} 日</p>
-            )}
-            {renderError("relationId")}
+            {renderError("deputyId")}
+
+            <label>
+              審核人
+              <select
+                value={reviewerId}
+                onChange={(e) => setReviewerId(e.target.value)}
+              >
+                <option value="">請選擇審核人</option>
+                {options.reviewers.map((emp) => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {renderError("reviewerId")}
+
+            <label>
+              備註
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="請輸入備註"
+              ></textarea>
+            </label>
+
+            <div className="form-actions">
+              <button type="button" onClick={() => navigate("/my-leaves")}>
+                取消
+              </button>
+              <button
+                type="submit"
+                className="button-primary"
+                disabled={submitting}
+              >
+                {submitting ? "送出中..." : "送出"}
+              </button>
+            </div>
           </>
         )}
-
-        <div className="date-time-row">
-          <label>
-            起始日期
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-          </label>
-          {!isDayUnit && (
-            <label>
-              起始時間
-              <select
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-              >
-                <option value="">請選擇</option>
-                {options.timeOptions.map((time) => (
-                  <option key={time} value={time}>
-                    {formatTime(time)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-        </div>
-        {renderError("start")}
-
-        <div className="date-time-row">
-          <label>
-            結束日期
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-          </label>
-          {!isDayUnit && (
-            <label>
-              結束時間
-              <select
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-              >
-                <option value="">請選擇</option>
-                {options.timeOptions.map((time) => (
-                  <option key={time} value={time}>
-                    {formatTime(time)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-        </div>
-        {renderError("end")}
-
-        {/* 系統試算：時數、可用額度，跟要填的欄位分開 */}
-        <section className="leave-preview" aria-live="polite">
-          <div className="hours-field">
-            時數（系統計算）
-            <p className="hours-value">
-              {preview && preview.hours > 0 ? formatHours(preview.hours) : "—"}
-            </p>
-            {preview && preview.days.length > 1 && (
-              <details>
-                <summary>每日明細</summary>
-                <ul>
-                  {preview.days.map((day) => (
-                    <li key={day.date}>
-                      {formatDate(day.date)} {formatTime(day.startTime)}–
-                      {formatTime(day.endTime)}：{formatHours(day.hours)}
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            )}
-          </div>
-          {renderError("hours")}
-
-          <div className="hours-field">
-            可用額度
-            {preview && preview.quotaLines.length > 0 ? (
-              preview.quotaLines.map((line) => (
-                <p key={line.label} className="quota-line">
-                  {line.remaining === null
-                    ? `該次可請 ${formatHours(line.available)}`
-                    : `${line.label}可用 ${formatHours(line.available)}，${
-                        line.remaining < 0
-                          ? `不足 ${formatHours(-line.remaining)}`
-                          : `送出後剩 ${formatHours(line.remaining)}`
-                      }`}
-                </p>
-              ))
-            ) : (
-              <p className="quota-line">選好假別與起訖後顯示</p>
-            )}
-            {preview && preview.deductions.length > 0 && (
-              <ul>
-                {preview.deductions.map((item) => (
-                  <li key={`${item.batchName}-${item.date}`}>
-                    {formatDate(item.date)} 扣 {item.batchName}{" "}
-                    {formatHours(item.hours)}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          {renderError("quota")}
-        </section>
-
-        <label>
-          職務代理人
-          <select
-            value={deputyId}
-            onChange={(e) => setDeputyId(e.target.value)}
-          >
-            <option value="">請選擇職務代理人</option>
-            {options.deputies.map((emp) => (
-              <option key={emp.id} value={emp.id}>
-                {emp.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        {renderError("deputyId")}
-
-        <label>
-          審核人
-          <select
-            value={reviewerId}
-            onChange={(e) => setReviewerId(e.target.value)}
-          >
-            <option value="">請選擇審核人</option>
-            {options.reviewers.map((emp) => (
-              <option key={emp.id} value={emp.id}>
-                {emp.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        {renderError("reviewerId")}
-
-        <label>
-          備註
-          <textarea
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="請輸入備註"
-          ></textarea>
-        </label>
-
-        <div className="form-actions">
-          <button type="button" onClick={() => navigate("/my-leaves")}>
-            取消
-          </button>
-          <button
-            type="submit"
-            className="button-primary"
-            disabled={submitting}
-          >
-            {submitting ? "送出中..." : "送出"}
-          </button>
-        </div>
       </form>
     </>
   );

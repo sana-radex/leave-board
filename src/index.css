@@ -215,9 +215,7 @@ td {
   text-align: left;
 }
 
-/* 表頭：淡底、小一點的字、不換行 */
 th {
-  background-color: var(--color-surface);
   color: var(--color-text-muted);
   font-size: 14px;
   font-weight: 500;

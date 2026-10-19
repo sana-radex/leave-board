@@ -63,15 +63,6 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
     setViewDate(new Date(todayYear, todayMonth - 1, 1));
   }
 
-  /** 圖例標籤的 class：沒有顯示的類別加上 legend-hidden */
-  function getLegendClassName(tagClassName: string, shown: boolean) {
-    let className = `tag ${tagClassName}`;
-    if (!shown) {
-      className += " legend-hidden";
-    }
-    return className;
-  }
-
   /** 篩選視窗按下套用：換成新的條件並關掉視窗 */
   function handleFilterApply(newFilter: CalendarFilter) {
     setFilter(newFilter);
@@ -190,30 +181,6 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
               </svg>
               篩選條件
             </button>
-          </div>
-
-          {/* 圖例：被篩掉的類別變淡、加刪除線，看得出現在有隱藏哪些 */}
-          <div className="calendar-legend">
-            <span className={getLegendClassName("tag-mine", filter.mine)}>
-              我的假單
-            </span>
-            <span className={getLegendClassName("tag-approved", filter.others)}>
-              其他人的假單
-            </span>
-            <span className={getLegendClassName("tag-revoked", filter.revoked)}>
-              已撤銷
-            </span>
-            <span className={getLegendClassName("tag-holiday", filter.holiday)}>
-              國定假日
-            </span>
-            <span
-              className={getLegendClassName(
-                "tag-makeup_workday",
-                filter.makeup_workday,
-              )}
-            >
-              補班日
-            </span>
           </div>
 
           {loading && <p>載入中...</p>}

@@ -3,6 +3,7 @@ import "./MyQuotaPage.css";
 import type { LeaveQuotaResponse, LeaveTypeId } from "../types/types";
 import { getMyQuota } from "../api/quotaApi";
 import BatchTable from "../components/BatchTable";
+import InfoTooltip from "../components/InfoTooltip";
 import { formatHours } from "../utils/format";
 
 /** 我的額度（F-04）：只看自己的 */
@@ -30,13 +31,21 @@ function MyQuotaPage() {
     );
   }
 
+  /** 額度欄位：婚假、喪假沒有總額可算，顯示「—」 */
+  function renderHours(quota: LeaveQuotaResponse, hours: number) {
+    if (quota.quotaType === "per_event") {
+      return <span className="quota-none">—</span>;
+    }
+    return formatHours(hours);
+  }
+
   return (
     <>
       <h1>我的額度</h1>
       {loading && <p>載入中...</p>}
 
       <div className="table-wrap">
-        <table className="my-quota-table">
+        <table>
           <thead>
             <tr>
               <th>假別</th>
@@ -44,7 +53,6 @@ function MyQuotaPage() {
               <th className="cell-number">已使用</th>
               <th className="cell-number">審核中</th>
               <th className="cell-number">可用</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -53,56 +61,77 @@ function MyQuotaPage() {
               const hasExpiringSoon = quota.batches.some(
                 (batch) => batch.expiringSoon,
               );
-
-              // 婚假、喪假：只顯示每次額度，不顯示已使用
-              if (quota.quotaType === "per_event") {
-                return (
-                  <tr key={quota.leaveTypeId}>
-                    <td>{quota.leaveTypeName}</td>
-                    <td colSpan={5}>
-                      <div className="per-event-list">
-                        {quota.perEvent.map((item) => (
-                          <div key={item.label}>
-                            {item.label && `${item.label}：`}每次{" "}
-                            {formatHours(item.hours)}
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              }
+              // 喪假要列出每種親屬各可請幾天（婚假只有一種，說明裡已經有了）
+              const perEventLines = quota.perEvent.filter((item) => item.label);
 
               return (
                 <Fragment key={quota.leaveTypeId}>
                   <tr>
-                    <td className="quota-type-name">
-                      {quota.leaveTypeName}
-                      {quota.quotaType === "yearly" && "（今年度）"}
-                      {hasExpiringSoon && (
-                        <span className="tag tag-pending">有批次即將到期</span>
-                      )}
+                    <td>
+                      <div className="quota-type-name">
+                        {/* 批次型才有展開按鈕；其他假別留一樣寬的空，名稱才對得齊 */}
+                        {quota.quotaType === "batch" ? (
+                          <button
+                            className="expand-button"
+                            onClick={() => toggle(quota.leaveTypeId)}
+                            aria-expanded={isOpen}
+                            aria-label={isOpen ? "收合批次" : "展開批次"}
+                            title={isOpen ? "收合批次" : "展開批次"}
+                          >
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              aria-hidden="true"
+                            >
+                              <path
+                                d="M6 3l5 5-5 5"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.75"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
+                        ) : (
+                          <span className="expand-button-space"></span>
+                        )}
+                        <span>
+                          {quota.leaveTypeName}
+                          {quota.quotaType === "yearly" && "（今年度）"}
+                        </span>
+                        <InfoTooltip label={`${quota.leaveTypeName}說明`}>
+                          <p>{quota.leaveTypeDescription}</p>
+                          {perEventLines.map((item) => (
+                            <p key={item.label}>
+                              {item.label}：每次 {formatHours(item.hours)}
+                            </p>
+                          ))}
+                        </InfoTooltip>
+                        {hasExpiringSoon && (
+                          <span className="tag tag-pending">
+                            有批次即將到期
+                          </span>
+                        )}
+                      </div>
                     </td>
-                    <td className="cell-number">{formatHours(quota.total)}</td>
-                    <td className="cell-number">{formatHours(quota.used)}</td>
-                    <td className="cell-number">{formatHours(quota.reserved)}</td>
+                    <td className="cell-number">
+                      {renderHours(quota, quota.total)}
+                    </td>
+                    <td className="cell-number">
+                      {renderHours(quota, quota.used)}
+                    </td>
+                    <td className="cell-number">
+                      {renderHours(quota, quota.reserved)}
+                    </td>
                     <td className="cell-number quota-available-cell">
-                      {formatHours(quota.available)}
-                    </td>
-                    <td className="cell-actions">
-                      {quota.quotaType === "batch" && (
-                        <button
-                          onClick={() => toggle(quota.leaveTypeId)}
-                          aria-expanded={isOpen}
-                        >
-                          {isOpen ? "收合批次" : "展開批次"}
-                        </button>
-                      )}
+                      {renderHours(quota, quota.available)}
                     </td>
                   </tr>
                   {isOpen && (
                     <tr className="batch-row">
-                      <td colSpan={6}>
+                      <td colSpan={5}>
                         <BatchTable quota={quota} />
                       </td>
                     </tr>

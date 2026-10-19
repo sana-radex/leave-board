@@ -1,6 +1,39 @@
-/* 假別名稱後面的標籤，和文字之間留空 */
-.quota-type-name .tag {
-  margin-left: 6px;
+/* 假別名稱這一格：展開按鈕、名稱、i 圖示、標籤排成一行 */
+.quota-type-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 展開批次：只有箭頭的小按鈕，平常沒有框，滑過才有底色 */
+.quota-type-name .expand-button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  color: var(--color-text-muted);
+}
+
+.quota-type-name .expand-button:hover:not(:disabled) {
+  color: var(--color-primary);
+}
+
+/* 展開時箭頭轉向下 */
+.expand-button svg {
+  transition: transform 0.15s;
+}
+
+.expand-button[aria-expanded="true"] svg {
+  transform: rotate(90deg);
+}
+
+/* 沒有展開按鈕的假別：留一樣寬的空，名稱才對得齊 */
+.expand-button-space {
+  flex-shrink: 0;
+  width: 24px;
 }
 
 /* 可用：使用者最常看的一欄，字粗一點 */
@@ -8,20 +41,14 @@
   font-weight: 600;
 }
 
-/* 婚假、喪假的每次額度：排成好幾欄，不要一行一個拉很長 */
-.per-event-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 4px 16px;
+/* 婚假、喪假沒有總額可算：「—」用次要文字色 */
+.quota-none {
+  color: var(--color-text-muted);
+  font-weight: 400;
 }
 
 /* 展開的批次：淡淡的底色，和上面的假別區分 */
 .batch-row > td {
   padding: 12px 16px 16px;
   background-color: var(--color-surface);
-}
-
-/* 批次表格放在淡底上：表頭改成白底才分得出來 */
-.batch-row th {
-  background-color: var(--color-bg);
 }

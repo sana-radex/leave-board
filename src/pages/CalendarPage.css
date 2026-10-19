@@ -20,20 +20,6 @@
   margin-bottom: 12px;
 }
 
-/* 圖例：標籤排成一行，放不下就換行 */
-.calendar-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-/* 被篩掉、沒有顯示在行事曆上的類別 */
-.calendar-legend .legend-hidden {
-  opacity: 0.45;
-  text-decoration: line-through;
-}
-
 /* 今天、上個月、月份、下個月排成一行 */
 .month-switcher {
   display: flex;

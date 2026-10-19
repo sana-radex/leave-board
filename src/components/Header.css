@@ -1,24 +1,28 @@
-/* 頁首：標題靠左，使用者靠右；黑底 */
+/* 頁首：標題靠左，使用者靠右；跟左側選單同一個淺灰框 */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
-  background-color: var(--color-header-bg);
-  color: var(--color-header-text);
+  gap: 16px;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-frame);
 }
 
+/* 產品名稱：字距拉開一點，當作識別 */
 .header-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
-  color: var(--color-header-accent);
+  letter-spacing: 0.08em;
+  color: var(--color-primary-strong);
 }
 
-/* 右邊：名字、登出，排成一排 */
+/* 右邊：切換使用者、重置資料，排成一排 */
 .header-user {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  font-size: 14px;
 }
 
 /* 「目前使用者」文字和下拉選單排在一起 */
@@ -26,10 +30,20 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  color: var(--color-text-muted);
 }
 
-/* 黑底上的按鈕用亮的湖水綠，字才看得清楚 */
-.header button {
-  border-color: var(--color-header-accent);
-  color: var(--color-header-accent);
+/* 重置資料：開發時才有，做成不搶眼的文字按鈕 */
+.header-reset {
+  padding: 0;
+  border: none;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* 蓋掉全站按鈕滑過時的淡綠底，只把字變深 */
+.header-reset:hover:not(:disabled) {
+  background-color: transparent;
+  color: var(--color-text);
 }

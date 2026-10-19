@@ -33,7 +33,11 @@ function Header({ currentUser, userOptions, onSwitchUser }: HeaderProps) {
           </select>
         </label>
 
-        {import.meta.env.DEV && <button onClick={resetData}>重置資料</button>}
+        {import.meta.env.DEV && (
+          <button className="header-reset" onClick={resetData}>
+            重置資料
+          </button>
+        )}
       </div>
     </header>
   );

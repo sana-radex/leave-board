@@ -72,7 +72,7 @@ function Calendar({
     return label;
   }
 
-  /** 標籤顏色：已撤銷用灰色；其餘自己的假單用紫色、其他人的用湖水綠（撤銷審核中照一般呈現） */
+  /** 標籤顏色 */
   function getLeaveClassName(leave: LeaveFormResponse) {
     if (leave.status === "revoked") {
       return "tag tag-revoked";

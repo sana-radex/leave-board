@@ -1,15 +1,25 @@
-/* 左側選單：選項由上往下排 */
+/* 左側選單：跟頁首同一個淺灰框；選項由上往下排，右邊不留空，讓選到的那一項接進內容區 */
 .sidebar {
   display: flex;
   flex-direction: column;
-  width: 160px;
-  padding: 16px 0;
+  flex-shrink: 0;
+  gap: 2px;
+  width: 168px;
+  padding: 16px 0 16px 12px;
   border-right: 1px solid var(--color-border);
+  background-color: var(--color-frame);
   text-align: left;
 }
 
+/* 每一項先留透明框線，選到時換成看得到的框線，文字才不會跳動 */
 .sidebar a {
-  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-right: none;
+  border-radius: var(--radius) 0 0 var(--radius);
   color: var(--color-text-muted);
   text-decoration: none;
 }
@@ -18,7 +28,30 @@
   color: var(--color-text);
 }
 
-/* 目前所在的頁面 */
+/* 目前所在的頁面：白底，往右多 1px 蓋掉選單的框線，跟內容區接在一起（像活頁夾的分頁） */
 .sidebar a.active {
-  color: var(--color-primary);
-  background-color: var(--color-primary-soft);}
+  margin-right: -1px;
+  border-color: var(--color-border);
+  background-color: var(--color-bg);
+  color: var(--color-primary-strong);
+  font-weight: 600;
+}
+
+/* 待我處理的數量：小圓標；沒有待處理時是灰色 */
+.sidebar-count {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background-color: var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  text-align: center;
+}
+
+/* 有待處理：松綠底白字 */
+.sidebar-count.has-items {
+  background-color: var(--color-primary);
+  color: var(--color-bg);
+}

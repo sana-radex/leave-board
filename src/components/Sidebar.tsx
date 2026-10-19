@@ -18,7 +18,18 @@ function Sidebar({ isReviewer, inboxCount }: SidebarProps) {
       <NavLink to="/leave/new">新增請假</NavLink>
       <NavLink to="/my-leaves">我的假單</NavLink>
       <NavLink to="/my-quota">我的額度</NavLink>
-      {isReviewer && <NavLink to="/inbox">待我處理（{inboxCount}）</NavLink>}
+      {isReviewer && (
+        <NavLink to="/inbox">
+          待我處理
+          <span
+            className={
+              inboxCount > 0 ? "sidebar-count has-items" : "sidebar-count"
+            }
+          >
+            {inboxCount}
+          </span>
+        </NavLink>
+      )}
     </nav>
   );
 }

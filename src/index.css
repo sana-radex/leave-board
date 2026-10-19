@@ -1,22 +1,19 @@
 /* ========== 樣式變數（全站共用） ========== */
 :root {
   /* 背景 */
-  --color-bg: #ffffff; /* 頁面底色：白 */
-  --color-surface: #f3f6f6; /* 跟底色有點區別的區塊：彈出視窗、星期標題 */
-  --color-border: #d5dfde; /* 框線 */
+  --color-bg: #ffffff; /* 內容區底色：白 */
+  --color-frame: #f2f5f3; /* 框：頁首、左側選單 */
+  --color-surface: #f5f8f6; /* 白紙上有點區別的區塊：彈出視窗、星期標題、週末 */
+  --color-border: #d6e0da; /* 框線 */
 
   /* 文字 */
-  --color-text: #1a2222; /* 一般文字 */
-  --color-text-muted: #5f7270; /* 次要文字：表頭、沒選到的選單 */
+  --color-text: #1b2420; /* 一般文字 */
+  --color-text-muted: #58685f; /* 次要文字 */
 
-  /* 主色：湖水綠（白底要用深一點的，字才看得清楚） */
-  --color-primary: #0f766e; /* 按鈕、月份、選到的選單 */
-  --color-primary-soft: rgba(13, 148, 136, 0.1); /* 淡淡的湖水綠底色 */
-
-  /* 頁首：黑底 */
-  --color-header-bg: #0b0f0f; /* 頁首底色：黑 */
-  --color-header-text: #e2ebea; /* 頁首文字 */
-  --color-header-accent: #2dd4bf; /* 頁首標題：亮湖水綠（黑底才用亮的） */
+  /* 主色 */
+  --color-primary: #2e6a52; /* 按鈕、月份 */
+  --color-primary-strong: #22513f; 
+  --color-primary-soft: #e6f0eb;
 
   /* 狀態 */
   --color-success: #15803d; /* 成功 */
@@ -25,11 +22,11 @@
   /* 假單狀態標籤：文字顏色 + 底色 */
   --color-pending: #92400e; /* 待審核：橘 */
   --color-pending-bg: #fef3c7;
-  --color-approved: #115e59; /* 已核准：湖水綠 */
-  --color-approved-bg: #ccfbf1;
+  --color-approved: #22513f; /* 已核准：松綠 */
+  --color-approved-bg: #ddede4;
   --color-revoked: #4b5563; /* 已撤銷：灰 */
   --color-revoked-bg: #f3f4f6;
-  --color-mine: #5b21b6; /* 自己的假單：紫 */
+  --color-mine: #5b21b6; /* 自己：紫 */
   --color-mine-bg: #ede9fe;
 
   /* 辦公日曆標籤：文字顏色 + 底色 */
@@ -64,7 +61,10 @@ body {
   color: var(--color-text);
   font-family: var(--font-sans);
   font-size: 16px;
-  line-height: 1.5;
+  /* 中文字比較方正，行高拉高一點比較好讀 */
+  line-height: 1.6;
+  /* 數字等寬：日期、時數、天數上下會對齊 */
+  font-variant-numeric: tabular-nums;
 }
 
 /* 整個 app：頁首在上、版面在下，至少跟視窗一樣高 */
@@ -92,7 +92,7 @@ p {
   margin: 0 0 8px;
 }
 
-/* 按鈕：湖水綠外框 */
+/* 按鈕 */
 button {
   padding: 4px 12px;
   border: 1px solid var(--color-primary);
@@ -129,7 +129,7 @@ textarea {
   font: inherit;
 }
 
-/* 用鍵盤移動到的元件，加上湖水綠外框 */
+/* 用鍵盤移動到的元件 */
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
@@ -187,7 +187,6 @@ th {
   background-color: var(--color-holiday-bg);
 }
 
-/* 跟 CalendarDayType 的 "makeup_workday" 一樣，用底線 */
 .tag-makeup_workday {
   color: var(--color-makeup-workday);
   background-color: var(--color-makeup-workday-bg);

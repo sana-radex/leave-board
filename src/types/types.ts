@@ -208,6 +208,20 @@ export interface CalendarDay {
   name: string;
 }
 
+/** 行事曆篩選：每一類要不要顯示（跟圖例一樣分 5 類） */
+export interface CalendarFilter {
+  /** 我的假單 */
+  mine: boolean;
+  /** 其他人的假單 */
+  others: boolean;
+  /** 已撤銷的假單（不分是誰的） */
+  revoked: boolean;
+  /** 國定假日 */
+  holiday: boolean;
+  /** 補班日 */
+  makeup_workday: boolean;
+}
+
 /** 使用者切換的選項-回傳 */
 export interface UserOptionResponse {
   /** 人員 id */

@@ -28,16 +28,7 @@ const EMPTY_PREVIEW: LeaveFormPreviewResponse = {
   deductions: [],
 };
 
-function getShiftText(shift: Shift): string {
-  const fullDay = `${formatTime(shift.fullDayStart)}–${formatTime(shift.fullDayEnd)}`;
-  const selectable = `${formatTime(shift.selectableStart)}–${formatTime(shift.selectableEnd)}`;
-  if (fullDay === selectable) {
-    return `${shift.name} ${fullDay}`;
-  }
-  return `${shift.name} ${fullDay}（可選 ${selectable}）`;
-}
-
-/** 新增請假（F-02） */
+/** 新增請假 */
 function NewLeavePage() {
   const navigate = useNavigate();
   const [options, setOptions] = useState<LeaveFormOptionsResponse | null>(null);
@@ -176,7 +167,6 @@ function NewLeavePage() {
       {toast && <Toast success={toast.success} message={toast.message} />}
 
       <h1>新增請假</h1>
-      <p className="shift-info">班別：{getShiftText(options.shift)}</p>
 
       <form className="leave-form" onSubmit={handleSubmit} noValidate>
         <label>

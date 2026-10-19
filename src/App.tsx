@@ -66,7 +66,6 @@ function App() {
       <div className="layout">
         <Sidebar isReviewer={isReviewer} inboxCount={inboxCount} />
 
-        {/* key 用目前使用者 id：切換使用者時，頁面整個重新載入，資料改成新使用者的 */}
         <main className="content" key={currentUser.id}>
           <Routes>
             <Route
@@ -76,7 +75,6 @@ function App() {
             <Route path="/leave/new" element={<NewLeavePage />} />
             <Route path="/my-leaves" element={<MyLeavesPage />} />
             <Route path="/my-quota" element={<MyQuotaPage />} />
-            {/* 待我處理只有審核人能進；切換成提交人時會導回行事曆 */}
             <Route
               path="/inbox"
               element={
@@ -87,7 +85,6 @@ function App() {
                 )
               }
             />
-            {/* 其他網址（例如以前的 /login）都導回行事曆 */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

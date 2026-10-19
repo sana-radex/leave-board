@@ -1,0 +1,38 @@
+/* 每一組勾選框由上往下排；拿掉 fieldset 原本的框線 */
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 0;
+  border: none;
+}
+
+.filter-group:last-child {
+  margin-bottom: 0;
+}
+
+/* 每一組的小標題 */
+.filter-title {
+  margin-bottom: 4px;
+  padding: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+/* 勾選框和標籤排在一起，點標籤也能勾 */
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* 勾選框用主色 */
+.filter-option input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}

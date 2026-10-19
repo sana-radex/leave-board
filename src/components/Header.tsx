@@ -1,6 +1,5 @@
 import type { Employee, UserOptionResponse } from "../types/types";
 import { roleLabels } from "../utils/label";
-import { resetData } from "../api/db";
 import "./Header.css";
 
 interface HeaderProps {
@@ -20,7 +19,6 @@ function Header({ currentUser, userOptions, onSwitchUser }: HeaderProps) {
 
       <div className="header-user">
         <label>
-          目前使用者
           <select
             value={currentUser.id}
             onChange={(e) => onSwitchUser(e.target.value)}
@@ -32,12 +30,6 @@ function Header({ currentUser, userOptions, onSwitchUser }: HeaderProps) {
             ))}
           </select>
         </label>
-
-        {import.meta.env.DEV && (
-          <button className="header-reset" onClick={resetData}>
-            重置資料
-          </button>
-        )}
       </div>
     </header>
   );

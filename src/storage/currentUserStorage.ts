@@ -9,8 +9,3 @@ export function loadCurrentUserId(): string | null {
 export function saveCurrentUserId(id: string) {
   localStorage.setItem(CURRENT_USER_KEY, id);
 }
-
-/** 清除目前使用者 id */
-export function clearCurrentUserId() {
-  localStorage.removeItem(CURRENT_USER_KEY);
-}

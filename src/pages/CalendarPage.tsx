@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./CalendarPage.css";
 import type {
   CalendarDay,
+  CalendarFilter,
   LeaveFormResponse,
   LeaveQuotaResponse,
   Response,
@@ -11,6 +12,7 @@ import { getCalendarDayList } from "../api/calendarApi";
 import { getMyQuota } from "../api/quotaApi";
 import { today } from "../utils/today";
 import Calendar from "../components/Calendar";
+import CalendarFilterModal from "../components/CalendarFilterModal";
 import LeaveDetail from "../components/LeaveDetail";
 import QuotaPanel from "../components/QuotaPanel";
 import Toast from "../components/Toast";
@@ -34,6 +36,15 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
     new Date(todayYear, todayMonth - 1, 1),
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  // 篩選條件：預設全部都顯示
+  const [filter, setFilter] = useState<CalendarFilter>({
+    mine: true,
+    others: true,
+    revoked: true,
+    holiday: true,
+    makeup_workday: true,
+  });
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth(); // 0 = 1 月，11 = 12 月
@@ -50,6 +61,21 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
   /** 回到今天所在的月份 */
   function goToToday() {
     setViewDate(new Date(todayYear, todayMonth - 1, 1));
+  }
+
+  /** 圖例標籤的 class：沒有顯示的類別加上 legend-hidden */
+  function getLegendClassName(tagClassName: string, shown: boolean) {
+    let className = `tag ${tagClassName}`;
+    if (!shown) {
+      className += " legend-hidden";
+    }
+    return className;
+  }
+
+  /** 篩選視窗按下套用：換成新的條件並關掉視窗 */
+  function handleFilterApply(newFilter: CalendarFilter) {
+    setFilter(newFilter);
+    setFilterOpen(false);
   }
 
   /** 取得我的額度，只留批次型 */
@@ -108,6 +134,9 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
         <div className="calendar-main">
           <div className="calendar-toolbar">
             <div className="month-switcher">
+              <button className="toolbar-button" onClick={goToToday}>
+                今天
+              </button>
               <button
                 className="month-button"
                 onClick={() => changeMonth(-1)}
@@ -146,15 +175,45 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
                 </svg>
               </button>
             </div>
-            <button onClick={goToToday}>今天</button>
+            <button
+              className="toolbar-button filter-button"
+              onClick={() => setFilterOpen(true)}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M2.5 3.5h11l-4.25 5v4l-2.5 1.25V8.5z"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              篩選條件
+            </button>
           </div>
 
+          {/* 圖例：被篩掉的類別變淡、加刪除線，看得出現在有隱藏哪些 */}
           <div className="calendar-legend">
-            <span className="tag tag-mine">我的假單</span>
-            <span className="tag tag-approved">其他人的假單</span>
-            <span className="tag tag-revoked">已撤銷</span>
-            <span className="tag tag-holiday">國定假日</span>
-            <span className="tag tag-makeup_workday">補班日</span>
+            <span className={getLegendClassName("tag-mine", filter.mine)}>
+              我的假單
+            </span>
+            <span className={getLegendClassName("tag-approved", filter.others)}>
+              其他人的假單
+            </span>
+            <span className={getLegendClassName("tag-revoked", filter.revoked)}>
+              已撤銷
+            </span>
+            <span className={getLegendClassName("tag-holiday", filter.holiday)}>
+              國定假日
+            </span>
+            <span
+              className={getLegendClassName(
+                "tag-makeup_workday",
+                filter.makeup_workday,
+              )}
+            >
+              補班日
+            </span>
           </div>
 
           {loading && <p>載入中...</p>}
@@ -164,12 +223,21 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
             month={month}
             leaves={leaveList}
             calendarDays={calendarDayList}
+            filter={filter}
             onSelectLeave={setSelectedId}
           />
         </div>
 
         <QuotaPanel quotaList={quotaList} />
       </div>
+
+      {filterOpen && (
+        <CalendarFilterModal
+          filter={filter}
+          onApply={handleFilterApply}
+          onClose={() => setFilterOpen(false)}
+        />
+      )}
 
       {selectedLeave && (
         <LeaveDetail

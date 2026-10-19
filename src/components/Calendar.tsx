@@ -1,6 +1,7 @@
 import "./Calendar.css";
 import type {
   CalendarDay,
+  CalendarFilter,
   LeaveDayResponse,
   LeaveFormResponse,
 } from "../types/types";
@@ -22,6 +23,8 @@ interface CalendarProps {
   leaves: LeaveFormResponse[];
   /** 辦公日曆（國定假日、補班日） */
   calendarDays: CalendarDay[];
+  /** 篩選條件：哪幾類要顯示 */
+  filter: CalendarFilter;
   /** 點了某張假單時要做的事 */
   onSelectLeave: (leaveId: string) => void;
 }
@@ -32,6 +35,7 @@ function Calendar({
   month,
   leaves,
   calendarDays,
+  filter,
   onSelectLeave,
 }: CalendarProps) {
   // 這個月 1 號是星期幾（0 = 星期一，6 = 星期日）
@@ -50,10 +54,24 @@ function Calendar({
     return calendarDays.find((day) => day.date === dateKey);
   }
 
-  /** 找出這天有請假的假單：每日明細裡有這一天的（非工作天不會有） */
+  /** 這張假單有沒有被篩掉：已撤銷看「已撤銷」，其他看是不是自己的 */
+  function isLeaveShown(leave: LeaveFormResponse) {
+    if (leave.status === "revoked") {
+      return filter.revoked;
+    }
+    if (leave.isMine) {
+      return filter.mine;
+    }
+    return filter.others;
+  }
+
+  /** 找出這天有請假、而且沒被篩掉的假單：每日明細裡有這一天的（非工作天不會有） */
   function getLeavesOfDay(dateKey: string) {
     const result: { leave: LeaveFormResponse; day: LeaveDayResponse }[] = [];
     for (const leave of leaves) {
+      if (!isLeaveShown(leave)) {
+        continue;
+      }
       const day = leave.days.find((item) => item.date === dateKey);
       if (day) {
         result.push({ leave, day });
@@ -98,6 +116,8 @@ function Calendar({
           const dateKey = toDateKey(date);
           const specialDay = getSpecialDay(dateKey);
           const dayLeaves = getLeavesOfDay(dateKey);
+          // 國定假日、補班日的標示有沒有被篩掉（底色照常，因為放不放假不會變）
+          const showSpecialDay = specialDay && filter[specialDay.type];
 
           // 不用上班的日子加底色
           const isWeekend = date.getDay() === 0 || date.getDay() === 6;
@@ -108,7 +128,7 @@ function Calendar({
           if ((isWeekend && !isMakeupWorkday) || isHoliday) {
             className += " off-day";
           }
-          if (isHoliday) {
+          if (isHoliday && showSpecialDay) {
             className += " holiday";
           }
           if (dateKey === todayKey) {
@@ -118,7 +138,7 @@ function Calendar({
           return (
             <div key={index} className={className}>
               <div className="calendar-date">{date.getDate()}</div>
-              {specialDay && (
+              {showSpecialDay && (
                 <span className={`tag tag-${specialDay.type}`}>
                   {specialDay.name}
                 </span>

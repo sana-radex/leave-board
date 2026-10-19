@@ -17,7 +17,7 @@
   color: var(--color-primary-strong);
 }
 
-/* 右邊：切換使用者、重置資料，排成一排 */
+/* 右邊：切換使用者 */
 .header-user {
   display: flex;
   align-items: center;
@@ -31,19 +31,4 @@
   align-items: center;
   gap: 8px;
   color: var(--color-text-muted);
-}
-
-/* 重置資料：開發時才有，做成不搶眼的文字按鈕 */
-.header-reset {
-  padding: 0;
-  border: none;
-  color: var(--color-text-muted);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* 蓋掉全站按鈕滑過時的淡綠底，只把字變深 */
-.header-reset:hover:not(:disabled) {
-  background-color: transparent;
-  color: var(--color-text);
 }

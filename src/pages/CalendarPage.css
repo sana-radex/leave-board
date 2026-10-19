@@ -11,11 +11,12 @@
   min-width: 0;
 }
 
-/* 工具列：切換月份靠左，今天靠右 */
+/* 工具列：今天和切換月份靠左，篩選條件靠右 */
 .calendar-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   margin-bottom: 12px;
 }
 
@@ -27,11 +28,35 @@
   margin-bottom: 12px;
 }
 
-/* 上個月、月份、下個月排成一行 */
+/* 被篩掉、沒有顯示在行事曆上的類別 */
+.calendar-legend .legend-hidden {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+/* 今天、上個月、月份、下個月排成一行 */
 .month-switcher {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* 已經用 gap 留空，蓋掉全站的「兩個按鈕並排時留空」 */
+.month-switcher button + button {
+  margin-left: 0;
+}
+
+/* 今天、篩選條件：跟箭頭按鈕一樣高 */
+.toolbar-button {
+  height: 32px;
+}
+
+/* 篩選條件：漏斗圖示放在字前面 */
+.filter-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 /* 上個月、下個月：正方形的箭頭按鈕 */

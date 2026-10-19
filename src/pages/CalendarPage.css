@@ -19,9 +19,10 @@
   margin-bottom: 12px;
 }
 
-/* 圖例：標籤排成一行 */
+/* 圖例：標籤排成一行，放不下就換行 */
 .calendar-legend {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 12px;
 }
@@ -30,13 +31,30 @@
 .month-switcher {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
-/* 月份文字 */
+/* 上個月、下個月：正方形的箭頭按鈕 */
+.month-button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
 .calendar-month {
-  min-width: 110px;
-  text-align: center;
-  color: var(--color-primary);
+  min-width: 128px;
+  color: var(--color-primary-strong);
+  font-size: 18px;
   font-weight: 600;
+  text-align: center;
+}
+
+/* 畫面不夠寬時，我的額度移到行事曆下面 */
+@media (max-width: 960px) {
+  .calendar-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

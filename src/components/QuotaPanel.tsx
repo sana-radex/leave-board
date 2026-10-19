@@ -37,9 +37,11 @@ function QuotaPanel({ quotaList }: QuotaPanelProps) {
       ))}
 
       {selected && (
-        <Modal title={`${selected.leaveTypeName}額度`}>
+        <Modal
+          title={`${selected.leaveTypeName}額度`}
+          onClose={() => setSelectedId(null)}
+        >
           <BatchTable quota={selected} showTotal />
-          <button onClick={() => setSelectedId(null)}>關閉</button>
         </Modal>
       )}
     </section>

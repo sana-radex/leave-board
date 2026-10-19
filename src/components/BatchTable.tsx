@@ -40,10 +40,10 @@ function BatchTable({ quota, showTotal = false }: BatchTableProps) {
         <tr>
           <th>批次</th>
           <th>有效期間</th>
-          <th>總額</th>
-          <th>已使用</th>
-          <th>審核中</th>
-          <th>可用</th>
+          <th className="cell-number">總額</th>
+          <th className="cell-number">已使用</th>
+          <th className="cell-number">審核中</th>
+          <th className="cell-number">可用</th>
           <th>標示</th>
         </tr>
       </thead>
@@ -54,10 +54,10 @@ function BatchTable({ quota, showTotal = false }: BatchTableProps) {
             <td>
               {formatDate(batch.effectiveDate)}–{formatDate(batch.expiryDate)}
             </td>
-            <td>{formatHours(batch.total)}</td>
-            <td>{formatHours(batch.used)}</td>
-            <td>{formatHours(batch.reserved)}</td>
-            <td>{formatHours(batch.available)}</td>
+            <td className="cell-number">{formatHours(batch.total)}</td>
+            <td className="cell-number">{formatHours(batch.used)}</td>
+            <td className="cell-number">{formatHours(batch.reserved)}</td>
+            <td className="cell-number">{formatHours(batch.available)}</td>
             <td className="batch-tags">{renderBatchTags(batch, isFlex)}</td>
           </tr>
         ))}
@@ -66,10 +66,10 @@ function BatchTable({ quota, showTotal = false }: BatchTableProps) {
         <tfoot>
           <tr>
             <td colSpan={2}>合計</td>
-            <td>{formatHours(quota.total)}</td>
-            <td>{formatHours(quota.used)}</td>
-            <td>{formatHours(quota.reserved)}</td>
-            <td>{formatHours(quota.available)}</td>
+            <td className="cell-number">{formatHours(quota.total)}</td>
+            <td className="cell-number">{formatHours(quota.used)}</td>
+            <td className="cell-number">{formatHours(quota.reserved)}</td>
+            <td className="cell-number">{formatHours(quota.available)}</td>
             <td></td>
           </tr>
         </tfoot>

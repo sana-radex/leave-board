@@ -1,12 +1,28 @@
-/* 工具列：篩選狀態、筆數排成一行 */
+/* 工具列：篩選狀態、筆數靠左，新增請假靠右 */
 .my-leaves-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+/* 「篩選狀態」和下拉選單排在一起 */
+.my-leaves-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 14px;
 }
 
 /* 工具列裡的筆數不用下方留白 */
 .my-leaves-toolbar p {
   margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.my-leaves-new {
+  margin-left: auto;
 }

@@ -108,11 +108,43 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
         <div className="calendar-main">
           <div className="calendar-toolbar">
             <div className="month-switcher">
-              <button onClick={() => changeMonth(-1)}>⬅</button>
+              <button
+                className="month-button"
+                onClick={() => changeMonth(-1)}
+                aria-label="上個月"
+                title="上個月"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+                  <path
+                    d="M10 3L5 8l5 5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
               <span className="calendar-month">
-                {year} / {month + 1}
+                {year} 年 {month + 1} 月
               </span>
-              <button onClick={() => changeMonth(1)}>⮕</button>
+              <button
+                className="month-button"
+                onClick={() => changeMonth(1)}
+                aria-label="下個月"
+                title="下個月"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+                  <path
+                    d="M6 3l5 5-5 5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
             </div>
             <button onClick={goToToday}>今天</button>
           </div>
@@ -122,6 +154,7 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
             <span className="tag tag-approved">其他人的假單</span>
             <span className="tag tag-revoked">已撤銷</span>
             <span className="tag tag-holiday">國定假日</span>
+            <span className="tag tag-makeup_workday">補班日</span>
           </div>
 
           {loading && <p>載入中...</p>}

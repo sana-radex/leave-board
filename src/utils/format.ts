@@ -68,6 +68,11 @@ export function formatLeaveRange(
   return `${formatDate(startDate)} ${formatTime(startClock)} – ${formatDate(endDate)} ${formatTime(endClock)}`;
 }
 
+/** 日期和時間之間改成不換行的空白：表格太窄時，只會在「–」前後換行 */
+export function keepDateTimeTogether(text: string): string {
+  return text.replace(/(\d) (\d)/g, "$1 $2");
+}
+
 /** 時數顯示成「天＋小時」，1 天 = 8 小時，例如 20 → '2 天 4 小時' */
 export function formatHours(hours: number): string {
   const days = Math.floor(hours / 8);

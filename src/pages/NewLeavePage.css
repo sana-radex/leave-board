@@ -1,19 +1,47 @@
 /* 班別說明 */
 .shift-info {
+  margin-bottom: 8px;
   color: var(--color-text-muted);
 }
 
 /* 表單：每個欄位各佔一行，不要太寬 */
 .leave-form {
-  max-width: 480px;
+  max-width: 520px;
 }
 
-.leave-form label,
-.hours-field {
+/* 欄位名稱在上、輸入框在下 */
+.leave-form label {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 12px;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* 欄位名稱字小，輸入框裡的字維持一般大小 */
+.leave-form input,
+.leave-form select,
+.leave-form textarea {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* 日期框和下拉選單一樣高，並排時才對得齊 */
+.leave-form input,
+.leave-form select {
+  height: 40px;
+}
+
+.leave-form textarea {
+  min-height: 80px;
+}
+
+/* 有錯誤的欄位：框線變紅 */
+.leave-form label:has(+ .field-error) :is(input, select),
+.leave-form label:has(+ .field-hint + .field-error) select,
+.date-time-row:has(+ .field-error) :is(input, select) {
+  border-color: var(--color-danger);
 }
 
 /* 日期和時間並排 */
@@ -26,15 +54,51 @@
   flex: 1;
 }
 
+/* 系統試算：淡底的框，跟要填的欄位分開 */
+.leave-preview {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-surface);
+}
+
+.hours-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.hours-field + .hours-field,
+.leave-preview .field-error + .hours-field {
+  margin-top: 16px;
+}
+
 /* 系統算出來的時數 */
 .hours-value {
   margin: 0;
+  color: var(--color-text);
+  font-size: 18px;
   font-weight: 600;
+}
+
+/* 可用額度：一行一行 */
+.quota-line {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 16px;
 }
 
 .hours-field ul {
   margin: 4px 0 0;
   padding-left: 20px;
+}
+
+.hours-field summary {
+  color: var(--color-primary);
+  cursor: pointer;
 }
 
 /* 欄位下方的錯誤訊息 */
@@ -44,11 +108,6 @@
   font-size: 14px;
 }
 
-/* 可用額度：一行一行 */
-.quota-line {
-  margin: 0;
-}
-
 /* 欄位下方的提示文字 */
 .field-hint {
   margin: 4px 0 0;
@@ -56,7 +115,15 @@
   font-size: 14px;
 }
 
-/* 取消、送出 */
+/* 取消、送出：靠右 */
 .form-actions {
-  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+/* 已經用 gap 留空，蓋掉全站的「兩個按鈕並排時留空」 */
+.form-actions button + button {
+  margin-left: 0;
 }

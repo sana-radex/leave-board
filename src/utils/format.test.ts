@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { formatDate, formatTime, formatLeaveRange, formatHours } from "./format";
+import {
+  formatDate,
+  formatTime,
+  formatLeaveRange,
+  formatHours,
+  keepDateTimeTogether,
+} from "./format";
 
 describe("formatDate / formatTime", () => {
   it("月、日、小時前面不補 0", () => {
@@ -31,6 +37,20 @@ describe("formatLeaveRange", () => {
   it("看不到假別（null）時照時間顯示", () => {
     expect(formatLeaveRange("2026-11-06T09:00", "2026-11-06T18:00", null))
       .toBe("2026/11/6 9:00–18:00");
+  });
+});
+
+describe("keepDateTimeTogether", () => {
+  it("只有日期和時間之間換成不換行空白，「–」前後不變", () => {
+    expect(keepDateTimeTogether("2026/10/28 14:00 – 2026/10/29 12:00")).toBe(
+      "2026/10/28 14:00 – 2026/10/29 12:00",
+    );
+  });
+
+  it("天制只有日期，不變", () => {
+    expect(keepDateTimeTogether("2026/11/2 – 2026/11/3")).toBe(
+      "2026/11/2 – 2026/11/3",
+    );
   });
 });
 

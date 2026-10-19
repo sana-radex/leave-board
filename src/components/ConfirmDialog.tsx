@@ -9,6 +9,8 @@ interface ConfirmDialogProps {
   message: string;
   /** 確認按鈕文字 */
   confirmText: string;
+  /** 確認按鈕的 class，用來換顏色，例如 "button-reject button-solid" */
+  confirmClassName: string;
   /** 備註欄位的提示文字 */
   notePlaceholder: string;
   /** 送出中：按鈕先不能按 */
@@ -24,6 +26,7 @@ function ConfirmDialog({
   title,
   message,
   confirmText,
+  confirmClassName,
   notePlaceholder,
   busy,
   onConfirm,
@@ -32,7 +35,26 @@ function ConfirmDialog({
   const [note, setNote] = useState("");
 
   return (
-    <Modal title={title}>
+    <Modal
+      title={title}
+      onClose={onCancel}
+      closeDisabled={busy}
+      actions={
+        <>
+          <button type="button" onClick={onCancel} disabled={busy}>
+            取消
+          </button>
+          <button
+            type="button"
+            className={confirmClassName}
+            onClick={() => onConfirm(note)}
+            disabled={busy}
+          >
+            {busy ? "處理中..." : confirmText}
+          </button>
+        </>
+      }
+    >
       <p>{message}</p>
       <textarea
         className="confirm-note"
@@ -40,14 +62,6 @@ function ConfirmDialog({
         onChange={(e) => setNote(e.target.value)}
         placeholder={notePlaceholder}
       ></textarea>
-      <div>
-        <button type="button" onClick={onCancel} disabled={busy}>
-          取消
-        </button>
-        <button type="button" onClick={() => onConfirm(note)} disabled={busy}>
-          {busy ? "處理中..." : confirmText}
-        </button>
-      </div>
     </Modal>
   );
 }

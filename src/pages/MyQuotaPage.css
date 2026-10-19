@@ -1,14 +1,27 @@
 /* 假別名稱後面的標籤，和文字之間留空 */
-td .tag {
+.quota-type-name .tag {
   margin-left: 6px;
+}
+
+/* 可用：使用者最常看的一欄，字粗一點 */
+.quota-available-cell {
+  font-weight: 600;
+}
+
+/* 婚假、喪假的每次額度：排成好幾欄，不要一行一個拉很長 */
+.per-event-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 4px 16px;
 }
 
 /* 展開的批次：淡淡的底色，和上面的假別區分 */
 .batch-row > td {
+  padding: 12px 16px 16px;
   background-color: var(--color-surface);
 }
 
-/* 批次的第一個標示不用往右推 */
-.batch-tags .tag:first-child {
-  margin-left: 0;
+/* 批次表格放在淡底上：表頭改成白底才分得出來 */
+.batch-row th {
+  background-color: var(--color-bg);
 }

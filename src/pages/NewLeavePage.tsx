@@ -276,56 +276,59 @@ function NewLeavePage() {
         </div>
         {renderError("end")}
 
-        <div className="hours-field">
-          時數（系統計算）
-          <p className="hours-value">
-            {preview && preview.hours > 0 ? formatHours(preview.hours) : "—"}
-          </p>
-          {preview && preview.days.length > 1 && (
-            <details>
-              <summary>每日明細</summary>
+        {/* 系統試算：時數、可用額度，跟要填的欄位分開 */}
+        <section className="leave-preview" aria-live="polite">
+          <div className="hours-field">
+            時數（系統計算）
+            <p className="hours-value">
+              {preview && preview.hours > 0 ? formatHours(preview.hours) : "—"}
+            </p>
+            {preview && preview.days.length > 1 && (
+              <details>
+                <summary>每日明細</summary>
+                <ul>
+                  {preview.days.map((day) => (
+                    <li key={day.date}>
+                      {formatDate(day.date)} {formatTime(day.startTime)}–
+                      {formatTime(day.endTime)}：{formatHours(day.hours)}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </div>
+          {renderError("hours")}
+
+          <div className="hours-field">
+            可用額度
+            {preview && preview.quotaLines.length > 0 ? (
+              preview.quotaLines.map((line) => (
+                <p key={line.label} className="quota-line">
+                  {line.remaining === null
+                    ? `該次可請 ${formatHours(line.available)}`
+                    : `${line.label}可用 ${formatHours(line.available)}，${
+                        line.remaining < 0
+                          ? `不足 ${formatHours(-line.remaining)}`
+                          : `送出後剩 ${formatHours(line.remaining)}`
+                      }`}
+                </p>
+              ))
+            ) : (
+              <p className="quota-line">選好假別與起訖後顯示</p>
+            )}
+            {preview && preview.deductions.length > 0 && (
               <ul>
-                {preview.days.map((day) => (
-                  <li key={day.date}>
-                    {formatDate(day.date)} {formatTime(day.startTime)}–
-                    {formatTime(day.endTime)}：{formatHours(day.hours)}
+                {preview.deductions.map((item) => (
+                  <li key={`${item.batchName}-${item.date}`}>
+                    {formatDate(item.date)} 扣 {item.batchName}{" "}
+                    {formatHours(item.hours)}
                   </li>
                 ))}
               </ul>
-            </details>
-          )}
-        </div>
-        {renderError("hours")}
-
-        <div className="hours-field">
-          可用額度
-          {preview && preview.quotaLines.length > 0 ? (
-            preview.quotaLines.map((line) => (
-              <p key={line.label} className="quota-line">
-                {line.remaining === null
-                  ? `該次可請 ${formatHours(line.available)}`
-                  : `${line.label}可用 ${formatHours(line.available)}，${
-                      line.remaining < 0
-                        ? `不足 ${formatHours(-line.remaining)}`
-                        : `送出後剩 ${formatHours(line.remaining)}`
-                    }`}
-              </p>
-            ))
-          ) : (
-            <p className="quota-line">選好假別與起訖後顯示</p>
-          )}
-          {preview && preview.deductions.length > 0 && (
-            <ul>
-              {preview.deductions.map((item) => (
-                <li key={`${item.batchName}-${item.date}`}>
-                  {formatDate(item.date)} 扣 {item.batchName}{" "}
-                  {formatHours(item.hours)}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        {renderError("quota")}
+            )}
+          </div>
+          {renderError("quota")}
+        </section>
 
         <label>
           職務代理人
@@ -372,7 +375,11 @@ function NewLeavePage() {
           <button type="button" onClick={() => navigate("/my-leaves")}>
             取消
           </button>
-          <button type="submit" disabled={submitting}>
+          <button
+            type="submit"
+            className="button-primary"
+            disabled={submitting}
+          >
             {submitting ? "送出中..." : "送出"}
           </button>
         </div>

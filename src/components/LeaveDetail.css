@@ -1,11 +1,29 @@
+/* 欄位名稱在左、內容在右，兩欄對齊 */
+.leave-detail-fields {
+  display: grid;
+  grid-template-columns: 6em 1fr;
+  gap: 6px 16px;
+  margin: 0 0 24px;
+}
+
+.leave-detail-fields dt {
+  color: var(--color-text-muted);
+}
+
+.leave-detail-fields dd {
+  margin: 0;
+}
+
+/* 簽核歷程標題 */
+.leave-detail-subtitle {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
 /* 扣除明細：一筆一行，不要項目符號 */
 .leave-detail-list {
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-/* 簽核歷程表格和關閉按鈕之間留空 */
-.modal-box table {
-  margin-bottom: 16px;
 }

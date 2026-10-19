@@ -23,7 +23,7 @@ function Sidebar({ isReviewer, inboxCount }: SidebarProps) {
           待我處理
           <span
             className={
-              inboxCount > 0 ? "sidebar-count has-items" : "sidebar-count"
+              inboxCount > 0 ? "count-badge has-items" : "count-badge"
             }
           >
             {inboxCount}

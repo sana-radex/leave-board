@@ -7,7 +7,12 @@ import Toast from "../components/Toast";
 import LeaveDetail from "../components/LeaveDetail";
 import LeaveActionButtons from "../components/LeaveActionButtons";
 import { statusLabels } from "../utils/label";
-import { formatDateTime, formatHours, formatLeaveRange } from "../utils/format";
+import {
+  formatDateTime,
+  formatHours,
+  formatLeaveRange,
+  keepDateTimeTogether,
+} from "../utils/format";
 
 /** 我的假單（F-03） */
 function MyLeavesPage() {
@@ -79,9 +84,8 @@ function MyLeavesPage() {
       <h1>我的假單</h1>
 
       <div className="my-leaves-toolbar">
-        <button onClick={() => navigate("/leave/new")}>新增請假</button>
         <label>
-          篩選狀態：
+          篩選狀態
           <select
             value={statusFilter}
             onChange={(e) =>
@@ -97,47 +101,61 @@ function MyLeavesPage() {
           </select>
         </label>
         {loading ? <p>載入中...</p> : <p>共有 {filteredList.length} 筆假單</p>}
+        <button
+          className="button-primary my-leaves-new"
+          onClick={() => navigate("/leave/new")}
+        >
+          新增請假
+        </button>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>假別</th>
-            <th>起訖</th>
-            <th>時數</th>
-            <th>狀態</th>
-            <th>審核人</th>
-            <th>送出時間</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredList.map((form) => (
-            <tr key={form.id}>
-              <td>
-                {form.relationName
-                  ? `${form.leaveTypeName}（${form.relationName}）`
-                  : form.leaveTypeName}
-              </td>
-              <td>
-                {formatLeaveRange(
-                  form.startTime,
-                  form.endTime,
-                  form.leaveTypeUnit,
-                )}
-              </td>
-              <td>{formatHours(form.hours)}</td>
-              <td>{statusLabels[form.status]}</td>
-              <td>{form.reviewerName}</td>
-              <td>{formatDateTime(form.submittedAt)}</td>
-              <td>
-                <button onClick={() => setSelectedId(form.id)}>詳情</button>
-                <LeaveActionButtons form={form} onDone={handleActionDone} />
-              </td>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>假別</th>
+              <th>起訖</th>
+              <th className="cell-number">時數</th>
+              <th>狀態</th>
+              <th>審核人</th>
+              <th>送出時間</th>
+              <th>操作</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredList.map((form) => (
+              <tr key={form.id}>
+                <td>
+                  {form.relationName
+                    ? `${form.leaveTypeName}（${form.relationName}）`
+                    : form.leaveTypeName}
+                </td>
+                <td>
+                  {keepDateTimeTogether(
+                    formatLeaveRange(
+                      form.startTime,
+                      form.endTime,
+                      form.leaveTypeUnit,
+                    ),
+                  )}
+                </td>
+                <td className="cell-number">{formatHours(form.hours)}</td>
+                <td>
+                  <span className={`tag tag-${form.status}`}>
+                    {statusLabels[form.status]}
+                  </span>
+                </td>
+                <td>{form.reviewerName}</td>
+                <td>{formatDateTime(form.submittedAt)}</td>
+                <td className="cell-actions">
+                  <button onClick={() => setSelectedId(form.id)}>詳情</button>
+                  <LeaveActionButtons form={form} onDone={handleActionDone} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {selectedForm && (
         <LeaveDetail

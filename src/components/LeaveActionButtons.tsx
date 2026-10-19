@@ -15,6 +15,16 @@ const notePlaceholders: Record<FormAction, string> = {
   reject_revoke: "備註（選填）",
 };
 
+/** 按鈕顏色：同意是松綠、拒絕是紅、撤回自己的假單是琥珀（樣式在 index.css） */
+const actionClassNames: Record<FormAction, string> = {
+  approve: "button-approve",
+  approve_revoke: "button-approve",
+  reject: "button-reject",
+  reject_revoke: "button-reject",
+  revoke: "button-revoke",
+  request_revoke: "button-revoke",
+};
+
 interface LeaveActionButtonsProps {
   /** 哪一張假單 */
   form: LeaveFormResponse;
@@ -43,7 +53,11 @@ function LeaveActionButtons({ form, onDone }: LeaveActionButtonsProps) {
   return (
     <>
       {form.actions.map((action) => (
-        <button key={action} onClick={() => setConfirmAction(action)}>
+        <button
+          key={action}
+          className={actionClassNames[action]}
+          onClick={() => setConfirmAction(action)}
+        >
           {actionLabels[action]}
         </button>
       ))}
@@ -57,6 +71,7 @@ function LeaveActionButtons({ form, onDone }: LeaveActionButtonsProps) {
             form.leaveTypeUnit,
           )}`}
           confirmText={actionLabels[confirmAction]}
+          confirmClassName={`${actionClassNames[confirmAction]} button-solid`}
           notePlaceholder={notePlaceholders[confirmAction]}
           busy={busy}
           onConfirm={handleConfirm}

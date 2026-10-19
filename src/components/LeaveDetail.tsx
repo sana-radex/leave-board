@@ -30,8 +30,8 @@ function LeaveDetail({
   // 其他人：姓名、起訖、職務代理人、假別「請假」，已撤銷加註
   if (!form.canSeeDetail) {
     return (
-      <Modal title="假單詳情">
-        <dl>
+      <Modal title="假單詳情" onClose={onClose}>
+        <dl className="leave-detail-fields">
           <dt>申請人</dt>
           <dd>{form.employeeName}</dd>
 
@@ -51,14 +51,21 @@ function LeaveDetail({
             </>
           )}
         </dl>
-        <button onClick={onClose}>關閉</button>
       </Modal>
     );
   }
 
   return (
-    <Modal title="假單詳情">
-      <dl>
+    <Modal
+      title="假單詳情"
+      onClose={onClose}
+      actions={
+        form.actions.length > 0 && (
+          <LeaveActionButtons form={form} onDone={onActionDone} />
+        )
+      }
+    >
+      <dl className="leave-detail-fields">
         <dt>申請人</dt>
         <dd>{form.employeeName}</dd>
 
@@ -85,7 +92,11 @@ function LeaveDetail({
         <dd>{form.reviewerName}</dd>
 
         <dt>狀態</dt>
-        <dd>{statusLabels[form.status]}</dd>
+        <dd>
+          <span className={`tag tag-${form.status}`}>
+            {statusLabels[form.status]}
+          </span>
+        </dd>
 
         <dt>備註</dt>
         <dd>{form.note || "無備註"}</dd>
@@ -110,7 +121,7 @@ function LeaveDetail({
         )}
       </dl>
 
-      <h4>簽核歷程</h4>
+      <h4 className="leave-detail-subtitle">簽核歷程</h4>
       <table>
         <thead>
           <tr>
@@ -126,16 +137,11 @@ function LeaveDetail({
               <td>{formatDateTime(record.at)}</td>
               <td>{record.actorName}</td>
               <td>{actionLabels[record.action]}</td>
-              <td>{record.note}</td>
+              <td className="cell-text">{record.note}</td>
             </tr>
           ))}
         </tbody>
       </table>
-
-      <div className="leave-detail-actions">
-        <button onClick={onClose}>關閉</button>
-        <LeaveActionButtons form={form} onDone={onActionDone} />
-      </div>
     </Modal>
   );
 }

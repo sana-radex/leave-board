@@ -36,22 +36,3 @@
   color: var(--color-primary-strong);
   font-weight: 600;
 }
-
-/* 待我處理的數量：小圓標；沒有待處理時是灰色 */
-.sidebar-count {
-  min-width: 20px;
-  padding: 0 6px;
-  border-radius: 10px;
-  background-color: var(--color-border);
-  color: var(--color-text-muted);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 20px;
-  text-align: center;
-}
-
-/* 有待處理：松綠底白字 */
-.sidebar-count.has-items {
-  background-color: var(--color-primary);
-  color: var(--color-bg);
-}

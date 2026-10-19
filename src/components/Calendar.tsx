@@ -5,6 +5,7 @@ import type {
   LeaveFormResponse,
 } from "../types/types";
 import { formatTime, toDateKey } from "../utils/format";
+import { today } from "../utils/today";
 
 /** 格子數：一個月最多跨 6 週，每週 7 天 */
 const CELL_COUNT = 6 * 7;
@@ -36,6 +37,7 @@ function Calendar({
   // 這個月 1 號是星期幾（0 = 星期一，6 = 星期日）
   // getDay() 是 0 = 星期日，加 6 再取 7 的餘數，就變成從星期一開始算
   const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
+  const todayKey = today();
 
   // 第 1 格 = 1 號往前推 firstWeekday 天，之後每格加 1 天
   const cells = Array.from(
@@ -97,21 +99,25 @@ function Calendar({
           const specialDay = getSpecialDay(dateKey);
           const dayLeaves = getLeavesOfDay(dateKey);
 
-          // 週六、週日加底色；補班日要上班，不加
+          // 不用上班的日子加底色
           const isWeekend = date.getDay() === 0 || date.getDay() === 6;
           const isMakeupWorkday = specialDay?.type === "makeup_workday";
+          const isHoliday = specialDay?.type === "holiday";
 
           let className = "calendar-cell";
-          if (date.getMonth() !== month) {
-            className += " other-month";
+          if ((isWeekend && !isMakeupWorkday) || isHoliday) {
+            className += " off-day";
           }
-          if (isWeekend && !isMakeupWorkday) {
-            className += " weekend";
+          if (isHoliday) {
+            className += " holiday";
+          }
+          if (dateKey === todayKey) {
+            className += " today";
           }
 
           return (
             <div key={index} className={className}>
-              <div>{date.getDate()}</div>
+              <div className="calendar-date">{date.getDate()}</div>
               {specialDay && (
                 <span className={`tag tag-${specialDay.type}`}>
                   {specialDay.name}

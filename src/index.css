@@ -17,7 +17,12 @@
 
   /* 狀態 */
   --color-success: #15803d; /* 成功 */
-  --color-danger: #b91c1c; /* 失敗、錯誤 */
+  --color-danger: #b91c1c; /* 失敗、錯誤、退回 */
+  --color-danger-strong: #991b1b;
+  --color-danger-soft: #fdecec;
+  --color-warning: #a14b0a; /* 撤銷 */
+  --color-warning-strong: #7c3a08;
+  --color-warning-soft: #fdf3e1;
 
   /* 假單狀態標籤：文字顏色 + 底色 */
   --color-pending: #92400e; /* 待審核：橘 */
@@ -117,16 +122,78 @@ button + button {
   margin-left: 8px;
 }
 
+/* ========== 按鈕顏色：跟著動作的意思走 ========== */
+
+/* 主要動作（送出、新增請假）、同意（核准、同意撤銷）：松綠實心 */
+.button-primary,
+.button-approve {
+  --tone: var(--color-primary);
+  --tone-strong: var(--color-primary-strong);
+}
+
+/* 拒絕（退回、不同意撤銷）：紅 */
+.button-reject {
+  --tone: var(--color-danger);
+  --tone-strong: var(--color-danger-strong);
+  --tone-soft: var(--color-danger-soft);
+}
+
+/* 撤回自己的假單（撤銷、申請撤銷）：琥珀 */
+.button-revoke {
+  --tone: var(--color-warning);
+  --tone-strong: var(--color-warning-strong);
+  --tone-soft: var(--color-warning-soft);
+}
+
+/* 外框按鈕 */
+.button-reject,
+.button-revoke {
+  border-color: var(--tone);
+  color: var(--tone);
+}
+
+.button-reject:hover:not(:disabled),
+.button-revoke:hover:not(:disabled) {
+  background-color: var(--tone-soft);
+}
+
+/* 實心按鈕：主要動作、同意，以及確認視窗裡按下就會生效的確認鍵 */
+.button-primary,
+.button-approve,
+.button-solid {
+  border-color: var(--tone);
+  background-color: var(--tone);
+  color: var(--color-bg);
+}
+
+.button-primary:hover:not(:disabled),
+.button-approve:hover:not(:disabled),
+.button-solid:hover:not(:disabled) {
+  border-color: var(--tone-strong);
+  background-color: var(--tone-strong);
+}
+
 /* 輸入框、下拉選單（勾選框不套用） */
 input:not([type="checkbox"]),
 select,
 textarea {
-  padding: 4px 8px;
+  padding: 6px 10px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   background-color: var(--color-bg);
   color: var(--color-text);
   font: inherit;
+}
+
+input:not([type="checkbox"]):focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-primary);
+}
+
+::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.8;
 }
 
 /* 用鍵盤移動到的元件 */
@@ -143,14 +210,69 @@ table {
 
 th,
 td {
-  padding: 8px;
+  padding: 10px;
   border-bottom: 1px solid var(--color-border);
   text-align: left;
 }
 
+/* 表頭：淡底、小一點的字、不換行 */
 th {
+  background-color: var(--color-surface);
   color: var(--color-text-muted);
+  font-size: 14px;
   font-weight: 500;
+  white-space: nowrap;
+}
+
+/* 中文不在字中間換行，只在空白處換行：姓名、假別不會被拆成兩行 */
+td {
+  word-break: keep-all;
+}
+
+/* 自由輸入的長文字（備註、理由）：照一般方式換行 */
+.cell-text {
+  word-break: normal;
+}
+
+/* 表格太寬時，只有表格左右捲動，不會撐開整頁 */
+.table-wrap {
+  overflow-x: auto;
+}
+
+/* 數字欄：靠右對齊，上下才好比大小 */
+.cell-number {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* 操作欄：按鈕排成一行，不換行 */
+.cell-actions {
+  white-space: nowrap;
+}
+
+/* 表格裡的按鈕小一點，列才不會太高 */
+td button {
+  padding: 2px 10px;
+  font-size: 14px;
+}
+
+/* 數量小圓標（待我處理）：有待處理才用主色 */
+.count-badge {
+  display: inline-block;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background-color: var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  text-align: center;
+}
+
+.count-badge.has-items {
+  background-color: var(--color-primary);
+  color: var(--color-bg);
 }
 
 /* ========== 標籤：假單狀態、國定假日 ========== */
@@ -158,36 +280,46 @@ th {
   display: inline-block;
   padding: 0 6px;
   border-radius: 4px;
+  background-color: var(--tag-bg);
+  color: var(--tag-text);
   font-size: 13px;
   line-height: 20px;
+  white-space: nowrap;
 }
 
-.tag-pending {
-  color: var(--color-pending);
-  background-color: var(--color-pending-bg);
+/* 待審核、撤銷審核中：都在等審核人，用同一個顏色 */
+.tag-pending,
+.tag-revoke_pending {
+  --tag-text: var(--color-pending);
+  --tag-bg: var(--color-pending-bg);
 }
 
 .tag-approved {
-  color: var(--color-approved);
-  background-color: var(--color-approved-bg);
+  --tag-text: var(--color-approved);
+  --tag-bg: var(--color-approved-bg);
+}
+
+.tag-rejected {
+  --tag-text: var(--color-danger);
+  --tag-bg: var(--color-danger-soft);
 }
 
 .tag-revoked {
-  color: var(--color-revoked);
-  background-color: var(--color-revoked-bg);
+  --tag-text: var(--color-revoked);
+  --tag-bg: var(--color-revoked-bg);
 }
 
 .tag-mine {
-  color: var(--color-mine);
-  background-color: var(--color-mine-bg);
+  --tag-text: var(--color-mine);
+  --tag-bg: var(--color-mine-bg);
 }
 
 .tag-holiday {
-  color: var(--color-holiday);
-  background-color: var(--color-holiday-bg);
+  --tag-text: var(--color-holiday);
+  --tag-bg: var(--color-holiday-bg);
 }
 
 .tag-makeup_workday {
-  color: var(--color-makeup-workday);
-  background-color: var(--color-makeup-workday-bg);
+  --tag-text: var(--color-makeup-workday);
+  --tag-bg: var(--color-makeup-workday-bg);
 }

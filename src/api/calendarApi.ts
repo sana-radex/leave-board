@@ -1,4 +1,4 @@
-import { calendarDayList } from "../data/mockData";
+import { calendarDayList } from "../data/calendarDays";
 import type { CalendarDay } from "../types/types";
 import { TABLES, readTable, delay } from "./db";
 

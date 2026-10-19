@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 import "./MyLeavesPage.css";
 import type { Response, LeaveFormResponse, LeaveStatus } from "../types/types";
 import { getMyLeaveFormList, revokeLeaveForm } from "../api/leaveFormApi";
@@ -9,8 +10,13 @@ import { formatDateTime, formatHours, formatLeaveRange } from "../utils/format";
 
 /** 我的假單（F-03） */
 function MyLeavesPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState<Response | null>(null);
+  // 從新增請假頁導過來時，會帶著「已送出」的訊息
+  const [toast, setToast] = useState<Response | null>(
+    location.state?.toast ?? null,
+  );
   const [formList, setFormList] = useState<LeaveFormResponse[]>([]);
   const [statusFilter, setStatusFilter] = useState<LeaveStatus | "all">("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -41,6 +47,13 @@ function MyLeavesPage() {
     loadMyForms();
   }, []);
 
+  // 帶過來的訊息用過就清掉，重新整理時才不會又跳出來
+  useEffect(() => {
+    if (location.state?.toast) {
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location, navigate]);
+
   // 顯示 toast 訊息, 3 秒後自動消失
   useEffect(() => {
     if (!toast) return;
@@ -66,6 +79,7 @@ function MyLeavesPage() {
       <h1>我的假單</h1>
 
       <div className="my-leaves-toolbar">
+        <button onClick={() => navigate("/leave/new")}>新增請假</button>
         <label>
           篩選狀態：
           <select

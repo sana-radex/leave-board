@@ -5,7 +5,17 @@ import {
   bereavementRelationList,
   leaveFormList,
 } from "../data/mockData";
-import type { LeaveForm, LeaveFormResponse, Response } from "../types/types";
+import { calendarDayList } from "../data/calendarDays";
+import type {
+  AddLeaveFormRequest,
+  AddLeaveFormResponse,
+  LeaveForm,
+  LeaveFormOptionsResponse,
+  LeaveFormPreviewResponse,
+  LeaveFormResponse,
+  LeaveTypeId,
+  Response,
+} from "../types/types";
 import { TABLES, readTable, writeTable, delay } from "./db";
 import { getCurrentUser } from "./currentUserApi";
 import {
@@ -13,6 +23,9 @@ import {
   canSeeDetail,
   isOnCalendar,
 } from "../domain/permission";
+import { getTimeOptions } from "../domain/time";
+import { validateLeaveForm } from "../domain/validate";
+import type { ValidateContext } from "../domain/validate";
 import { formatDate } from "../utils/format";
 import { now } from "../utils/today";
 
@@ -125,6 +138,98 @@ export async function getCalendarLeaveList(): Promise<LeaveFormResponse[]> {
     isOnCalendar,
   );
   return toResponseList(forms, currentUser.id);
+}
+
+/** （後端用）讀出驗證新假單需要的資料：申請人就是目前使用者 */
+function getValidateContext(): ValidateContext {
+  const applicant = getCurrentUser();
+  const employees = readTable(TABLES.employeeList, employeeList);
+  const shifts = readTable(TABLES.shiftList, shiftList);
+  const shift =
+    shifts.find((item) => item.id === applicant.shiftId) ?? shifts[0];
+  return {
+    applicant,
+    shift,
+    leaveTypes: readTable(TABLES.leaveTypeList, leaveTypeList),
+    employees,
+    calendarDays: readTable(TABLES.calendarDayList, calendarDayList),
+  };
+}
+
+/** 取得新增請假表單的選項：班別、時間、假別、喪假親屬、職務代理人、審核人（F-02） */
+export async function getLeaveFormOptions(): Promise<LeaveFormOptionsResponse> {
+  await delay();
+  const { applicant, shift, leaveTypes, employees } = getValidateContext();
+  const others = employees.filter((emp) => emp.id !== applicant.id);
+
+  return {
+    shift,
+    timeOptions: getTimeOptions(shift),
+    leaveTypes,
+    relations: readTable(
+      TABLES.bereavementRelationList,
+      bereavementRelationList,
+    ),
+    // 職務代理人：同事名單，排除自己
+    deputies: others.map((emp) => ({ id: emp.id, name: emp.name })),
+    // 審核人：所有審核人，排除自己（REV-01）
+    reviewers: others
+      .filter((emp) => emp.role === "reviewer")
+      .map((emp) => ({ id: emp.id, name: emp.name })),
+  };
+}
+
+/** 試算：填表時即時算時數、檢查錯誤，不會存檔（F-02） */
+export async function previewLeaveForm(
+  input: AddLeaveFormRequest,
+): Promise<LeaveFormPreviewResponse> {
+  await delay(200);
+  return validateLeaveForm(input, getValidateContext());
+}
+
+/** 送出假單：重新驗證一次，通過才存成待審核（LIFE-01） */
+export async function addLeaveForm(
+  input: AddLeaveFormRequest,
+): Promise<AddLeaveFormResponse> {
+  await delay();
+  const context = getValidateContext();
+  const { errors, days, hours } = validateLeaveForm(input, context);
+  if (Object.keys(errors).length > 0) {
+    return { success: false, message: "請修正表單上的錯誤", errors };
+  }
+
+  const { applicant, shift, employees } = context;
+  const submittedAt = now();
+  const newForm: LeaveForm = {
+    id: crypto.randomUUID(),
+    employeeId: applicant.id,
+    leaveTypeId: input.leaveTypeId as LeaveTypeId, // 驗證過，一定有選
+    relationId: input.leaveTypeId === "bereavement" ? input.relationId : null,
+    status: "pending",
+    // 天制沒有時間，存班別的整天區間
+    startTime: `${input.startDate}T${input.startTime ?? shift.fullDayStart}`,
+    endTime: `${input.endDate}T${input.endTime ?? shift.fullDayEnd}`,
+    days,
+    hours,
+    deputyId: input.deputyId,
+    reviewerId: input.reviewerId,
+    note: input.note.trim(),
+    submittedAt,
+    history: [
+      { actorId: applicant.id, at: submittedAt, action: "submit", note: "" },
+    ],
+    deductions: [],
+  };
+
+  const formList = readTable(TABLES.leaveFormList, leaveFormList);
+  writeTable(TABLES.leaveFormList, [...formList, newForm]);
+
+  const reviewer = employees.find((emp) => emp.id === input.reviewerId);
+  return {
+    success: true,
+    message: `已送出，等待${reviewer?.name ?? "審核人"}審核`,
+    errors: {},
+  };
 }
 
 /** 撤銷假單（階段 3 改成統一的假單動作） */

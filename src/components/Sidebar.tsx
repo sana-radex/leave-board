@@ -8,6 +8,7 @@ function Sidebar() {
       <NavLink to="/" end>
         請假行事曆
       </NavLink>
+      <NavLink to="/leave/new">新增請假</NavLink>
       <NavLink to="/my-leaves">我的假單</NavLink>
     </nav>
   );

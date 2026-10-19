@@ -1,0 +1,57 @@
+/* 班別說明 */
+.shift-info {
+  color: var(--color-text-muted);
+}
+
+/* 表單：每個欄位各佔一行，不要太寬 */
+.leave-form {
+  max-width: 480px;
+}
+
+.leave-form label,
+.hours-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+/* 日期和時間並排 */
+.date-time-row {
+  display: flex;
+  gap: 12px;
+}
+
+.date-time-row label {
+  flex: 1;
+}
+
+/* 系統算出來的時數 */
+.hours-value {
+  margin: 0;
+  font-weight: 600;
+}
+
+.hours-field ul {
+  margin: 4px 0 0;
+  padding-left: 20px;
+}
+
+/* 欄位下方的錯誤訊息 */
+.field-error {
+  margin: 4px 0 0;
+  color: var(--color-danger);
+  font-size: 14px;
+}
+
+/* 欄位下方的提示文字 */
+.field-hint {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+/* 取消、送出 */
+.form-actions {
+  margin-top: 20px;
+}

@@ -279,3 +279,78 @@ export interface Response {
   /** 要顯示給使用者看的訊息 */
   message: string;
 }
+
+/** 新增請假表單的欄位：錯誤訊息要顯示在哪個欄位下面 */
+export type LeaveFormField =
+  | "leaveTypeId" // 假別
+  | "relationId" // 喪假親屬關係
+  | "start" // 起始
+  | "end" // 結束
+  | "hours" // 時數
+  | "deputyId" // 職務代理人
+  | "reviewerId"; // 審核人
+
+/** 新增請假表單的錯誤訊息：哪個欄位、什麼訊息 */
+export type LeaveFormErrors = Partial<Record<LeaveFormField, string>>;
+
+/** 新增假單-請求 */
+export interface AddLeaveFormRequest {
+  /** 假別 id；還沒選是空字串 */
+  leaveTypeId: LeaveTypeId | "";
+  /** 喪假親屬關係 id；不是喪假或還沒選是空字串 */
+  relationId: string;
+  /** 起始日期 */
+  startDate: string; // 'YYYY-MM-DD'
+  /** 起始時間；天制為 null */
+  startTime: string | null; // 'HH:mm'
+  /** 結束日期 */
+  endDate: string; // 'YYYY-MM-DD'
+  /** 結束時間；天制為 null */
+  endTime: string | null; // 'HH:mm'
+  /** 職務代理人 id */
+  deputyId: string;
+  /** 審核人 id */
+  reviewerId: string;
+  /** 備註 */
+  note: string;
+}
+
+/** 人員選項（下拉選單用） */
+export interface EmployeeOptionResponse {
+  /** 人員 id */
+  id: string;
+  /** 姓名 */
+  name: string;
+}
+
+/** 新增請假表單的選項-回傳 */
+export interface LeaveFormOptionsResponse {
+  /** 申請人的班別 */
+  shift: Shift;
+  /** 起訖時間的選項（依班別） */
+  timeOptions: string[];
+  /** 假別 */
+  leaveTypes: LeaveType[];
+  /** 喪假親屬關係 */
+  relations: BereavementRelation[];
+  /** 職務代理人選項（排除自己） */
+  deputies: EmployeeOptionResponse[];
+  /** 審核人選項（所有審核人，排除自己） */
+  reviewers: EmployeeOptionResponse[];
+}
+
+/** 新增請假試算-回傳 */
+export interface LeaveFormPreviewResponse {
+  /** 每日明細 */
+  days: LeaveDay[];
+  /** 時數 */
+  hours: number;
+  /** 各欄位的錯誤訊息 */
+  errors: LeaveFormErrors;
+}
+
+/** 送出假單-回傳 */
+export interface AddLeaveFormResponse extends Response {
+  /** 各欄位的錯誤訊息 */
+  errors: LeaveFormErrors;
+}

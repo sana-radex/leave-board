@@ -5,7 +5,6 @@ import type {
   BereavementRelation,
   FlexLeaveDate,
   LeaveForm,
-  CalendarDay,
 } from "../types/types";
 
 /**
@@ -428,30 +427,4 @@ export const leaveFormList: LeaveForm[] = [
     ],
     deductions: [],
   },
-];
-
-/** 辦公日曆（2026 年）；階段 2 改用政府資料轉檔 */
-export const calendarDayList: CalendarDay[] = [
-  { date: "2026-01-01", type: "holiday", name: "開國紀念日" },
-  { date: "2026-02-15", type: "holiday", name: "小年夜" },
-  { date: "2026-02-16", type: "holiday", name: "除夕" },
-  { date: "2026-02-17", type: "holiday", name: "春節" },
-  { date: "2026-02-18", type: "holiday", name: "春節" },
-  { date: "2026-02-19", type: "holiday", name: "春節" },
-  { date: "2026-02-20", type: "holiday", name: "春節補假" },
-  { date: "2026-02-27", type: "holiday", name: "和平紀念日補假" },
-  { date: "2026-02-28", type: "holiday", name: "和平紀念日" },
-  { date: "2026-04-03", type: "holiday", name: "兒童節補假" },
-  { date: "2026-04-04", type: "holiday", name: "兒童節" },
-  { date: "2026-04-05", type: "holiday", name: "民族掃墓節" },
-  { date: "2026-04-06", type: "holiday", name: "民族掃墓節補假" },
-  { date: "2026-05-01", type: "holiday", name: "勞動節" },
-  { date: "2026-06-19", type: "holiday", name: "端午節" },
-  { date: "2026-09-25", type: "holiday", name: "中秋節" },
-  { date: "2026-09-28", type: "holiday", name: "教師節" },
-  { date: "2026-10-09", type: "holiday", name: "國慶日補假" },
-  { date: "2026-10-10", type: "holiday", name: "國慶日" },
-  { date: "2026-10-25", type: "holiday", name: "光復節" },
-  { date: "2026-10-26", type: "holiday", name: "光復節補假" },
-  { date: "2026-12-25", type: "holiday", name: "行憲紀念日" },
 ];

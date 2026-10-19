@@ -11,6 +11,7 @@ import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import CalendarPage from "./pages/CalendarPage";
 import MyLeavesPage from "./pages/MyLeavesPage";
+import NewLeavePage from "./pages/NewLeavePage";
 
 function App() {
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
@@ -54,6 +55,7 @@ function App() {
         <main className="content" key={currentUser.id}>
           <Routes>
             <Route path="/" element={<CalendarPage />} />
+            <Route path="/leave/new" element={<NewLeavePage />} />
             <Route path="/my-leaves" element={<MyLeavesPage />} />
             {/* 其他網址（例如以前的 /login）都導回行事曆 */}
             <Route path="*" element={<Navigate to="/" replace />} />

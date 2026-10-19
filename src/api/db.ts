@@ -12,7 +12,7 @@ export const TABLES = {
 };
 
 /** 資料版本：改了型別或預設資料就加 1，舊版本的資料會在啟動時自動清掉 */
-const DATA_VERSION = "2";
+const DATA_VERSION = "3";
 const DATA_VERSION_KEY = "dataVersion";
 
 /** 舊版本用過、現在不用的 key */

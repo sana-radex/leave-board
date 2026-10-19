@@ -6,6 +6,8 @@ import {
   bereavementRelationList,
   leaveFormList,
 } from "./mockData";
+import { calendarDayList } from "./calendarDays";
+import { splitLeaveDays } from "../domain/time";
 
 /** 檢查手寫的預設假單有沒有前後不一致 */
 describe("預設假單", () => {
@@ -72,5 +74,25 @@ describe("預設假單", () => {
     } else {
       expect(form.deductions).toEqual([]);
     }
+  });
+
+  it.each(leaveFormList)("$id 用時數規則重算，每日明細和手寫的一樣", (form) => {
+    const employee = employeeList.find((emp) => emp.id === form.employeeId)!;
+    const shift = shiftList.find((item) => item.id === employee.shiftId)!;
+    const leaveType = leaveTypeList.find((type) => type.id === form.leaveTypeId)!;
+    const [startDate, startTime] = form.startTime.split("T");
+    const [endDate, endTime] = form.endTime.split("T");
+    const isDayUnit = leaveType.unit === "day";
+
+    const days = splitLeaveDays({
+      unit: leaveType.unit,
+      startDate,
+      startTime: isDayUnit ? null : startTime,
+      endDate,
+      endTime: isDayUnit ? null : endTime,
+      shift,
+      calendarDays: calendarDayList,
+    });
+    expect(days).toEqual(form.days);
   });
 });

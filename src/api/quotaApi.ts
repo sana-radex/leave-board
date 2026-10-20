@@ -1,36 +1,11 @@
 import type { LeaveQuotaResponse } from "../types/api";
-import * as leaveTypeRepository from "../repositories/leaveTypeRepository";
-import * as flexLeaveDateRepository from "../repositories/flexLeaveDateRepository";
-import * as leaveFormRepository from "../repositories/leaveFormRepository";
+import * as userService from "../services/userService";
+import * as quotaService from "../services/quotaService";
 import { delay } from "./delay";
-import { getCurrentUser } from "./currentUserApi";
-import { generateBatches } from "../domain/batch";
-import { QUOTA_STRATEGIES } from "../domain/quotaStrategy";
 import { today } from "../utils/today";
 
 /** 取得我的額度：每個假別一列，批次型附每一筆批次（只能看自己的） */
 export async function getMyQuota(): Promise<LeaveQuotaResponse[]> {
   await delay();
-  const currentUser = getCurrentUser();
-  const todayDate = today();
-  const leaveTypes = leaveTypeRepository.findAll();
-  const flexDates = flexLeaveDateRepository.findAll();
-  const myForms = leaveFormRepository.findAll().filter(
-    (form) => form.employeeId === currentUser.id,
-  );
-  const batches = generateBatches(currentUser, flexDates, todayDate);
-
-  // 數字依額度類型交給對應的策略算
-  return leaveTypes.map((leaveType) => ({
-    leaveTypeId: leaveType.id,
-    leaveTypeName: leaveType.name,
-    leaveTypeDescription: leaveType.description,
-    quotaType: leaveType.quotaType,
-    ...QUOTA_STRATEGIES[leaveType.quotaType].summarize({
-      leaveType,
-      batches,
-      myForms,
-      today: todayDate,
-    }),
-  }));
+  return quotaService.getQuotaList(userService.getCurrentUser(), today());
 }

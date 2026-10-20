@@ -1,9 +1,9 @@
 import type { CalendarDay } from "../types/domain";
-import * as calendarDayRepository from "../repositories/calendarDayRepository";
+import * as calendarService from "../services/calendarService";
 import { delay } from "./delay";
 
 /** 取得辦公日曆 */
 export async function getCalendarDayList(): Promise<CalendarDay[]> {
   await delay();
-  return calendarDayRepository.findAll();
+  return calendarService.getCalendarDays();
 }

@@ -1,46 +1,22 @@
 import type { Employee } from "../types/domain";
 import type { UserOptionResponse } from "../types/api";
-import * as employeeRepository from "../repositories/employeeRepository";
-import * as shiftRepository from "../repositories/shiftRepository";
-import * as currentUserRepository from "../repositories/currentUserRepository";
+import * as userService from "../services/userService";
 import { delay } from "./delay";
-
-/**
- * 查出目前使用者。
- * 每次都用存著的 id 重新讀人員表；沒選過或找不到這個人，就用第一位。
- */
-export function getCurrentUser(): Employee {
-  const employees = employeeRepository.findAll();
-  const savedId = currentUserRepository.loadCurrentUserId();
-  const user = employees.find((emp) => emp.id === savedId);
-  return user ?? employees[0];
-}
 
 /** 取得目前使用者 */
 export async function getCurrentUserInfo(): Promise<Employee> {
   await delay();
-  return getCurrentUser();
+  return userService.getCurrentUser();
 }
 
 /** 切換目前使用者，回傳切換後的使用者 */
 export async function switchUser(employeeId: string): Promise<Employee> {
   await delay();
-  currentUserRepository.saveCurrentUserId(employeeId);
-  return getCurrentUser();
+  return userService.switchCurrentUser(employeeId);
 }
 
 /** 取得使用者切換的選項：姓名、角色、班別 */
 export async function getUserOptionList(): Promise<UserOptionResponse[]> {
   await delay();
-  const employees = employeeRepository.findAll();
-  const shifts = shiftRepository.findAll();
-  return employees.map((emp) => {
-    const shift = shifts.find((item) => item.id === emp.shiftId);
-    return {
-      id: emp.id,
-      name: emp.name,
-      role: emp.role,
-      shiftName: shift ? shift.name : "未知",
-    };
-  });
+  return userService.getUserOptions();
 }

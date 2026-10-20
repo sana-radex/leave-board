@@ -23,8 +23,3 @@ export function readTable<T>(key: string, initialData: T[]): T[] {
 export function writeTable<T>(key: string, rows: T[]) {
   localStorage.setItem(key, JSON.stringify(rows));
 }
-
-/** 模擬網路延遲 */
-export function delay(ms = 500) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}

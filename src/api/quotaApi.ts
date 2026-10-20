@@ -1,6 +1,8 @@
-import { flexLeaveDateList, leaveFormList, leaveTypeList } from "../data/mockData";
 import type { LeaveQuotaResponse } from "../types/api";
-import { TABLES, readTable, delay } from "./db";
+import * as leaveTypeRepository from "../repositories/leaveTypeRepository";
+import * as flexLeaveDateRepository from "../repositories/flexLeaveDateRepository";
+import * as leaveFormRepository from "../repositories/leaveFormRepository";
+import { delay } from "./delay";
 import { getCurrentUser } from "./currentUserApi";
 import { generateBatches } from "../domain/batch";
 import { QUOTA_STRATEGIES } from "../domain/quotaStrategy";
@@ -11,9 +13,9 @@ export async function getMyQuota(): Promise<LeaveQuotaResponse[]> {
   await delay();
   const currentUser = getCurrentUser();
   const todayDate = today();
-  const leaveTypes = readTable(TABLES.leaveTypeList, leaveTypeList);
-  const flexDates = readTable(TABLES.flexLeaveDateList, flexLeaveDateList);
-  const myForms = readTable(TABLES.leaveFormList, leaveFormList).filter(
+  const leaveTypes = leaveTypeRepository.findAll();
+  const flexDates = flexLeaveDateRepository.findAll();
+  const myForms = leaveFormRepository.findAll().filter(
     (form) => form.employeeId === currentUser.id,
   );
   const batches = generateBatches(currentUser, flexDates, todayDate);

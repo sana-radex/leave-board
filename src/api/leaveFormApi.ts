@@ -1,12 +1,3 @@
-import {
-  employeeList,
-  shiftList,
-  leaveTypeList,
-  bereavementRelationList,
-  flexLeaveDateList,
-  leaveFormList,
-} from "../data/mockData";
-import { calendarDayList } from "../data/calendarDays";
 import type { FormAction, LeaveForm, LeaveTypeId } from "../types/domain";
 import type {
   AddLeaveFormRequest,
@@ -17,7 +8,14 @@ import type {
   LeaveFormResponse,
   Response,
 } from "../types/api";
-import { TABLES, readTable, writeTable, delay } from "./db";
+import * as employeeRepository from "../repositories/employeeRepository";
+import * as shiftRepository from "../repositories/shiftRepository";
+import * as leaveTypeRepository from "../repositories/leaveTypeRepository";
+import * as bereavementRelationRepository from "../repositories/bereavementRelationRepository";
+import * as flexLeaveDateRepository from "../repositories/flexLeaveDateRepository";
+import * as calendarDayRepository from "../repositories/calendarDayRepository";
+import * as leaveFormRepository from "../repositories/leaveFormRepository";
+import { delay } from "./delay";
 import { getCurrentUser } from "./currentUserApi";
 import {
   getViewerRelation,
@@ -42,13 +40,10 @@ function toResponseList(
   forms: LeaveForm[],
   viewerId: string,
 ): LeaveFormResponse[] {
-  const employees = readTable(TABLES.employeeList, employeeList);
-  const shifts = readTable(TABLES.shiftList, shiftList);
-  const leaveTypes = readTable(TABLES.leaveTypeList, leaveTypeList);
-  const relations = readTable(
-    TABLES.bereavementRelationList,
-    bereavementRelationList,
-  );
+  const employees = employeeRepository.findAll();
+  const shifts = shiftRepository.findAll();
+  const leaveTypes = leaveTypeRepository.findAll();
+  const relations = bereavementRelationRepository.findAll();
 
   /** 取得人員姓名 */
   function getEmployeeName(empId: string): string {
@@ -112,7 +107,8 @@ function toResponseList(
 export async function getMyLeaveFormList(): Promise<LeaveFormResponse[]> {
   await delay();
   const currentUser = getCurrentUser();
-  const myForms = readTable(TABLES.leaveFormList, leaveFormList)
+  const myForms = leaveFormRepository
+    .findAll()
     .filter((form) => form.employeeId === currentUser.id)
     .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
   return toResponseList(myForms, currentUser.id);
@@ -125,7 +121,7 @@ export async function getMyLeaveFormList(): Promise<LeaveFormResponse[]> {
 export async function getCalendarLeaveList(): Promise<LeaveFormResponse[]> {
   await delay();
   const currentUser = getCurrentUser();
-  const forms = readTable(TABLES.leaveFormList, leaveFormList).filter(
+  const forms = leaveFormRepository.findAll().filter(
     (form) =>
       form.employeeId === currentUser.id ||
       LEAVE_STATES[form.status].othersSeeAs !== null,
@@ -136,24 +132,20 @@ export async function getCalendarLeaveList(): Promise<LeaveFormResponse[]> {
 /** 讀出驗證新假單需要的資料：申請人就是目前使用者 */
 function getValidateContext(): ValidateContext {
   const applicant = getCurrentUser();
-  const employees = readTable(TABLES.employeeList, employeeList);
-  const shifts = readTable(TABLES.shiftList, shiftList);
   const shift =
-    shifts.find((item) => item.id === applicant.shiftId) ?? shifts[0];
+    shiftRepository.findById(applicant.shiftId) ??
+    shiftRepository.findAll()[0];
   const todayDate = today();
-  const flexDates = readTable(TABLES.flexLeaveDateList, flexLeaveDateList);
+  const flexDates = flexLeaveDateRepository.findAll();
   return {
     applicant,
     shift,
-    leaveTypes: readTable(TABLES.leaveTypeList, leaveTypeList),
-    relations: readTable(
-      TABLES.bereavementRelationList,
-      bereavementRelationList,
-    ),
-    employees,
-    calendarDays: readTable(TABLES.calendarDayList, calendarDayList),
+    leaveTypes: leaveTypeRepository.findAll(),
+    relations: bereavementRelationRepository.findAll(),
+    employees: employeeRepository.findAll(),
+    calendarDays: calendarDayRepository.findAll(),
     batches: generateBatches(applicant, flexDates, todayDate),
-    forms: readTable(TABLES.leaveFormList, leaveFormList),
+    forms: leaveFormRepository.findAll(),
   };
 }
 
@@ -167,10 +159,7 @@ export async function getLeaveFormOptions(): Promise<LeaveFormOptionsResponse> {
     shift,
     timeOptions: getTimeOptions(shift),
     leaveTypes,
-    relations: readTable(
-      TABLES.bereavementRelationList,
-      bereavementRelationList,
-    ),
+    relations: bereavementRelationRepository.findAll(),
     // 職務代理人：同事名單，排除自己
     deputies: others.map((emp) => ({ id: emp.id, name: emp.name })),
     // 審核人：所有審核人，排除自己
@@ -227,8 +216,7 @@ export async function addLeaveForm(
     ],
   };
 
-  const formList = readTable(TABLES.leaveFormList, leaveFormList);
-  writeTable(TABLES.leaveFormList, [...formList, newForm]);
+  leaveFormRepository.add(newForm);
 
   const reviewer = employees.find((emp) => emp.id === input.reviewerId);
   return {
@@ -250,8 +238,7 @@ export async function performLeaveAction(
   await delay();
   const currentUser = getCurrentUser();
 
-  const formList = readTable(TABLES.leaveFormList, leaveFormList);
-  const targetForm = formList.find((form) => form.id === formId);
+  const targetForm = leaveFormRepository.findById(formId);
   if (!targetForm) {
     return { success: false, message: "找不到這張假單" };
   }
@@ -269,17 +256,14 @@ export async function performLeaveAction(
     note.trim(),
     now(),
   );
-  writeTable(
-    TABLES.leaveFormList,
-    formList.map((form) => (form.id === formId ? updatedForm : form)),
-  );
+  leaveFormRepository.update(updatedForm);
   return { success: true, message: actionDoneMessages[action] };
 }
 
 /** 審核人是我、還在等我處理的假單 */
 function getMyInboxForms(): LeaveForm[] {
   const currentUser = getCurrentUser();
-  return readTable(TABLES.leaveFormList, leaveFormList).filter(
+  return leaveFormRepository.findAll().filter(
     (form) =>
       form.reviewerId === currentUser.id &&
       LEAVE_STATES[form.status].inboxGroup !== null,

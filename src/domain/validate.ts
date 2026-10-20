@@ -13,13 +13,8 @@ import type {
   Shift,
 } from "../types/types";
 import { getTimeOptions, splitLeaveDays, sumHours } from "./time";
-import {
-  allocateDeductions,
-  getPerEventHours,
-  summarizeBatches,
-  summarizeYear,
-} from "./quota";
-import { formatMonthDay, formatTime } from "../utils/format";
+import { QUOTA_STRATEGIES } from "./quotaStrategy";
+import { formatTime } from "../utils/format";
 
 /** 驗證時需要的資料（由 API 從資料表讀出來傳進來） */
 export interface ValidateContext {
@@ -171,72 +166,18 @@ export function validateLeaveForm(
     return result;
   }
 
-  const myForms = forms.filter((form) => form.employeeId === applicant.id);
-
-  // ---------- 額度 ----------
-  if (leaveType.quotaType === "batch") {
-    // 批次型：逐日從有效批次扣，批次是否有效看請假日
-    const summaries = summarizeBatches(
-      batches.filter((batch) => batch.leaveTypeId === leaveType.id),
-      myForms,
-    );
-    const allocated = allocateDeductions(days, summaries);
-    if (allocated.failedDate) {
-      errors.quota = `${formatMonthDay(allocated.failedDate)} 沒有可用的${leaveType.name}`;
-    } else {
-      result.deductions = allocated.deductions;
-    }
-
-    // 可用：請假期間任一天有效的批次，可用時數加總
-    const available = summaries
-      .filter((summary) =>
-        days.some(
-          (day) =>
-            summary.batch.effectiveDate <= day.date &&
-            day.date <= summary.batch.expiryDate,
-        ),
-      )
-      .reduce((total, summary) => total + summary.available, 0);
-    result.quotaLines = [
-      { label: "", available, remaining: available - hours },
-    ];
-  } else if (leaveType.quotaType === "yearly") {
-    // 曆年制：依請假日所屬年度，跨年分別檢查
-    const sameTypeForms = myForms.filter(
-      (form) => form.leaveTypeId === leaveType.id,
-    );
-    const years = [...new Set(days.map((day) => Number(day.date.slice(0, 4))))];
-    for (const year of years) {
-      const { used, reserved } = summarizeYear(year, sameTypeForms);
-      const available = (leaveType.quotaHours ?? 0) - used - reserved;
-      const thisHours = sumHours(
-        days.filter((day) => day.date.startsWith(`${year}-`)),
-      );
-      const label = years.length > 1 ? `${year} 年` : "";
-      result.quotaLines.push({
-        label,
-        available,
-        remaining: available - thisHours,
-      });
-      if (thisHours > available && !errors.quota) {
-        errors.quota = `${label}可用額度不足：可用 ${available} 小時，本次 ${thisHours} 小時`;
-      }
-    }
-  } else {
-    // 單次事件：只檢查這張不超過該次額度，不跨假單累計
-    const perEventHours = getPerEventHours(leaveType, relation);
-    if (perEventHours !== null) {
-      result.quotaLines = [
-        { label: "", available: perEventHours, remaining: null },
-      ];
-      if (hours > perEventHours) {
-        const name = relation
-          ? `${leaveType.name}（${relation.name}）`
-          : leaveType.name;
-        errors.hours = `${name}每次最多 ${perEventHours / 8} 日`;
-      }
-    }
-  }
+  // ---------- 額度：依額度類型交給對應的策略 ----------
+  const quota = QUOTA_STRATEGIES[leaveType.quotaType].check({
+    leaveType,
+    relation,
+    days,
+    hours,
+    batches,
+    myForms: forms.filter((form) => form.employeeId === applicant.id),
+  });
+  Object.assign(errors, quota.errors);
+  result.quotaLines = quota.quotaLines;
+  result.deductions = quota.deductions;
 
   return result;
 }

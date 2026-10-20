@@ -448,14 +448,6 @@ export interface BatchQuotaResponse {
   isTaken: boolean;
 }
 
-/** 我的額度：單次事件的每次額度-回傳 */
-export interface PerEventQuotaResponse {
-  /** 說明：喪假是親屬，例如「父母、養父母、繼父母、配偶」；婚假是空字串 */
-  label: string;
-  /** 每次可請時數 */
-  hours: number;
-}
-
 /** 我的額度：一個假別-回傳 */
 export interface LeaveQuotaResponse {
   /** 假別 id */
@@ -476,6 +468,4 @@ export interface LeaveQuotaResponse {
   available: number;
   /** 批次型的有效中、尚未生效批次（不含已過期）；其他假別是空陣列 */
   batches: BatchQuotaResponse[];
-  /** 單次事件的每次額度；其他假別是空陣列 */
-  perEvent: PerEventQuotaResponse[];
 }

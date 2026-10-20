@@ -59,15 +59,12 @@ function MyQuotaPage() {
               const hasExpiringSoon = quota.batches.some(
                 (batch) => batch.expiringSoon,
               );
-              // 喪假要列出每種親屬各可請幾天（婚假只有一種，說明裡已經有了）
-              const perEventLines = quota.perEvent.filter((item) => item.label);
 
               return (
                 <Fragment key={quota.leaveTypeId}>
                   <tr>
                     <td>
                       <div className="quota-type-name">
-                        {/* 批次型才有展開按鈕 */}
                         {quota.quotaType === "batch" ? (
                           <button
                             className="expand-button"
@@ -101,11 +98,6 @@ function MyQuotaPage() {
                         </span>
                         <InfoTooltip label={`${quota.leaveTypeName}說明`}>
                           <p>{quota.leaveTypeDescription}</p>
-                          {perEventLines.map((item) => (
-                            <p key={item.label}>
-                              {item.label}：每次 {formatHours(item.hours)}
-                            </p>
-                          ))}
                         </InfoTooltip>
                         {hasExpiringSoon && (
                           <span className="tag tag-pending">

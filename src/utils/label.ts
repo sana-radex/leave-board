@@ -4,7 +4,7 @@ import type {
   LeaveAction,
   LeaveStatus,
   Role,
-} from "../types/types";
+} from "../types/domain";
 
 /** 假單狀態 */
 export const statusLabels: Record<LeaveStatus, string> = {

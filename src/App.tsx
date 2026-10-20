@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router";
 import "./App.css";
-import type { Employee, UserOptionResponse } from "./types/types";
+import type { Employee } from "./types/domain";
+import type { UserOptionResponse } from "./types/api";
 import {
   getCurrentUserInfo,
   getUserOptionList,

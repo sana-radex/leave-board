@@ -1,4 +1,4 @@
-import type { FormAction, LeaveForm, ViewerRelation } from "../types/types";
+import type { FormAction, LeaveForm, ViewerRelation } from "../types/domain";
 import { canDoAction } from "./lifecycle";
 import { LEAVE_STATES } from "./leaveState";
 

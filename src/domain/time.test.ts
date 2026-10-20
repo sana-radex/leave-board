@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { getTimeOptions, calcDayHours, splitLeaveDays, sumHours } from "./time";
 import { shiftList } from "../data/mockData";
 import { calendarDayList } from "../data/calendarDays";
-import type { CalendarDay, LeaveUnit } from "../types/types";
+import type { CalendarDay, LeaveUnit } from "../types/domain";
 
 const morning = shiftList[0]; // 早班
 const middle = shiftList[1]; // 中班

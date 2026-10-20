@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { generateBatches, getAnnualDays } from "./batch";
 import { employeeList, flexLeaveDateList } from "../data/mockData";
-import type { Batch, Employee } from "../types/types";
+import type { Batch, Employee } from "../types/domain";
 
 const TODAY = "2026-10-19";
 

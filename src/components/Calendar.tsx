@@ -1,10 +1,7 @@
 import "./Calendar.css";
-import type {
-  CalendarDay,
-  CalendarFilter,
-  LeaveDayResponse,
-  LeaveFormResponse,
-} from "../types/types";
+import type { CalendarDay } from "../types/domain";
+import type { LeaveDayResponse, LeaveFormResponse } from "../types/api";
+import type { CalendarFilter } from "../types/ui";
 import { formatTime, toDateKey } from "../utils/format";
 import { calendarNotes } from "../utils/label";
 import { today } from "../utils/today";

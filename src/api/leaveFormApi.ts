@@ -7,18 +7,16 @@ import {
   leaveFormList,
 } from "../data/mockData";
 import { calendarDayList } from "../data/calendarDays";
+import type { FormAction, LeaveForm, LeaveTypeId } from "../types/domain";
 import type {
   AddLeaveFormRequest,
   AddLeaveFormResponse,
-  FormAction,
   InboxResponse,
-  LeaveForm,
   LeaveFormOptionsResponse,
   LeaveFormPreviewResponse,
   LeaveFormResponse,
-  LeaveTypeId,
   Response,
-} from "../types/types";
+} from "../types/api";
 import { TABLES, readTable, writeTable, delay } from "./db";
 import { getCurrentUser } from "./currentUserApi";
 import {

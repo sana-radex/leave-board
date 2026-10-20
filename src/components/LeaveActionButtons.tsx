@@ -1,5 +1,6 @@
 import { useState } from "react";
-import type { FormAction, LeaveFormResponse, Response } from "../types/types";
+import type { FormAction } from "../types/domain";
+import type { LeaveFormResponse, Response } from "../types/api";
 import { performLeaveAction } from "../api/leaveFormApi";
 import { actionLabels } from "../utils/label";
 import { formatLeaveRange } from "../utils/format";

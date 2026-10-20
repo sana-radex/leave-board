@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { FormAction, LeaveStatus } from "../types/types";
+import type { FormAction, LeaveStatus } from "../types/domain";
 import { LEAVE_STATES } from "./leaveState";
 
 /** 所有假單狀態 */

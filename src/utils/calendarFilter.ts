@@ -1,4 +1,5 @@
-import type { CalendarFilter, LeaveStatus } from "../types/types";
+import type { LeaveStatus } from "../types/domain";
+import type { CalendarFilter } from "../types/ui";
 
 /** 全部顯示的篩選條件：行事曆的預設值、篩選視窗的「全部顯示」都用這個 */
 export function createShowAllFilter(): CalendarFilter {

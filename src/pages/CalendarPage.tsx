@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import "./CalendarPage.css";
+import type { CalendarDay } from "../types/domain";
 import type {
-  CalendarDay,
-  CalendarFilter,
   LeaveFormResponse,
   LeaveQuotaResponse,
   Response,
-} from "../types/types";
+} from "../types/api";
+import type { CalendarFilter } from "../types/ui";
 import { getCalendarLeaveList } from "../api/leaveFormApi";
 import { getCalendarDayList } from "../api/calendarApi";
 import { getMyQuota } from "../api/quotaApi";

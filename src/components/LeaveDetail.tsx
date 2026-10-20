@@ -1,4 +1,4 @@
-import type { LeaveFormResponse, Response } from "../types/types";
+import type { LeaveFormResponse, Response } from "../types/api";
 import { actionLabels, statusLabels } from "../utils/label";
 import { formatDateTime, formatHours, formatLeaveRange } from "../utils/format";
 import Modal from "./Modal";

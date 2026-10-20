@@ -8,7 +8,7 @@ import {
   leaveFormList,
   leaveTypeList,
 } from "../data/mockData";
-import type { Employee, LeaveTypeId } from "../types/types";
+import type { Employee, LeaveTypeId } from "../types/domain";
 
 /** 今天：2026/10/19（基準日） */
 const TODAY = "2026-10-19";

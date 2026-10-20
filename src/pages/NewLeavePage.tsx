@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import type { SubmitEvent } from "react";
 import { useNavigate } from "react-router";
 import "./NewLeavePage.css";
+import type { LeaveTypeId } from "../types/domain";
 import type {
   AddLeaveFormRequest,
   LeaveFormField,
   LeaveFormOptionsResponse,
   LeaveFormPreviewResponse,
-  LeaveTypeId,
   Response,
-} from "../types/types";
+} from "../types/api";
 import {
   addLeaveForm,
   getLeaveFormOptions,

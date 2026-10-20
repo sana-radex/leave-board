@@ -5,7 +5,7 @@ import type {
   BereavementRelation,
   FlexLeaveDate,
   LeaveForm,
-} from "../types/types";
+} from "../types/domain";
 
 /**
  * 預設資料：以 2026/10/19（一）為基準日。

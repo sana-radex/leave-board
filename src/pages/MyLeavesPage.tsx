@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import "./MyLeavesPage.css";
-import type { Response, LeaveFormResponse, LeaveStatus } from "../types/types";
+import type { LeaveStatus } from "../types/domain";
+import type { Response, LeaveFormResponse } from "../types/api";
 import { getMyLeaveFormList } from "../api/leaveFormApi";
 import Toast from "../components/Toast";
 import LeaveDetail from "../components/LeaveDetail";

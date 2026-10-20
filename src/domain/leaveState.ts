@@ -1,4 +1,4 @@
-import type { FormAction, LeaveStatus } from "../types/types";
+import type { FormAction, LeaveStatus } from "../types/domain";
 
 /** 一個動作的規則：誰可以做、做完變成哪個狀態 */
 export interface Transition {

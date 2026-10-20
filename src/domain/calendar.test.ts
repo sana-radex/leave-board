@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { isWorkday, getWorkdays } from "./calendar";
 import { calendarDayList } from "../data/calendarDays";
-import type { CalendarDay } from "../types/types";
+import type { CalendarDay } from "../types/domain";
 
 describe("isWorkday", () => {
   it("一般平日是工作天", () => {

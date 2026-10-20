@@ -1,4 +1,4 @@
-import type { CalendarDay } from "../types/types";
+import type { CalendarDay } from "../types/domain";
 import { addDays, getWeekday } from "./date";
 
 /**

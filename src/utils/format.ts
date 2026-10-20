@@ -1,4 +1,4 @@
-import type { LeaveUnit } from "../types/types";
+import type { LeaveUnit } from "../types/domain";
 
 /** 轉換時間格式，台灣當地顯示方式 */
 export function formatDateTime(value: string): string {

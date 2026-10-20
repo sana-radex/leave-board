@@ -1,16 +1,18 @@
 import type {
-  AddLeaveFormRequest,
   Batch,
   BereavementRelation,
   CalendarDay,
   Employee,
   LeaveDay,
   LeaveForm,
-  LeaveFormErrors,
   LeaveType,
-  QuotaLine,
   Shift,
-} from "../types/types";
+} from "../types/domain";
+import type {
+  AddLeaveFormRequest,
+  LeaveFormErrors,
+  QuotaLine,
+} from "../types/api";
 import { getTimeOptions, splitLeaveDays, sumHours } from "./time";
 import { QUOTA_STRATEGIES } from "./quotaStrategy";
 import { formatTime } from "../utils/format";

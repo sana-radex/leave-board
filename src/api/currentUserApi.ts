@@ -1,5 +1,6 @@
 import { employeeList, shiftList } from "../data/mockData";
-import type { Employee, UserOptionResponse } from "../types/types";
+import type { Employee } from "../types/domain";
+import type { UserOptionResponse } from "../types/api";
 import {
   loadCurrentUserId,
   saveCurrentUserId,

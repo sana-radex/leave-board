@@ -1,4 +1,4 @@
-import type { Batch, Employee, FlexLeaveDate } from "../types/types";
+import type { Batch, Employee, FlexLeaveDate } from "../types/domain";
 import { addDays, addMonths, isLeapYear } from "./date";
 import { formatDate } from "../utils/format";
 

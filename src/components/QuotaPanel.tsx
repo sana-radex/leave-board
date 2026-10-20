@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./QuotaPanel.css";
-import type { LeaveQuotaResponse, LeaveTypeId } from "../types/types";
+import type { LeaveTypeId } from "../types/domain";
+import type { LeaveQuotaResponse } from "../types/api";
 import Modal from "./Modal";
 import BatchTable from "./BatchTable";
 import { formatHours } from "../utils/format";

@@ -11,7 +11,8 @@ import {
 } from "../data/mockData";
 import { calendarDayList } from "../data/calendarDays";
 import { generateBatches } from "./batch";
-import type { AddLeaveFormRequest, Employee } from "../types/types";
+import type { Employee } from "../types/domain";
+import type { AddLeaveFormRequest } from "../types/api";
 
 /** 今天：2026/10/19（基準日） */
 const TODAY = "2026-10-19";

@@ -1,4 +1,5 @@
-import type { Employee, UserOptionResponse } from "../types/types";
+import type { Employee } from "../types/domain";
+import type { UserOptionResponse } from "../types/api";
 import { roleLabels } from "../utils/label";
 import "./Header.css";
 

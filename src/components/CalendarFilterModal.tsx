@@ -1,9 +1,6 @@
 import { useState } from "react";
-import type {
-  CalendarDayType,
-  CalendarFilter,
-  LeaveStatus,
-} from "../types/types";
+import type { CalendarDayType, LeaveStatus } from "../types/domain";
+import type { CalendarFilter } from "../types/ui";
 import { calendarDayTypeLabels, statusLabels } from "../utils/label";
 import { createShowAllFilter } from "../utils/calendarFilter";
 import Modal from "./Modal";

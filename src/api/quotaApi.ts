@@ -1,5 +1,5 @@
 import { flexLeaveDateList, leaveFormList, leaveTypeList } from "../data/mockData";
-import type { LeaveQuotaResponse } from "../types/types";
+import type { LeaveQuotaResponse } from "../types/api";
 import { TABLES, readTable, delay } from "./db";
 import { getCurrentUser } from "./currentUserApi";
 import { generateBatches } from "../domain/batch";

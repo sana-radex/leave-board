@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import "./MyQuotaPage.css";
-import type { LeaveQuotaResponse, LeaveTypeId } from "../types/types";
+import type { LeaveTypeId } from "../types/domain";
+import type { LeaveQuotaResponse } from "../types/api";
 import { getMyQuota } from "../api/quotaApi";
 import BatchTable from "../components/BatchTable";
 import InfoTooltip from "../components/InfoTooltip";

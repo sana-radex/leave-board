@@ -1,4 +1,4 @@
-import type { CalendarDay } from "../types/types";
+import type { CalendarDay } from "../types/domain";
 
 /**
  * 辦公日曆：國定假日、補假、補班日

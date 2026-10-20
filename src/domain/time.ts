@@ -1,4 +1,4 @@
-import type { CalendarDay, LeaveDay, LeaveUnit, Shift } from "../types/types";
+import type { CalendarDay, LeaveDay, LeaveUnit, Shift } from "../types/domain";
 import { toMinutes, fromMinutes } from "./date";
 import { getWorkdays } from "./calendar";
 

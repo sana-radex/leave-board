@@ -1,5 +1,5 @@
 import { calendarDayList } from "../data/calendarDays";
-import type { CalendarDay } from "../types/types";
+import type { CalendarDay } from "../types/domain";
 import { TABLES, readTable, delay } from "./db";
 
 /** 取得辦公日曆 */

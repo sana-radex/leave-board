@@ -1,5 +1,5 @@
 import "./BatchTable.css";
-import type { BatchQuotaResponse, LeaveQuotaResponse } from "../types/types";
+import type { BatchQuotaResponse, LeaveQuotaResponse } from "../types/api";
 import { formatDate, formatHours, formatMonthDay } from "../utils/format";
 
 interface BatchTableProps {

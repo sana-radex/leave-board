@@ -3,7 +3,7 @@ import type {
   BereavementRelation,
   LeaveForm,
   LeaveType,
-} from "../types/types";
+} from "../types/domain";
 import { LEAVE_STATES } from "./leaveState";
 
 /** 一筆批次的使用情形 */

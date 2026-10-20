@@ -1,16 +1,18 @@
 import type {
   Batch,
-  BatchQuotaResponse,
-  BatchStatus,
   BereavementRelation,
   LeaveDay,
   LeaveForm,
+  LeaveType,
+  QuotaType,
+} from "../types/domain";
+import type {
+  BatchQuotaResponse,
+  BatchStatus,
   LeaveFormErrors,
   LeaveQuotaResponse,
-  LeaveType,
   QuotaLine,
-  QuotaType,
-} from "../types/types";
+} from "../types/api";
 import { allocateBatches, getPerEventHours, summarizeYear } from "./quota";
 import { sumHours } from "./time";
 import { addDays } from "./date";

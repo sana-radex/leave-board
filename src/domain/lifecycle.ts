@@ -1,4 +1,4 @@
-import type { FormAction, LeaveForm } from "../types/types";
+import type { FormAction, LeaveForm } from "../types/domain";
 import { LEAVE_STATES } from "./leaveState";
 import type { Transition } from "./leaveState";
 

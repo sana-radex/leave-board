@@ -15,7 +15,7 @@ import type {
   LeaveForm,
   LeaveStatus,
   LeaveTypeId,
-} from "../types/types";
+} from "../types/domain";
 
 const TODAY = "2026-10-19";
 

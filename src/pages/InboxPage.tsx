@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import "./InboxPage.css";
-import type {
-  InboxResponse,
-  LeaveFormResponse,
-  Response,
-} from "../types/types";
+import type { InboxResponse, LeaveFormResponse, Response } from "../types/api";
 import { getInboxList } from "../api/leaveFormApi";
 import Toast from "../components/Toast";
 import LeaveDetail from "../components/LeaveDetail";

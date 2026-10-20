@@ -1,7 +1,16 @@
 import { useState } from "react";
-import type { CalendarFilter } from "../types/types";
+import type {
+  CalendarDayType,
+  CalendarFilter,
+  LeaveStatus,
+} from "../types/types";
+import { calendarDayTypeLabels, statusLabels } from "../utils/label";
+import { createShowAllFilter } from "../utils/calendarFilter";
 import Modal from "./Modal";
 import "./CalendarFilterModal.css";
+
+/** 所有假單狀態，依 statusLabels 的順序 */
+const STATUSES = Object.keys(statusLabels) as LeaveStatus[];
 
 interface CalendarFilterModalProps {
   /** 打開視窗時的篩選條件 */
@@ -12,7 +21,7 @@ interface CalendarFilterModalProps {
   onClose: () => void;
 }
 
-/** 行事曆篩選視窗：勾選要顯示哪些假單、哪些日子 */
+/** 行事曆篩選視窗：我的假單依狀態勾選，其他人的假單（只有已核准）、國定假日、補班日各一個 */
 function CalendarFilterModal({
   filter,
   onApply,
@@ -21,35 +30,29 @@ function CalendarFilterModal({
   // 先改草稿，按下套用才真的換到行事曆上
   const [draft, setDraft] = useState(filter);
 
-  /** 切換某一類要不要顯示（只改草稿） */
-  function toggle(key: keyof CalendarFilter) {
-    setDraft({ ...draft, [key]: !draft[key] });
-  }
-
-  /** 全部勾回來 */
-  function showAll() {
+  /** 切換我的假單某個狀態要不要顯示（只改草稿） */
+  function toggleMineStatus(status: LeaveStatus) {
     setDraft({
-      mine: true,
-      others: true,
-      revoked: true,
-      holiday: true,
-      makeup_workday: true,
+      ...draft,
+      mine: { ...draft.mine, [status]: !draft.mine[status] },
     });
   }
 
-  /** 一個勾選框：後面的文字用跟行事曆一樣的標籤顏色 */
+  /** 切換其他人、國定假日或補班日要不要顯示（只改草稿） */
+  function toggle(key: "others" | CalendarDayType) {
+    setDraft({ ...draft, [key]: !draft[key] });
+  }
+
+  /** 一個勾選框：後面的文字用跟行事曆一樣的標籤樣式 */
   function renderCheckbox(
-    key: keyof CalendarFilter,
+    checked: boolean,
+    onToggle: () => void,
     label: string,
     tagClassName: string,
   ) {
     return (
-      <label className="filter-option">
-        <input
-          type="checkbox"
-          checked={draft[key]}
-          onChange={() => toggle(key)}
-        />
+      <label key={label} className="filter-option">
+        <input type="checkbox" checked={checked} onChange={onToggle} />
         <span className={`tag ${tagClassName}`}>{label}</span>
       </label>
     );
@@ -61,7 +64,7 @@ function CalendarFilterModal({
       onClose={onClose}
       actions={
         <>
-          <button type="button" onClick={showAll}>
+          <button type="button" onClick={() => setDraft(createShowAllFilter())}>
             全部顯示
           </button>
           <button
@@ -74,18 +77,47 @@ function CalendarFilterModal({
         </>
       }
     >
-      <fieldset className="filter-group">
-        <legend className="filter-title">假單</legend>
-        {renderCheckbox("mine", "我的假單", "tag-mine")}
-        {renderCheckbox("others", "其他人的假單", "tag-approved")}
-        {renderCheckbox("revoked", "已撤銷", "tag-revoked")}
-      </fieldset>
+      <div className="filter-columns">
+        <fieldset className="filter-group">
+          <legend className="filter-title">我的假單</legend>
+          {STATUSES.map((status) =>
+            renderCheckbox(
+              draft.mine[status],
+              () => toggleMineStatus(status),
+              statusLabels[status],
+              `tag-${status}`,
+            ),
+          )}
+        </fieldset>
 
-      <fieldset className="filter-group">
-        <legend className="filter-title">辦公日曆</legend>
-        {renderCheckbox("holiday", "國定假日", "tag-holiday")}
-        {renderCheckbox("makeup_workday", "補班日", "tag-makeup_workday")}
-      </fieldset>
+        <div>
+          <fieldset className="filter-group">
+            <legend className="filter-title">其他人</legend>
+            {renderCheckbox(
+              draft.others,
+              () => toggle("others"),
+              "其他人的假單",
+              "tag-others",
+            )}
+          </fieldset>
+
+          <fieldset className="filter-group">
+            <legend className="filter-title">辦公日曆</legend>
+            {renderCheckbox(
+              draft.holiday,
+              () => toggle("holiday"),
+              calendarDayTypeLabels.holiday,
+              "tag-holiday",
+            )}
+            {renderCheckbox(
+              draft.makeup_workday,
+              () => toggle("makeup_workday"),
+              calendarDayTypeLabels.makeup_workday,
+              "tag-makeup_workday",
+            )}
+          </fieldset>
+        </div>
+      </div>
     </Modal>
   );
 }

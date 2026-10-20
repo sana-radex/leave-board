@@ -6,6 +6,7 @@ import type {
   LeaveFormResponse,
 } from "../types/types";
 import { formatTime, toDateKey } from "../utils/format";
+import { calendarNotes } from "../utils/label";
 import { today } from "../utils/today";
 
 /** 格子數：一個月最多跨 6 週，每週 7 天 */
@@ -52,13 +53,10 @@ function Calendar({
     return calendarDays.find((day) => day.date === dateKey);
   }
 
-  /** 這張假單有沒有被篩掉：已撤銷看「已撤銷」，其他看是不是自己的 */
+  /** 這張假單有沒有被篩掉：我的看有沒有勾這個狀態，其他人的只有一個勾選 */
   function isLeaveShown(leave: LeaveFormResponse) {
-    if (leave.status === "revoked") {
-      return filter.revoked;
-    }
     if (leave.isMine) {
-      return filter.mine;
+      return filter.mine[leave.status];
     }
     return filter.others;
   }
@@ -78,27 +76,21 @@ function Calendar({
     return result;
   }
 
-  /** 標籤文字：姓名 假別，非整天加時段，已撤銷加註 */
+  /** 標籤文字：姓名 假別，非整天加時段，最後加狀態加註（已核准不加） */
   function getLeaveLabel(leave: LeaveFormResponse, day: LeaveDayResponse) {
     let label = `${leave.employeeName} ${leave.leaveTypeName}`;
     if (!day.isFullDay) {
       label += ` ${formatTime(day.startTime)}–${formatTime(day.endTime)}`;
     }
-    if (leave.status === "revoked") {
-      label += "（已撤銷）";
-    }
-    return label;
+    return label + calendarNotes[leave.status];
   }
 
-  /** 標籤顏色 */
+  /** 標籤樣式：自己的假單顏色依狀態；其他人的假單統一一個顏色 */
   function getLeaveClassName(leave: LeaveFormResponse) {
-    if (leave.status === "revoked") {
-      return "tag tag-revoked";
-    }
     if (leave.isMine) {
-      return "tag tag-mine";
+      return `tag tag-${leave.status}`;
     }
-    return "tag tag-approved";
+    return "tag tag-others";
   }
 
   return (
@@ -140,15 +132,20 @@ function Calendar({
                   {specialDay.name}
                 </span>
               )}
-              {dayLeaves.map(({ leave, day }) => (
-                <button
-                  key={leave.id}
-                  className={getLeaveClassName(leave)}
-                  onClick={() => onSelectLeave(leave.id)}
-                >
-                  {getLeaveLabel(leave, day)}
-                </button>
-              ))}
+              {dayLeaves.map(({ leave, day }) => {
+                const label = getLeaveLabel(leave, day);
+                // 格子太窄時後面的加註會被「…」蓋掉，滑過時用 title 看完整文字
+                return (
+                  <button
+                    key={leave.id}
+                    className={getLeaveClassName(leave)}
+                    title={label}
+                    onClick={() => onSelectLeave(leave.id)}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           );
         })}

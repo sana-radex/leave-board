@@ -24,7 +24,6 @@ import { getCurrentUser } from "./currentUserApi";
 import {
   getViewerRelation,
   canSeeDetail,
-  isOnCalendar,
   getAvailableActions,
 } from "../domain/permission";
 import { applyAction, canDoAction } from "../domain/lifecycle";
@@ -51,7 +50,8 @@ function getBatchName(batchId: string): string {
 
 /**
  * 把資料庫的假單組成回傳格式：id 換成名字，
- * 再依目前使用者和假單的關係遮蔽：其他人看不到假別、備註、簽核歷程
+ * 再依目前使用者和假單的關係遮蔽：其他人看不到假別、備註、簽核歷程，
+ * 也看不到撤銷申請（撤銷審核中的假還有效，對其他人顯示成已核准）
  */
 function toResponseList(
   forms: LeaveForm[],
@@ -96,7 +96,8 @@ function toResponseList(
       leaveTypeUnit: canSee ? (leaveType?.unit ?? null) : null,
       relationName:
         canSee && bereavementRelation ? bereavementRelation.name : null,
-      status: form.status,
+      status:
+        !canSee && form.status === "revoke_pending" ? "approved" : form.status,
       startTime: form.startTime,
       endTime: form.endTime,
       days: form.days.map((day) => ({
@@ -138,12 +139,18 @@ export async function getMyLeaveFormList(): Promise<LeaveFormResponse[]> {
   return toResponseList(myForms, currentUser.id);
 }
 
-/** 取得行事曆上的假單：全公司，只回傳會出現在行事曆上的 */
+/**
+ * 取得行事曆上的假單：自己的所有狀態都回傳；
+ * 其他人的只回傳已核准、撤銷審核中（撤銷還沒同意，假照樣有效）
+ */
 export async function getCalendarLeaveList(): Promise<LeaveFormResponse[]> {
   await delay();
   const currentUser = getCurrentUser();
   const forms = readTable(TABLES.leaveFormList, leaveFormList).filter(
-    isOnCalendar,
+    (form) =>
+      form.employeeId === currentUser.id ||
+      form.status === "approved" ||
+      form.status === "revoke_pending",
   );
   return toResponseList(forms, currentUser.id);
 }

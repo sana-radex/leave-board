@@ -11,6 +11,7 @@ import { getCalendarLeaveList } from "../api/leaveFormApi";
 import { getCalendarDayList } from "../api/calendarApi";
 import { getMyQuota } from "../api/quotaApi";
 import { today } from "../utils/today";
+import { createShowAllFilter } from "../utils/calendarFilter";
 import Calendar from "../components/Calendar";
 import CalendarFilterModal from "../components/CalendarFilterModal";
 import LeaveDetail from "../components/LeaveDetail";
@@ -36,13 +37,7 @@ function CalendarPage({ onLeaveChanged }: CalendarPageProps) {
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // 篩選條件：預設全部都顯示
-  const [filter, setFilter] = useState<CalendarFilter>({
-    mine: true,
-    others: true,
-    revoked: true,
-    holiday: true,
-    makeup_workday: true,
-  });
+  const [filter, setFilter] = useState<CalendarFilter>(createShowAllFilter);
   const [filterOpen, setFilterOpen] = useState(false);
 
   const year = viewDate.getFullYear();

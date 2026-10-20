@@ -15,6 +15,15 @@ export const statusLabels: Record<LeaveStatus, string> = {
   revoked: "已撤銷",
 };
 
+/** 行事曆標籤後的狀態加註：已核准不加註 */
+export const calendarNotes: Record<LeaveStatus, string> = {
+  pending: "（待審核）",
+  approved: "",
+  revoke_pending: "（撤銷審核中）",
+  rejected: "（已退回）",
+  revoked: "（已撤銷）",
+};
+
 /** 簽核動作 */
 export const actionLabels: Record<LeaveAction, string> = {
   submit: "送出",

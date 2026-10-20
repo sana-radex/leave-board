@@ -12,6 +12,17 @@
   margin-bottom: 0;
 }
 
+/* 左排是我的假單，右排是其他人的假單和辦公日曆（右排兩組之間照常留空） */
+.filter-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.filter-columns > .filter-group {
+  margin-bottom: 0;
+}
+
 /* 每一組的小標題 */
 .filter-title {
   margin-bottom: 4px;

@@ -31,8 +31,8 @@
   --color-approved-bg: #ddede4;
   --color-revoked: #4b5563; /* 已撤銷：灰 */
   --color-revoked-bg: #f3f4f6;
-  --color-mine: #5b21b6; /* 自己：紫 */
-  --color-mine-bg: #ede9fe;
+  --color-others: #0e7490; /* 其他人的假單：青 */
+  --color-others-bg: #cffafe;
 
   /* 辦公日曆標籤：文字顏色 + 底色 */
   --color-holiday: #b91c1c; /* 國定假日：紅 */
@@ -307,9 +307,10 @@ td button {
   --tag-bg: var(--color-revoked-bg);
 }
 
-.tag-mine {
-  --tag-text: var(--color-mine);
-  --tag-bg: var(--color-mine-bg);
+/* 其他人的假單：不分狀態統一一個顏色，跟自己的假單用的顏色都不同 */
+.tag-others {
+  --tag-text: var(--color-others);
+  --tag-bg: var(--color-others-bg);
 }
 
 .tag-holiday {

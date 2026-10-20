@@ -27,7 +27,7 @@ function LeaveDetail({
 }: LeaveDetailProps) {
   const range = formatLeaveRange(form.startTime, form.endTime, form.leaveTypeUnit);
 
-  // 其他人：姓名、起訖、職務代理人、假別「請假」，已撤銷加註
+  // 其他人：姓名、假別「請假」、起訖、職務代理人
   if (!form.canSeeDetail) {
     return (
       <Modal title="假單詳情" onClose={onClose}>
@@ -43,13 +43,6 @@ function LeaveDetail({
 
           <dt>職務代理人</dt>
           <dd>{form.deputyName}</dd>
-
-          {form.status === "revoked" && (
-            <>
-              <dt>狀態</dt>
-              <dd>已撤銷</dd>
-            </>
-          )}
         </dl>
       </Modal>
     );

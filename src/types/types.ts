@@ -208,14 +208,12 @@ export interface CalendarDay {
   name: string;
 }
 
-/** 行事曆篩選：每一類要不要顯示（跟圖例一樣分 5 類） */
+/** 行事曆篩選：我的假單依狀態勾選，其他人的假單（只有已核准）、辦公日曆各一個 */
 export interface CalendarFilter {
-  /** 我的假單 */
-  mine: boolean;
-  /** 其他人的假單 */
+  /** 我的假單：每種狀態要不要顯示 */
+  mine: Record<LeaveStatus, boolean>;
+  /** 其他人的假單：行事曆上只有已核准的，要不要顯示 */
   others: boolean;
-  /** 已撤銷的假單（不分是誰的） */
-  revoked: boolean;
   /** 國定假日 */
   holiday: boolean;
   /** 補班日 */

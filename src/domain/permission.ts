@@ -31,19 +31,3 @@ export function getAvailableActions(
   const allActions = Object.keys(TRANSITIONS) as FormAction[];
   return allActions.filter((action) => canDoAction(viewerId, action, form));
 }
-
-/**
- * 會不會出現在行事曆上
- * - 已核准、撤銷審核中：會
- * - 已撤銷：曾核准過才會（簽核歷程裡有「核准」）
- * - 待審核、已退回：不會
- */
-export function isOnCalendar(form: LeaveForm): boolean {
-  if (form.status === "approved" || form.status === "revoke_pending") {
-    return true;
-  }
-  if (form.status === "revoked") {
-    return form.history.some((record) => record.action === "approve");
-  }
-  return false;
-}

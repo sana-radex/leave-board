@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { generateBatches, getAnnualDays } from "./batch";
-import { employeeList, flexLeaveDateList, leaveFormList } from "../data/mockData";
+import { employeeList, flexLeaveDateList } from "../data/mockData";
 import type { Batch, Employee } from "../types/types";
 
 const TODAY = "2026-10-19";
@@ -135,34 +135,39 @@ describe("生日假（6.1 的 2026 生日假有效期間）", () => {
 });
 
 describe("彈性假（6.3）", () => {
-  it("每個公布日一筆 1 天，隔年 2/28 到期", () => {
-    expect(batchesOf("E03", "flex").map(brief)).toEqual([
-      "2026-01-02～2027-02-28 8h",
-      "2026-03-29～2027-02-28 8h",
-      "2026-09-28～2027-02-28 8h",
-      "2026-10-31～2027-02-28 8h",
-      "2026-11-12～2027-02-28 8h",
+  it("同一年公布的合成一筆年度批次：5 個公布日各 1 天，隔年 2/28 到期", () => {
+    const batches = batchesOf("E03", "flex");
+    expect(batches.map(brief)).toEqual(["2026-01-02～2027-02-28 40h"]);
+    expect(batches[0].name).toBe("彈性假（2026 年度）");
+    expect(batches[0].releases.map((release) => release.date)).toEqual([
+      "2026-01-02",
+      "2026-03-29",
+      "2026-09-28",
+      "2026-10-31",
+      "2026-11-12",
     ]);
   });
 
   it("7/1 到職，只有 9/28、10/31、11/12（待確認 Q2）", () => {
-    expect(batchesOf(newcomer, "flex").map((batch) => batch.name)).toEqual([
-      "彈性假（2026/9/28）",
-      "彈性假（2026/10/31）",
-      "彈性假（2026/11/12）",
+    const [batch] = batchesOf(newcomer, "flex");
+    expect(brief(batch)).toBe("2026-09-28～2027-02-28 24h");
+    expect(batch.releases.map((release) => release.date)).toEqual([
+      "2026-09-28",
+      "2026-10-31",
+      "2026-11-12",
     ]);
   });
-});
 
-describe("預設資料扣除明細的批次 id 都產生得出來", () => {
-  const allBatchIds = employeeList.flatMap((employee) =>
-    generateBatches(employee, flexLeaveDateList, TODAY).map((batch) => batch.id),
-  );
-  const usedIds = leaveFormList.flatMap((form) =>
-    form.deductions.map((item) => item.batchId),
-  );
-
-  it.each([...new Set(usedIds)])("%s", (batchId) => {
-    expect(allBatchIds).toContain(batchId);
+  it("不同年公布的分成不同年度，各自在隔年 2/28 到期", () => {
+    const flexDates = [...flexLeaveDateList, { date: "2027-01-04" }];
+    const batches = generateBatches(
+      employeeList[2],
+      flexDates,
+      "2027-01-10",
+    ).filter((batch) => batch.leaveTypeId === "flex");
+    expect(batches.map((batch) => `${batch.name} ${brief(batch)}`)).toEqual([
+      "彈性假（2026 年度） 2026-01-02～2027-02-28 40h",
+      "彈性假（2027 年度） 2027-01-04～2028-02-28 8h",
+    ]);
   });
 });

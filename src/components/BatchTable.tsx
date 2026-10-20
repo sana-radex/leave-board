@@ -9,8 +9,8 @@ interface BatchTableProps {
   showTotal?: boolean;
 }
 
-/** 批次的標示：30 天內到期、尚未生效、彈性假已請／未請 */
-function renderBatchTags(batch: BatchQuotaResponse, isFlex: boolean) {
+/** 批次的標示：30 天內到期、尚未生效、彈性假之後的公布日才多出的天數 */
+function renderBatchTags(batch: BatchQuotaResponse) {
   return (
     <>
       {batch.expiringSoon && <span className="tag tag-pending">30 天內到期</span>}
@@ -19,11 +19,11 @@ function renderBatchTags(batch: BatchQuotaResponse, isFlex: boolean) {
           尚未生效（{formatMonthDay(batch.effectiveDate)} 起可請）
         </span>
       )}
-      {isFlex && (
-        <span className={batch.isTaken ? "tag tag-revoked" : "tag tag-approved"}>
-          {batch.isTaken ? "已請" : "未請"}
+      {batch.upcomingReleases.map((release) => (
+        <span key={release.date} className="tag tag-makeup_workday">
+          {formatMonthDay(release.date)} 起再加 {formatHours(release.hours)}
         </span>
-      )}
+      ))}
     </>
   );
 }
@@ -33,7 +33,6 @@ function BatchTable({ quota, showTotal = false }: BatchTableProps) {
   if (quota.batches.length === 0) {
     return <p className="quota-empty">目前沒有任何批次</p>;
   }
-  const isFlex = quota.leaveTypeId === "flex";
   return (
     <table className="batch-table">
       <thead>
@@ -58,7 +57,7 @@ function BatchTable({ quota, showTotal = false }: BatchTableProps) {
             <td className="cell-number">{formatHours(batch.used)}</td>
             <td className="cell-number">{formatHours(batch.reserved)}</td>
             <td className="cell-number">{formatHours(batch.available)}</td>
-            <td className="batch-tags">{renderBatchTags(batch, isFlex)}</td>
+            <td className="batch-tags">{renderBatchTags(batch)}</td>
           </tr>
         ))}
       </tbody>

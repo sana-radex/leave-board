@@ -138,16 +138,6 @@ export interface ApprovalRecord {
   note: string;
 }
 
-/** 扣除明細的一筆：從哪個批次、哪一天扣了幾小時 */
-export interface Deduction {
-  /** 批次 id */
-  batchId: string;
-  /** 請假日 */
-  date: string; // 'YYYY-MM-DD'
-  /** 扣除時數 */
-  hours: number;
-}
-
 /** 假單 */
 export interface LeaveForm {
   /** 假單 id */
@@ -178,24 +168,32 @@ export interface LeaveForm {
   submittedAt: string; // ISO
   /** 簽核歷程 */
   history: ApprovalRecord[];
-  /** 扣除明細；非批次型假別為空陣列 */
-  deductions: Deduction[];
+}
+
+/** 批次分次生效的一段：從哪天起多出幾小時可請 */
+export interface BatchRelease {
+  /** 生效日 */
+  date: string; // 'YYYY-MM-DD'
+  /** 這天起多出的時數 */
+  hours: number;
 }
 
 /** 批次（不儲存：依人員資料和規則即時產生） */
 export interface Batch {
-  /** 批次 id，重算也會一樣，例如 'annual:E03:2026-03-01' */
+  /** 批次 id，例如 'annual:E03:2026-03-01'、'flex:E03:2026' */
   id: string;
   /** 假別：只有批次型假別 */
   leaveTypeId: "annual" | "flex" | "birthday";
-  /** 名稱，例如「特休（2026/3/1）」 */
+  /** 名稱，例如「特休（2026/3/1）」「彈性假（2026 年度）」 */
   name: string;
-  /** 生效日 */
+  /** 生效日：最早可以請的那天 */
   effectiveDate: string; // 'YYYY-MM-DD'
   /** 到期日（含） */
   expiryDate: string; // 'YYYY-MM-DD'
   /** 總時數 */
   hours: number;
+  /** 分次生效：特休、生日假只有生效日一段；彈性假是每個公布日一段，各 8 小時 */
+  releases: BatchRelease[];
 }
 
 /** 辦公日曆的特別日子 */
@@ -250,19 +248,9 @@ export interface ApprovalRecordResponse {
   note: string;
 }
 
-/** 扣除明細-回傳 */
-export interface DeductionResponse {
-  /** 批次名稱，例如「特休（2026/3/1）」 */
-  batchName: string;
-  /** 請假日 */
-  date: string; // 'YYYY-MM-DD'
-  /** 扣除時數 */
-  hours: number;
-}
-
 /**
  * 假單-回傳（給畫面用：後端已經把 id 換成名字，也已經依關係遮蔽）
- * canSeeDetail 為 false（其他人）時：假別換成「請假」，備註、親屬關係、簽核歷程、扣除明細都不回傳
+ * canSeeDetail 為 false（其他人）時：假別換成「請假」，備註、親屬關係、簽核歷程都不回傳
  */
 export interface LeaveFormResponse {
   /** 假單 id */
@@ -299,8 +287,6 @@ export interface LeaveFormResponse {
   submittedAt: string; // ISO
   /** 簽核歷程；其他人為空陣列 */
   history: ApprovalRecordResponse[];
-  /** 扣除明細；其他人為空陣列 */
-  deductions: DeductionResponse[];
   /** 目前使用者現在可以做的動作（畫面依這個顯示按鈕） */
   actions: FormAction[];
 }
@@ -409,8 +395,6 @@ export interface LeaveFormPreviewResponse {
   errors: LeaveFormErrors;
   /** 可用額度 */
   quotaLines: QuotaLine[];
-  /** 將扣的批次 */
-  deductions: DeductionResponse[];
 }
 
 /** 送出假單-回傳 */
@@ -426,7 +410,7 @@ export type BatchStatus = "active" | "upcoming";
 export interface BatchQuotaResponse {
   /** 批次 id */
   id: string;
-  /** 名稱，例如「特休（2026/3/1）」 */
+  /** 名稱，例如「特休（2026/3/1）」「彈性假（2026 年度）」 */
   name: string;
   /** 生效日 */
   effectiveDate: string; // 'YYYY-MM-DD'
@@ -444,8 +428,8 @@ export interface BatchQuotaResponse {
   status: BatchStatus;
   /** 30 天內到期且還有可用時數 */
   expiringSoon: boolean;
-  /** 已請（審核中或已使用）；彈性假標示用 */
-  isTaken: boolean;
+  /** 有效中的批次還沒生效的部分：彈性假之後的公布日才多出的天數 */
+  upcomingReleases: BatchRelease[];
 }
 
 /** 我的額度：一個假別-回傳 */

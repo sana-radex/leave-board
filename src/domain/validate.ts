@@ -3,7 +3,6 @@ import type {
   Batch,
   BereavementRelation,
   CalendarDay,
-  Deduction,
   Employee,
   LeaveDay,
   LeaveForm,
@@ -36,12 +35,11 @@ export interface ValidateContext {
   forms: LeaveForm[];
 }
 
-/** 驗證結果：錯誤，以及算出來的每日明細、時數、扣除明細、額度 */
+/** 驗證結果：錯誤，以及算出來的每日明細、時數、額度 */
 export interface ValidateResult {
   errors: LeaveFormErrors;
   days: LeaveDay[];
   hours: number;
-  deductions: Deduction[];
   quotaLines: QuotaLine[];
 }
 
@@ -68,7 +66,6 @@ export function validateLeaveForm(
     errors,
     days: [],
     hours: 0,
-    deductions: [],
     quotaLines: [],
   };
 
@@ -177,7 +174,6 @@ export function validateLeaveForm(
   });
   Object.assign(errors, quota.errors);
   result.quotaLines = quota.quotaLines;
-  result.deductions = quota.deductions;
 
   return result;
 }

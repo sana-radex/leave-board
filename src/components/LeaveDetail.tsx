@@ -1,11 +1,6 @@
 import type { LeaveFormResponse, Response } from "../types/types";
 import { actionLabels, statusLabels } from "../utils/label";
-import {
-  formatDate,
-  formatDateTime,
-  formatHours,
-  formatLeaveRange,
-} from "../utils/format";
+import { formatDateTime, formatHours, formatLeaveRange } from "../utils/format";
 import Modal from "./Modal";
 import LeaveActionButtons from "./LeaveActionButtons";
 import "./LeaveDetail.css";
@@ -96,22 +91,6 @@ function LeaveDetail({
 
         <dt>送出時間</dt>
         <dd>{formatDateTime(form.submittedAt)}</dd>
-
-        {form.deductions.length > 0 && (
-          <>
-            <dt>扣除明細</dt>
-            <dd>
-              <ul className="leave-detail-list">
-                {form.deductions.map((item) => (
-                  <li key={`${item.batchName}-${item.date}`}>
-                    {formatDate(item.date)}：{item.batchName}{" "}
-                    {formatHours(item.hours)}
-                  </li>
-                ))}
-              </ul>
-            </dd>
-          </>
-        )}
       </dl>
 
       <h4 className="leave-detail-subtitle">簽核歷程</h4>

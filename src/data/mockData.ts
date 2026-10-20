@@ -179,7 +179,6 @@ export const leaveFormList: LeaveForm[] = [
       { actorId: "E03", at: "2026-10-12T01:00:00.000Z", action: "submit", note: "" },
       { actorId: "E01", at: "2026-10-13T01:00:00.000Z", action: "approve", note: "" },
     ],
-    deductions: [{ batchId: "annual:E03:2026-03-01", date: "2026-10-20", hours: 3 }],
   },
   {
     id: "L02",
@@ -199,7 +198,6 @@ export const leaveFormList: LeaveForm[] = [
       { actorId: "E04", at: "2026-10-14T01:00:00.000Z", action: "submit", note: "" },
       { actorId: "E02", at: "2026-10-15T01:00:00.000Z", action: "approve", note: "" },
     ],
-    deductions: [],
   },
   {
     id: "L03",
@@ -224,7 +222,6 @@ export const leaveFormList: LeaveForm[] = [
         note: "當天有重要會議，請改期",
       },
     ],
-    deductions: [],
   },
   {
     id: "L04",
@@ -253,10 +250,6 @@ export const leaveFormList: LeaveForm[] = [
         note: "行程取消",
       },
     ],
-    deductions: [
-      { batchId: "annual:E01:2026-04-01", date: "2026-10-28", hours: 4 },
-      { batchId: "annual:E01:2026-04-01", date: "2026-10-29", hours: 3 },
-    ],
   },
   {
     id: "L05",
@@ -278,7 +271,6 @@ export const leaveFormList: LeaveForm[] = [
       { actorId: "E02", at: "2026-10-12T01:30:00.000Z", action: "request_revoke", note: "" },
       { actorId: "E01", at: "2026-10-13T01:30:00.000Z", action: "approve_revoke", note: "" },
     ],
-    deductions: [{ batchId: "annual:E02:2026-08-31", date: "2026-10-16", hours: 8 }],
   },
   {
     id: "L06",
@@ -298,7 +290,6 @@ export const leaveFormList: LeaveForm[] = [
       { actorId: "E04", at: "2026-10-14T02:00:00.000Z", action: "submit", note: "" },
       { actorId: "E04", at: "2026-10-15T02:30:00.000Z", action: "revoke", note: "" },
     ],
-    deductions: [],
   },
   {
     id: "L07",
@@ -317,7 +308,6 @@ export const leaveFormList: LeaveForm[] = [
     history: [
       { actorId: "E03", at: "2026-10-19T01:00:00.000Z", action: "submit", note: "" },
     ],
-    deductions: [],
   },
   {
     id: "L08",
@@ -338,10 +328,6 @@ export const leaveFormList: LeaveForm[] = [
     submittedAt: "2026-10-16T01:30:00.000Z",
     history: [
       { actorId: "E03", at: "2026-10-16T01:30:00.000Z", action: "submit", note: "" },
-    ],
-    deductions: [
-      { batchId: "flex:E03:2026-01-02", date: "2026-11-02", hours: 8 },
-      { batchId: "flex:E03:2026-03-29", date: "2026-11-03", hours: 8 },
     ],
   },
   {
@@ -364,10 +350,6 @@ export const leaveFormList: LeaveForm[] = [
     history: [
       { actorId: "E04", at: "2026-10-19T01:30:00.000Z", action: "submit", note: "" },
     ],
-    deductions: [
-      { batchId: "annual:E04:2025-11-05", date: "2026-11-04", hours: 8 },
-      { batchId: "annual:E04:2026-11-05", date: "2026-11-05", hours: 8 },
-    ],
   },
   {
     id: "L10",
@@ -387,7 +369,6 @@ export const leaveFormList: LeaveForm[] = [
       { actorId: "E01", at: "2026-10-13T02:00:00.000Z", action: "submit", note: "" },
       { actorId: "E02", at: "2026-10-14T02:30:00.000Z", action: "approve", note: "" },
     ],
-    deductions: [{ batchId: "birthday:E01:2026", date: "2026-11-06", hours: 8 }],
   },
   {
     id: "L11",
@@ -409,6 +390,5 @@ export const leaveFormList: LeaveForm[] = [
     history: [
       { actorId: "E02", at: "2026-10-19T02:00:00.000Z", action: "submit", note: "" },
     ],
-    deductions: [],
   },
 ];

@@ -1,8 +1,6 @@
 import type {
   Batch,
   BereavementRelation,
-  Deduction,
-  LeaveDay,
   LeaveForm,
   LeaveType,
 } from "../types/types";
@@ -11,90 +9,88 @@ import { LEAVE_STATES } from "./leaveState";
 /** 一筆批次的使用情形 */
 export interface BatchSummary {
   batch: Batch;
-  /** 已使用：已核准、撤銷審核中假單扣的時數 */
+  /** 已使用：已核准、撤銷審核中假單分配到的時數 */
   used: number;
-  /** 審核中：待審核假單預留的時數 */
+  /** 審核中：待審核假單分配到的時數 */
   reserved: number;
   /** 可用 = 總額 − 已使用 − 審核中 */
   available: number;
 }
 
-/**
- * 每筆批次的已使用、審核中、可用
- * 依假單的扣除明細和狀態即時加總；退回、撤銷的假單不算，等於退回原批次
- */
-export function summarizeBatches(
-  batches: Batch[],
-  forms: LeaveForm[],
-): BatchSummary[] {
-  return batches.map((batch) => {
-    const totals = { used: 0, reserved: 0 };
-    for (const form of forms) {
-      // 依狀態決定算進已使用還是審核中；不算的（退回、撤銷）直接跳過
-      const effect = LEAVE_STATES[form.status].quotaEffect;
-      if (!effect) continue;
-      for (const item of form.deductions) {
-        if (item.batchId !== batch.id) continue;
-        totals[effect] += item.hours;
-      }
-    }
-    const { used, reserved } = totals;
-    return { batch, used, reserved, available: batch.hours - used - reserved };
-  });
+/** 要分配的假單：只用到 id、狀態、每日明細（試算時把還沒送出的這張也放進來） */
+export type AllocateForm = Pick<LeaveForm, "id" | "status" | "days">;
+
+/** 分配不到的一個請假日：哪一天、哪張假單（只差一部分也算） */
+export interface FailedDay {
+  date: string; // 'YYYY-MM-DD'
+  formId: string;
 }
 
-/** 逐日扣除的結果：成功就有扣除明細；有一天扣不到就回傳那一天 */
+/** 分配的結果：每筆批次的使用情形，以及分配不到的請假日 */
 export interface AllocateResult {
-  deductions: Deduction[];
-  failedDate: string | null;
+  summaries: BatchSummary[];
+  /** 分配不到的請假日，依日期先後；都分配得到是空陣列 */
+  failedDays: FailedDay[];
 }
 
 /**
- * 逐日扣除
- * 每個請假日，從「當天有效」且還有可用時數的批次中，到期日早的先扣，
- * 到期日相同時生效日早的先扣，一筆不夠再扣下一筆。
- * 任何一天扣不到，整張假單不能送出（不自動拆單）
+ * 依請假日分配額度：不記扣除明細，每次都從假單重算
+ * 把所有假單的每一天依請假日先後排好，逐日從「當天有效」、而且到那天為止已經生效還有剩的批次扣：
+ * 到期日早的先扣，相同時生效日早的先扣，一筆不夠再扣下一筆。
+ * 退回、撤銷的假單不算，等於釋放額度。
+ * forms 要先篩成同一個人、同一個假別；batches 要包含已過期的，過去的請假日才分配得到
  */
-export function allocateDeductions(
-  days: LeaveDay[],
-  summaries: BatchSummary[],
+export function allocateBatches(
+  batches: Batch[],
+  forms: AllocateForm[],
 ): AllocateResult {
-  const available = new Map<string, number>();
-  for (const summary of summaries) {
-    available.set(summary.batch.id, summary.available);
-  }
+  const summaries: BatchSummary[] = batches.map((batch) => ({
+    batch,
+    used: 0,
+    reserved: 0,
+    available: batch.hours,
+  }));
+  // 每天都照這個順序找批次：到期日早的先，相同時生效日早的先
+  const ordered = [...summaries].sort(
+    (a, b) =>
+      a.batch.expiryDate.localeCompare(b.batch.expiryDate) ||
+      a.batch.effectiveDate.localeCompare(b.batch.effectiveDate),
+  );
 
-  const deductions: Deduction[] = [];
+  // 所有假單的每一天，帶著它算進已使用還是審核中，依請假日排好
+  const days = forms
+    .flatMap((form) => {
+      const effect = LEAVE_STATES[form.status].quotaEffect;
+      if (!effect) return [];
+      return form.days.map((day) => ({ ...day, effect, formId: form.id }));
+    })
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  const failedDays: FailedDay[] = [];
   for (const day of days) {
-    const candidates = summaries
-      .map((summary) => summary.batch)
-      .filter(
-        (batch) =>
-          batch.effectiveDate <= day.date &&
-          day.date <= batch.expiryDate &&
-          (available.get(batch.id) ?? 0) > 0,
-      )
-      .sort(
-        (a, b) =>
-          a.expiryDate.localeCompare(b.expiryDate) ||
-          a.effectiveDate.localeCompare(b.effectiveDate),
-      );
-
     let remaining = day.hours;
-    for (const batch of candidates) {
+    for (const summary of ordered) {
       if (remaining === 0) break;
-      const rest = available.get(batch.id) ?? 0;
+      const { batch } = summary;
+      if (day.date < batch.effectiveDate || batch.expiryDate < day.date) {
+        continue;
+      }
+      // 到這天為止已經生效的時數，扣掉前面的請假日已經分配的
+      const released = batch.releases
+        .filter((release) => release.date <= day.date)
+        .reduce((total, release) => total + release.hours, 0);
+      const rest = released - summary.used - summary.reserved;
+      if (rest <= 0) continue;
       const take = Math.min(remaining, rest);
-      deductions.push({ batchId: batch.id, date: day.date, hours: take });
-      available.set(batch.id, rest - take);
+      summary[day.effect] += take;
+      summary.available -= take;
       remaining -= take;
     }
-
     if (remaining > 0) {
-      return { deductions: [], failedDate: day.date };
+      failedDays.push({ date: day.date, formId: day.formId });
     }
   }
-  return { deductions, failedDate: null };
+  return { summaries, failedDays };
 }
 
 /**

@@ -3,7 +3,6 @@ import type {
   BatchQuotaResponse,
   BatchStatus,
   BereavementRelation,
-  Deduction,
   LeaveDay,
   LeaveForm,
   LeaveFormErrors,
@@ -12,12 +11,7 @@ import type {
   QuotaLine,
   QuotaType,
 } from "../types/types";
-import {
-  allocateDeductions,
-  getPerEventHours,
-  summarizeBatches,
-  summarizeYear,
-} from "./quota";
+import { allocateBatches, getPerEventHours, summarizeYear } from "./quota";
 import { sumHours } from "./time";
 import { addDays } from "./date";
 import { formatMonthDay } from "../utils/format";
@@ -44,8 +38,6 @@ export interface QuotaCheckResult {
   errors: LeaveFormErrors;
   /** 可用額度 */
   quotaLines: QuotaLine[];
-  /** 扣除明細；只有批次型有 */
-  deductions: Deduction[];
 }
 
 /** 我的額度需要的資料 */
@@ -74,22 +66,22 @@ export interface QuotaStrategy {
   summarize: (input: QuotaSummaryInput) => QuotaSummary;
 }
 
+/** 試算時還沒送出的這張假單，分配時用這個 id 認出它 */
+const NEW_FORM_ID = "new";
+
 /** 批次型：特休、彈性假、生日假 */
 const batchStrategy: QuotaStrategy = {
   check({ leaveType, days, hours, batches, myForms }) {
-    // 逐日從有效批次扣，批次是否有效看請假日
-    const summaries = summarizeBatches(
-      batches.filter((batch) => batch.leaveTypeId === leaveType.id),
-      myForms,
+    const typeBatches = batches.filter(
+      (batch) => batch.leaveTypeId === leaveType.id,
     );
-    const errors: LeaveFormErrors = {};
-    const allocated = allocateDeductions(days, summaries);
-    if (allocated.failedDate) {
-      errors.quota = `${formatMonthDay(allocated.failedDate)} 沒有可用的${leaveType.name}`;
-    }
+    const sameTypeForms = myForms.filter(
+      (form) => form.leaveTypeId === leaveType.id,
+    );
 
-    // 可用：請假期間任一天有效的批次，可用時數加總
-    const available = summaries
+    // 可用（不含這張）：請假期間任一天有效的批次，可用時數加總
+    const before = allocateBatches(typeBatches, sameTypeForms);
+    const available = before.summaries
       .filter((summary) =>
         days.some(
           (day) =>
@@ -98,26 +90,48 @@ const batchStrategy: QuotaStrategy = {
         ),
       )
       .reduce((total, summary) => total + summary.available, 0);
+
+    // 把這張也放進去，依請假日先後重新分配一次，有一天分配不到就擋
+    const after = allocateBatches(typeBatches, [
+      ...sameTypeForms,
+      { id: NEW_FORM_ID, status: "pending", days },
+    ]);
+    // 這張自己分配不到的那天
+    const ownFailed = after.failedDays.find(
+      (item) => item.formId === NEW_FORM_ID,
+    );
+    // 這張插在前面，讓自己之後原本夠的其他假單變得不夠
+    const othersFailed = after.failedDays.find(
+      (item) =>
+        item.formId !== NEW_FORM_ID &&
+        !before.failedDays.some(
+          (old) => old.formId === item.formId && old.date === item.date,
+        ),
+    );
+    const errors: LeaveFormErrors = {};
+    if (ownFailed) {
+      errors.quota = `${formatMonthDay(ownFailed.date)} 沒有可用的${leaveType.name}`;
+    } else if (othersFailed) {
+      errors.quota = `請這張之後，${formatMonthDay(othersFailed.date)} 的${leaveType.name}會不夠`;
+    }
     return {
       errors,
       quotaLines: [{ label: "", available, remaining: available - hours }],
-      deductions: allocated.deductions,
     };
   },
 
   summarize({ leaveType, batches, myForms, today }) {
-    // 已過期批次不計算也不顯示：只留有效中＋尚未生效（到期日不早於今天）
-    const summaries = summarizeBatches(
-      batches.filter(
-        (batch) =>
-          batch.leaveTypeId === leaveType.id && batch.expiryDate >= today,
-      ),
-      myForms,
+    // 用全部批次分配（含已過期），過去的請假日才會落在當時的批次上
+    const { summaries } = allocateBatches(
+      batches.filter((batch) => batch.leaveTypeId === leaveType.id),
+      myForms.filter((form) => form.leaveTypeId === leaveType.id),
     );
     // 30 天內到期：到期日不晚於今天 + 30 天
     const soonDate = addDays(today, 30);
-    const batchResponses: BatchQuotaResponse[] = summaries.map(
-      ({ batch, used, reserved, available }) => {
+    // 已過期批次不計算也不顯示：只留有效中＋尚未生效（到期日不早於今天）
+    const batchResponses: BatchQuotaResponse[] = summaries
+      .filter(({ batch }) => batch.expiryDate >= today)
+      .map(({ batch, used, reserved, available }) => {
         const status: BatchStatus =
           batch.effectiveDate > today ? "upcoming" : "active";
         return {
@@ -134,10 +148,13 @@ const batchStrategy: QuotaStrategy = {
             status === "active" &&
             batch.expiryDate <= soonDate &&
             available > 0,
-          isTaken: used + reserved > 0,
+          // 尚未生效的批次整筆都還沒生效，已經有標示，這裡只列有效中批次之後才多出的部分
+          upcomingReleases:
+            status === "active"
+              ? batch.releases.filter((release) => release.date > today)
+              : [],
         };
-      },
-    );
+      });
 
     const sum = (key: "total" | "used" | "reserved" | "available") =>
       batchResponses.reduce((total, item) => total + item[key], 0);
@@ -173,7 +190,7 @@ const yearlyStrategy: QuotaStrategy = {
         errors.quota = `${label}可用額度不足：可用 ${available} 小時，本次 ${thisHours} 小時`;
       }
     }
-    return { errors, quotaLines, deductions: [] };
+    return { errors, quotaLines };
   },
 
   summarize({ leaveType, myForms, today }) {
@@ -199,7 +216,7 @@ const perEventStrategy: QuotaStrategy = {
     // 只檢查這張不超過該次額度，不跨假單累計；喪假還沒選親屬關係時不檢查
     const perEventHours = getPerEventHours(leaveType, relation);
     if (perEventHours === null) {
-      return { errors: {}, quotaLines: [], deductions: [] };
+      return { errors: {}, quotaLines: [] };
     }
     const errors: LeaveFormErrors = {};
     if (hours > perEventHours) {
@@ -211,7 +228,6 @@ const perEventStrategy: QuotaStrategy = {
     return {
       errors,
       quotaLines: [{ label: "", available: perEventHours, remaining: null }],
-      deductions: [],
     };
   },
 

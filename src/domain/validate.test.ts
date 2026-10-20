@@ -63,7 +63,7 @@ describe("正確的假單", () => {
     ]);
   });
 
-  it("天制的彈性假：11/16–11/17 = 16 小時，扣 9/28、10/31（1/2、3/29 已被 L08 預留）", () => {
+  it("天制的彈性假：11/16–11/17 = 16 小時；2026 年度 5 天，L08 預留 2 天，可用 24 小時", () => {
     const result = validateLeaveForm(
       {
         ...validInput,
@@ -77,9 +77,8 @@ describe("正確的假單", () => {
     );
     expect(result.errors).toEqual({});
     expect(result.hours).toBe(16);
-    expect(result.deductions).toEqual([
-      { batchId: "flex:E03:2026-09-28", date: "2026-11-16", hours: 8 },
-      { batchId: "flex:E03:2026-10-31", date: "2026-11-17", hours: 8 },
+    expect(result.quotaLines).toEqual([
+      { label: "", available: 24, remaining: 8 },
     ]);
   });
 
@@ -87,9 +86,6 @@ describe("正確的假單", () => {
     const result = validateLeaveForm(validInput, chen);
     expect(result.quotaLines).toEqual([
       { label: "", available: 77, remaining: 74 },
-    ]);
-    expect(result.deductions).toEqual([
-      { batchId: "annual:E03:2026-03-01", date: "2026-10-27", hours: 3 },
     ]);
   });
 });
@@ -237,6 +233,54 @@ describe("VAL-06 可用額度不足", () => {
     const newcomer: Employee = { ...employeeList[2], hireDate: "2026-07-01" };
     const result = validateLeaveForm(validInput, contextOf(newcomer));
     expect(result.errors.quota).toBe("10/27 沒有可用的特休");
+  });
+
+  it("批次型：彈性假到請假日為止公布的天數不夠（L08 之後再請 11/4–11/6，11/12 才公布第 5 天）", () => {
+    const result = validateLeaveForm(
+      {
+        ...validInput,
+        leaveTypeId: "flex",
+        startDate: "2026-11-04",
+        startTime: null,
+        endDate: "2026-11-06",
+        endTime: null,
+      },
+      chen,
+    );
+    expect(result.errors.quota).toBe("11/6 沒有可用的彈性假");
+  });
+
+  it("批次型：插在前面讓自己之後的假單不夠（另有已核准的 11/4–11/5，再請 10/30）", () => {
+    const l08 = leaveFormList.find((form) => form.id === "L08")!;
+    const context: ValidateContext = {
+      ...chen,
+      forms: [
+        ...leaveFormList,
+        {
+          ...l08,
+          id: "X",
+          status: "approved",
+          days: ["2026-11-04", "2026-11-05"].map((date) => ({
+            date,
+            startTime: "09:00",
+            endTime: "18:00",
+            hours: 8,
+          })),
+        },
+      ],
+    };
+    const result = validateLeaveForm(
+      {
+        ...validInput,
+        leaveTypeId: "flex",
+        startDate: "2026-10-30",
+        startTime: null,
+        endDate: "2026-10-30",
+        endTime: null,
+      },
+      context,
+    );
+    expect(result.errors.quota).toBe("請這張之後，11/5 的彈性假會不夠");
   });
 
   it("曆年制：林怡君事假 11/2–11/20 共 15 天 = 120 小時，超過 112", () => {

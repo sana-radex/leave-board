@@ -24,7 +24,6 @@ const EMPTY_PREVIEW: LeaveFormPreviewResponse = {
   hours: 0,
   errors: {},
   quotaLines: [],
-  deductions: [],
 };
 
 /** 新增請假 */

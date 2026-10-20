@@ -36,7 +36,7 @@ export function canDoAction(
 /**
  * 執行動作：回傳新的假單（改狀態、加一筆簽核歷程），不會改到原本的假單。
  * 所有狀態變動都要經過這裡；不能做的動作直接丟錯誤。
- * 額度不用另外改：額度是依假單狀態和扣除明細即時算的。
+ * 額度不用另外改：額度是依假單狀態和請假日即時算的。
  */
 export function applyAction(
   form: LeaveForm,

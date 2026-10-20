@@ -45,6 +45,7 @@ function generateAnnualBatches(
       effectiveDate: date,
       expiryDate: addDays(starts[i + 1].date, -1),
       hours: days * 8,
+      releases: [{ date, hours: days * 8 }],
     });
   }
   return batches;
@@ -52,29 +53,34 @@ function generateAnnualBatches(
 
 /**
  * 彈性假批次
- * 每個公布日一筆 1 天，公布日起可請、隔年 2/28 到期；只給到職日當天及之後公布的
+ * 同一年公布的合成一筆年度批次，一起在隔年 2/28 到期；
+ * 每個公布日起多 1 天可請；只給到職日當天及之後公布的
  */
 function generateFlexBatches(
   employee: Employee,
   flexDates: FlexLeaveDate[],
   lastEffectiveDate: string,
 ): Batch[] {
-  return flexDates
-    .filter(
-      (flex) =>
-        flex.date >= employee.hireDate && flex.date <= lastEffectiveDate,
-    )
-    .map((flex) => {
-      const nextYear = Number(flex.date.slice(0, 4)) + 1;
-      return {
-        id: `flex:${employee.id}:${flex.date}`,
-        leaveTypeId: "flex",
-        name: `彈性假（${formatDate(flex.date)}）`,
-        effectiveDate: flex.date,
-        expiryDate: `${nextYear}-02-28`,
-        hours: 8,
-      };
-    });
+  const dates = flexDates
+    .map((flex) => flex.date)
+    .filter((date) => date >= employee.hireDate && date <= lastEffectiveDate)
+    .sort();
+  const years = [...new Set(dates.map((date) => date.slice(0, 4)))];
+
+  return years.map((year) => {
+    const releases = dates
+      .filter((date) => date.startsWith(`${year}-`))
+      .map((date) => ({ date, hours: 8 }));
+    return {
+      id: `flex:${employee.id}:${year}`,
+      leaveTypeId: "flex",
+      name: `彈性假（${year} 年度）`,
+      effectiveDate: releases[0].date,
+      expiryDate: `${Number(year) + 1}-02-28`,
+      hours: releases.length * 8,
+      releases,
+    };
+  });
 }
 
 /**
@@ -110,6 +116,7 @@ function generateBirthdayBatches(
       effectiveDate,
       expiryDate,
       hours: 8,
+      releases: [{ date: effectiveDate, hours: 8 }],
     });
   }
   return batches;

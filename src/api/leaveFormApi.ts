@@ -32,22 +32,8 @@ import { getTimeOptions } from "../domain/time";
 import { generateBatches } from "../domain/batch";
 import { validateLeaveForm } from "../domain/validate";
 import type { ValidateContext } from "../domain/validate";
-import { formatDate } from "../utils/format";
 import { actionDoneMessages, actionLabels } from "../utils/label";
 import { now, today } from "../utils/today";
-
-/** 批次名稱：從批次 id 組出來，例如 'annual:E03:2026-03-01' → '特休（2026/3/1）' */
-function getBatchName(batchId: string): string {
-  const [leaveTypeId, , key] = batchId.split(":");
-  if (leaveTypeId === "annual") {
-    return `特休（${formatDate(key)}）`;
-  }
-  if (leaveTypeId === "flex") {
-    return `彈性假（${formatDate(key)}）`;
-  }
-  // 生日假的 key 是年度，例如 'birthday:E01:2026'
-  return `生日假（${key}）`;
-}
 
 /**
  * 把資料庫的假單組成回傳格式：id 換成名字，
@@ -117,13 +103,6 @@ function toResponseList(
             at: record.at,
             action: record.action,
             note: record.note,
-          }))
-        : [],
-      deductions: canSee
-        ? form.deductions.map((item) => ({
-            batchName: getBatchName(item.batchId),
-            date: item.date,
-            hours: item.hours,
           }))
         : [],
       actions: getAvailableActions(viewerId, form),
@@ -214,11 +193,6 @@ export async function previewLeaveForm(
     hours: result.hours,
     errors: result.errors,
     quotaLines: result.quotaLines,
-    deductions: result.deductions.map((item) => ({
-      batchName: getBatchName(item.batchId),
-      date: item.date,
-      hours: item.hours,
-    })),
   };
 }
 
@@ -228,10 +202,7 @@ export async function addLeaveForm(
 ): Promise<AddLeaveFormResponse> {
   await delay();
   const context = getValidateContext();
-  const { errors, days, hours, deductions } = validateLeaveForm(
-    input,
-    context,
-  );
+  const { errors, days, hours } = validateLeaveForm(input, context);
   if (Object.keys(errors).length > 0) {
     return { success: false, message: "請修正表單上的錯誤", errors };
   }
@@ -256,8 +227,6 @@ export async function addLeaveForm(
     history: [
       { actorId: applicant.id, at: submittedAt, action: "submit", note: "" },
     ],
-    // 依扣除明細預留額度；之後退回、撤銷時依明細退回原批次
-    deductions,
   };
 
   const formList = readTable(TABLES.leaveFormList, leaveFormList);

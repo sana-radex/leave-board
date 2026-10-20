@@ -4,10 +4,23 @@ import {
   shiftList,
   leaveTypeList,
   bereavementRelationList,
+  flexLeaveDateList,
   leaveFormList,
 } from "./mockData";
 import { calendarDayList } from "./calendarDays";
 import { splitLeaveDays } from "../domain/time";
+import { generateBatches } from "../domain/batch";
+import { allocateBatches } from "../domain/quota";
+
+/** 今天：2026/10/19（基準日） */
+const TODAY = "2026-10-19";
+
+/** 批次型假別（特休、彈性假、生日假）的假單 */
+const batchForms = leaveFormList.filter(
+  (form) =>
+    leaveTypeList.find((type) => type.id === form.leaveTypeId)?.quotaType ===
+    "batch",
+);
 
 /** 檢查手寫的預設假單有沒有前後不一致 */
 describe("預設假單", () => {
@@ -66,14 +79,17 @@ describe("預設假單", () => {
     expect([...times].sort()).toEqual(times);
   });
 
-  it.each(leaveFormList)("$id 批次型假別的扣除明細加總等於時數", (form) => {
-    const leaveType = leaveTypeList.find((type) => type.id === form.leaveTypeId);
-    const sum = form.deductions.reduce((total, item) => total + item.hours, 0);
-    if (leaveType?.quotaType === "batch") {
-      expect(sum).toBe(form.hours);
-    } else {
-      expect(form.deductions).toEqual([]);
-    }
+  it.each(batchForms)("$id 批次型假別的每一天都分配得到批次", (form) => {
+    const employee = employeeList.find((emp) => emp.id === form.employeeId)!;
+    const batches = generateBatches(employee, flexLeaveDateList, TODAY).filter(
+      (batch) => batch.leaveTypeId === form.leaveTypeId,
+    );
+    const sameTypeForms = leaveFormList.filter(
+      (item) =>
+        item.employeeId === form.employeeId &&
+        item.leaveTypeId === form.leaveTypeId,
+    );
+    expect(allocateBatches(batches, sameTypeForms).failedDays).toEqual([]);
   });
 
   it.each(leaveFormList)("$id 用時數規則重算，每日明細和手寫的一樣", (form) => {

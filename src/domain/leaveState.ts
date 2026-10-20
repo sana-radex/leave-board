@@ -12,7 +12,7 @@ export interface Transition {
 export interface LeaveState {
   /** 這個狀態可以做的動作；終止狀態是空物件 */
   transitions: Partial<Record<FormAction, Transition>>;
-  /** 對額度的影響：算已使用、算審核中、不算（等於退回原批次） */
+  /** 對額度的影響：算已使用、算審核中、不算（等於釋放額度） */
   quotaEffect: "used" | "reserved" | null;
   /** 在審核人「待我處理」裡屬於哪一區：待審申請、撤銷申請；不在待辦是 null */
   inboxGroup: "pending" | "revoke" | null;

@@ -1,5 +1,6 @@
 import type { FormAction, LeaveForm, ViewerRelation } from "../types/types";
-import { TRANSITIONS, canDoAction } from "./lifecycle";
+import { canDoAction } from "./lifecycle";
+import { LEAVE_STATES } from "./leaveState";
 
 /** 目前使用者和這張假單的關係：本人、該單審核人、其他人 */
 export function getViewerRelation(
@@ -28,6 +29,9 @@ export function getAvailableActions(
   viewerId: string,
   form: LeaveForm,
 ): FormAction[] {
-  const allActions = Object.keys(TRANSITIONS) as FormAction[];
-  return allActions.filter((action) => canDoAction(viewerId, action, form));
+  // 只看目前狀態有的動作，再留下這個人能做的
+  const stateActions = Object.keys(
+    LEAVE_STATES[form.status].transitions,
+  ) as FormAction[];
+  return stateActions.filter((action) => canDoAction(viewerId, action, form));
 }

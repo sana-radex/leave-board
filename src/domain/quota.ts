@@ -4,12 +4,9 @@ import type {
   Deduction,
   LeaveDay,
   LeaveForm,
-  LeaveStatus,
   LeaveType,
 } from "../types/types";
-
-/** 算「已使用」的狀態：已核准、撤銷審核中 */
-const USED_STATUSES: LeaveStatus[] = ["approved", "revoke_pending"];
+import { LEAVE_STATES } from "./leaveState";
 
 /** 一筆批次的使用情形 */
 export interface BatchSummary {
@@ -31,18 +28,17 @@ export function summarizeBatches(
   forms: LeaveForm[],
 ): BatchSummary[] {
   return batches.map((batch) => {
-    let used = 0;
-    let reserved = 0;
+    const totals = { used: 0, reserved: 0 };
     for (const form of forms) {
+      // 依狀態決定算進已使用還是審核中；不算的（退回、撤銷）直接跳過
+      const effect = LEAVE_STATES[form.status].quotaEffect;
+      if (!effect) continue;
       for (const item of form.deductions) {
         if (item.batchId !== batch.id) continue;
-        if (USED_STATUSES.includes(form.status)) {
-          used += item.hours;
-        } else if (form.status === "pending") {
-          reserved += item.hours;
-        }
+        totals[effect] += item.hours;
       }
     }
+    const { used, reserved } = totals;
     return { batch, used, reserved, available: batch.hours - used - reserved };
   });
 }
@@ -110,19 +106,17 @@ export function summarizeYear(
   year: number,
   forms: LeaveForm[],
 ): { used: number; reserved: number } {
-  let used = 0;
-  let reserved = 0;
+  const totals = { used: 0, reserved: 0 };
   for (const form of forms) {
+    // 依狀態決定算進已使用還是審核中；不算的（退回、撤銷）直接跳過
+    const effect = LEAVE_STATES[form.status].quotaEffect;
+    if (!effect) continue;
     for (const day of form.days) {
       if (!day.date.startsWith(`${year}-`)) continue;
-      if (USED_STATUSES.includes(form.status)) {
-        used += day.hours;
-      } else if (form.status === "pending") {
-        reserved += day.hours;
-      }
+      totals[effect] += day.hours;
     }
   }
-  return { used, reserved };
+  return totals;
 }
 
 /**

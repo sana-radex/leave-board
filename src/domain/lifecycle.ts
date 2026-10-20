@@ -1,42 +1,36 @@
-import type { FormAction, LeaveForm, LeaveStatus } from "../types/types";
+import type { FormAction, LeaveForm } from "../types/types";
+import { LEAVE_STATES } from "./leaveState";
+import type { Transition } from "./leaveState";
 
-/** 一個動作的規則：誰可以做、從哪個狀態變成哪個狀態 */
-interface Transition {
-  /** 誰可以做：本人或該單審核人 */
-  actor: "self" | "reviewer";
-  /** 執行前的狀態 */
-  from: LeaveStatus;
-  /** 執行後的狀態 */
-  to: LeaveStatus;
-}
-
-/**
- * 假單送出後的動作
- * 已退回、已撤銷不在任何一條的 from 裡，所以是終止狀態，不能再有動作
- */
-export const TRANSITIONS: Record<FormAction, Transition> = {
-  approve: { actor: "reviewer", from: "pending", to: "approved" }, // 核准
-  reject: { actor: "reviewer", from: "pending", to: "rejected" }, // 退回
-  revoke: { actor: "self", from: "pending", to: "revoked" }, // 撤銷
-  request_revoke: { actor: "self", from: "approved", to: "revoke_pending" }, // 申請撤銷
-  approve_revoke: { actor: "reviewer", from: "revoke_pending", to: "revoked" }, // 同意撤銷
-  reject_revoke: { actor: "reviewer", from: "revoke_pending", to: "approved" }, // 不同意撤銷
+/** 本人、該單審核人在假單上各是哪個人 */
+const ACTOR_IDS: Record<Transition["actor"], (form: LeaveForm) => string> = {
+  self: (form) => form.employeeId,
+  reviewer: (form) => form.reviewerId,
 };
 
-/** 這個人現在能不能對這張假單做這個動作：狀態對、而且是對的人 */
+/**
+ * 找出這個人現在對這張假單做這個動作的規則
+ * 目前狀態沒有這個動作，或不是對的人，就是 null（已退回、已撤銷沒有任何動作）
+ */
+function findAllowedTransition(
+  actorId: string,
+  action: FormAction,
+  form: LeaveForm,
+): Transition | null {
+  const transition = LEAVE_STATES[form.status].transitions[action];
+  if (!transition || ACTOR_IDS[transition.actor](form) !== actorId) {
+    return null;
+  }
+  return transition;
+}
+
+/** 這個人現在能不能對這張假單做這個動作：目前狀態有這個動作、而且是對的人 */
 export function canDoAction(
   actorId: string,
   action: FormAction,
   form: LeaveForm,
 ): boolean {
-  const transition = TRANSITIONS[action];
-  if (form.status !== transition.from) {
-    return false;
-  }
-  if (transition.actor === "self") {
-    return form.employeeId === actorId;
-  }
-  return form.reviewerId === actorId;
+  return findAllowedTransition(actorId, action, form) !== null;
 }
 
 /**
@@ -51,12 +45,13 @@ export function applyAction(
   note: string,
   at: string,
 ): LeaveForm {
-  if (!canDoAction(actorId, action, form)) {
+  const transition = findAllowedTransition(actorId, action, form);
+  if (!transition) {
     throw new Error(`不能對假單 ${form.id} 執行 ${action}`);
   }
   return {
     ...form,
-    status: TRANSITIONS[action].to,
+    status: transition.to,
     history: [...form.history, { actorId, at, action, note }],
   };
 }

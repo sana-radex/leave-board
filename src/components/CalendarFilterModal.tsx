@@ -1,13 +1,13 @@
 import { useState } from "react";
 import type { CalendarDayType, LeaveStatus } from "../types/domain";
 import type { CalendarFilter } from "../types/ui";
-import { calendarDayTypeLabels, statusLabels } from "../utils/label";
+import { CALENDAR_DAY_TYPE_LABELS, STATUS_LABELS } from "../utils/label";
 import { createShowAllFilter } from "../utils/calendarFilter";
 import Modal from "./Modal";
 import "./CalendarFilterModal.css";
 
-/** 所有假單狀態，依 statusLabels 的順序 */
-const STATUSES = Object.keys(statusLabels) as LeaveStatus[];
+/** 所有假單狀態，依 STATUS_LABELS 的順序 */
+const STATUSES = Object.keys(STATUS_LABELS) as LeaveStatus[];
 
 interface CalendarFilterModalProps {
   /** 打開視窗時的篩選條件 */
@@ -81,7 +81,7 @@ function CalendarFilterModal({
             renderCheckbox(
               draft.mine[status],
               () => toggleMineStatus(status),
-              statusLabels[status],
+              STATUS_LABELS[status],
               `tag-${status}`,
             ),
           )}
@@ -103,13 +103,13 @@ function CalendarFilterModal({
             {renderCheckbox(
               draft.holiday,
               () => toggle("holiday"),
-              calendarDayTypeLabels.holiday,
+              CALENDAR_DAY_TYPE_LABELS.holiday,
               "tag-holiday",
             )}
             {renderCheckbox(
               draft.makeup_workday,
               () => toggle("makeup_workday"),
-              calendarDayTypeLabels.makeup_workday,
+              CALENDAR_DAY_TYPE_LABELS.makeup_workday,
               "tag-makeup_workday",
             )}
           </fieldset>

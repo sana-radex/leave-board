@@ -11,7 +11,7 @@ import type {
 import * as userService from "../services/userService";
 import * as leaveFormService from "../services/leaveFormService";
 import { delay } from "./delay";
-import { actionDoneMessages, actionLabels } from "../utils/label";
+import { ACTION_DONE_MESSAGES, ACTION_LABELS } from "../utils/label";
 import { now, today } from "../utils/today";
 
 /** 取得我的假單：依送出時間由新到舊 */
@@ -87,10 +87,10 @@ export async function performLeaveAction(
   if (!result.ok) {
     return {
       success: false,
-      message: `這張假單目前不能「${actionLabels[action]}」，請重新整理後再試`,
+      message: `這張假單目前不能「${ACTION_LABELS[action]}」，請重新整理後再試`,
     };
   }
-  return { success: true, message: actionDoneMessages[action] };
+  return { success: true, message: ACTION_DONE_MESSAGES[action] };
 }
 
 /** 取得待我處理：待審申請、撤銷申請 */

@@ -2,12 +2,12 @@ import { useState } from "react";
 import type { FormAction } from "../types/domain";
 import type { LeaveFormResponse, Response } from "../types/api";
 import { performLeaveAction } from "../api/leaveFormApi";
-import { actionLabels } from "../utils/label";
+import { ACTION_LABELS } from "../utils/label";
 import { formatLeaveRange } from "../utils/format";
 import ConfirmDialog from "./ConfirmDialog";
 
 /** 備註欄位的提示文字：退回時是退回理由、申請撤銷時是撤銷理由 */
-const notePlaceholders: Record<FormAction, string> = {
+const NOTE_PLACEHOLDERS: Record<FormAction, string> = {
   approve: "備註（選填）",
   reject: "退回理由（選填）",
   revoke: "備註（選填）",
@@ -17,7 +17,7 @@ const notePlaceholders: Record<FormAction, string> = {
 };
 
 /** 按鈕顏色：同意是松綠、拒絕是紅、撤回自己的假單是琥珀 */
-const actionClassNames: Record<FormAction, string> = {
+const ACTION_CLASS_NAMES: Record<FormAction, string> = {
   approve: "button-approve",
   approve_revoke: "button-approve",
   reject: "button-reject",
@@ -56,24 +56,24 @@ function LeaveActionButtons({ form, onDone }: LeaveActionButtonsProps) {
       {form.actions.map((action) => (
         <button
           key={action}
-          className={actionClassNames[action]}
+          className={ACTION_CLASS_NAMES[action]}
           onClick={() => setConfirmAction(action)}
         >
-          {actionLabels[action]}
+          {ACTION_LABELS[action]}
         </button>
       ))}
 
       {confirmAction && (
         <ConfirmDialog
-          title={`確定要${actionLabels[confirmAction]}嗎？`}
+          title={`確定要${ACTION_LABELS[confirmAction]}嗎？`}
           message={`${form.employeeName} ${form.leaveTypeName} ${formatLeaveRange(
             form.startTime,
             form.endTime,
             form.leaveTypeUnit,
           )}`}
-          confirmText={actionLabels[confirmAction]}
-          confirmClassName={`${actionClassNames[confirmAction]} button-solid`}
-          notePlaceholder={notePlaceholders[confirmAction]}
+          confirmText={ACTION_LABELS[confirmAction]}
+          confirmClassName={`${ACTION_CLASS_NAMES[confirmAction]} button-solid`}
+          notePlaceholder={NOTE_PLACEHOLDERS[confirmAction]}
           busy={busy}
           onConfirm={handleConfirm}
           onCancel={() => setConfirmAction(null)}

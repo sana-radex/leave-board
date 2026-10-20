@@ -1,6 +1,6 @@
 import type { Employee } from "../types/domain";
 import type { UserOptionResponse } from "../types/api";
-import { roleLabels } from "../utils/label";
+import { ROLE_LABELS } from "../utils/label";
 import "./Header.css";
 
 interface HeaderProps {
@@ -26,7 +26,7 @@ function Header({ currentUser, userOptions, onSwitchUser }: HeaderProps) {
           >
             {userOptions.map((option) => (
               <option key={option.id} value={option.id}>
-                {`${option.name}｜${roleLabels[option.role]}｜${option.shiftName}`}
+                {`${option.name}｜${ROLE_LABELS[option.role]}｜${option.shiftName}`}
               </option>
             ))}
           </select>

@@ -7,7 +7,7 @@ import type {
 } from "../types/domain";
 
 /** 假單狀態 */
-export const statusLabels: Record<LeaveStatus, string> = {
+export const STATUS_LABELS: Record<LeaveStatus, string> = {
   pending: "待審核",
   approved: "已核准",
   revoke_pending: "撤銷審核中",
@@ -16,7 +16,7 @@ export const statusLabels: Record<LeaveStatus, string> = {
 };
 
 /** 行事曆標籤後的狀態加註：已核准不加註 */
-export const calendarNotes: Record<LeaveStatus, string> = {
+export const CALENDAR_NOTES: Record<LeaveStatus, string> = {
   pending: "（待審核）",
   approved: "",
   revoke_pending: "（撤銷審核中）",
@@ -25,7 +25,7 @@ export const calendarNotes: Record<LeaveStatus, string> = {
 };
 
 /** 簽核動作 */
-export const actionLabels: Record<LeaveAction, string> = {
+export const ACTION_LABELS: Record<LeaveAction, string> = {
   submit: "送出",
   approve: "核准",
   reject: "退回",
@@ -36,7 +36,7 @@ export const actionLabels: Record<LeaveAction, string> = {
 };
 
 /** 假單動作成功後的訊息 */
-export const actionDoneMessages: Record<FormAction, string> = {
+export const ACTION_DONE_MESSAGES: Record<FormAction, string> = {
   approve: "已核准",
   reject: "已退回",
   revoke: "已撤銷",
@@ -46,13 +46,13 @@ export const actionDoneMessages: Record<FormAction, string> = {
 };
 
 /** 角色 */
-export const roleLabels: Record<Role, string> = {
+export const ROLE_LABELS: Record<Role, string> = {
   submitter: "提交人",
   reviewer: "審核人",
 };
 
 /** 辦公日曆的日子類型 */
-export const calendarDayTypeLabels: Record<CalendarDayType, string> = {
+export const CALENDAR_DAY_TYPE_LABELS: Record<CalendarDayType, string> = {
   holiday: "國定假日",
   makeup_workday: "補班日",
 };

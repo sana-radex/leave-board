@@ -3,7 +3,7 @@ import type { CalendarDay } from "../types/domain";
 import type { LeaveDayResponse, LeaveFormResponse } from "../types/api";
 import type { CalendarFilter } from "../types/ui";
 import { formatTime, toDateKey } from "../utils/format";
-import { calendarNotes } from "../utils/label";
+import { CALENDAR_NOTES } from "../utils/label";
 import { today } from "../utils/today";
 
 /** 格子數：一個月最多跨 6 週，每週 7 天 */
@@ -79,7 +79,7 @@ function Calendar({
     if (!day.isFullDay) {
       label += ` ${formatTime(day.startTime)}–${formatTime(day.endTime)}`;
     }
-    return label + calendarNotes[leave.status];
+    return label + CALENDAR_NOTES[leave.status];
   }
 
   /** 標籤樣式：自己的假單顏色依狀態；其他人的假單統一一個顏色 */

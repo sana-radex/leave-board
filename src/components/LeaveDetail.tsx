@@ -1,5 +1,5 @@
 import type { LeaveFormResponse, Response } from "../types/api";
-import { actionLabels, statusLabels } from "../utils/label";
+import { ACTION_LABELS, STATUS_LABELS } from "../utils/label";
 import { formatDateTime, formatHours, formatLeaveRange } from "../utils/format";
 import Modal from "./Modal";
 import LeaveActionButtons from "./LeaveActionButtons";
@@ -82,7 +82,7 @@ function LeaveDetail({
         <dt>狀態</dt>
         <dd>
           <span className={`tag tag-${form.status}`}>
-            {statusLabels[form.status]}
+            {STATUS_LABELS[form.status]}
           </span>
         </dd>
 
@@ -108,7 +108,7 @@ function LeaveDetail({
             <tr key={record.at}>
               <td>{formatDateTime(record.at)}</td>
               <td>{record.actorName}</td>
-              <td>{actionLabels[record.action]}</td>
+              <td>{ACTION_LABELS[record.action]}</td>
               <td className="cell-text">{record.note}</td>
             </tr>
           ))}

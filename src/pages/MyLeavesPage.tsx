@@ -7,7 +7,7 @@ import { getMyLeaveFormList } from "../api/leaveFormApi";
 import Toast from "../components/Toast";
 import LeaveDetail from "../components/LeaveDetail";
 import LeaveActionButtons from "../components/LeaveActionButtons";
-import { statusLabels } from "../utils/label";
+import { STATUS_LABELS } from "../utils/label";
 import {
   formatDateTime,
   formatHours,
@@ -90,7 +90,7 @@ function MyLeavesPage() {
             }
           >
             <option value="all">全部</option>
-            {Object.entries(statusLabels).map(([status, label]) => (
+            {Object.entries(STATUS_LABELS).map(([status, label]) => (
               <option key={status} value={status}>
                 {label}
               </option>
@@ -139,7 +139,7 @@ function MyLeavesPage() {
                 <td className="cell-number">{formatHours(form.hours)}</td>
                 <td>
                   <span className={`tag tag-${form.status}`}>
-                    {statusLabels[form.status]}
+                    {STATUS_LABELS[form.status]}
                   </span>
                 </td>
                 <td>{form.reviewerName}</td>

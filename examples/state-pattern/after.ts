@@ -129,15 +129,14 @@ formB.reject();
 console.log("> 主管核准");
 formB.approve();
 
-// 輸出
 console.log("【假單 C】");
 const formC = new LeaveForm();
 console.log(`目前狀態：${formC.getStatusName()}`);
-console.log("> 申請人撤銷");
+console.log("> 申請人點擊撤銷按鈕");
 formC.revoke();
-console.log("> 主管核准");
+console.log("> 主管點擊核准按鈕");
 formC.approve();
-console.log("> 申請人撤銷");
+console.log("> 申請人點擊撤銷按鈕");
 formC.revoke();
 
 // 使用狀態模式後
@@ -157,11 +156,11 @@ formC.revoke();
 // 已退回，不能核准
 // 【假單 C】
 // 目前狀態：待審核
-// > 申請人撤銷
+// > 申請人點擊撤銷按鈕
 // 已撤銷
-// > 主管核准
+// > 主管點擊核准按鈕
 // 已撤銷，不能核准
-// > 申請人撤銷
+// > 申請人點擊撤銷按鈕
 // 已經撤銷過了
 
 export {};
